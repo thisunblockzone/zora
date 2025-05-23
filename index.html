@@ -693,6 +693,44 @@ body::before {
 .app-item:nth-child(11) { animation-delay: 0.6s; }
 .app-item:nth-child(12) { animation-delay: 0.65s; }
 
+.new-tab-btn {
+    font-size: 24px;  /* Make the + icon bigger */
+    padding: 5px 15px;  /* Reduce padding to keep button size reasonable */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.search-bar {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 15px;
+    padding-bottom: 25px; /* Extended bottom padding */
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(15px);
+    border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 4px 15px -5px rgba(138, 43, 226, 0.4); /* Added glow */
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.content iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 
 
     </style>
@@ -882,6 +920,38 @@ document.querySelectorAll('.app-item').forEach(item => {
         item.style.transform = 'translateY(0)';
     });
 });
+
+// Add this to your existing script section
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.querySelector('.search-input');
+    const content = document.querySelector('.content');
+    const logo = document.querySelector('.logo');
+
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const url = searchInput.value;
+            if (url) {
+                // Hide the logo
+                logo.style.display = 'none';
+                
+                // Create and insert iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                
+                // Construct the proxy URL
+                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url.replace('https://', '').replace('http://', '')}`;
+                iframe.src = proxyUrl;
+                
+                // Clear existing content and add iframe
+                content.innerHTML = '';
+                content.appendChild(iframe);
+            }
+        }
+    });
+});
+
 
     </script>
 </body>
