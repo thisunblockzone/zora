@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZØRA Browser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(45deg, #000000, #4B0082, #800080);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+        }
+
+        .browser-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tab Bar Styles */
+        .tab-bar {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            background: rgba(40, 40, 40, 0.95);
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab:hover {
+            background: rgba(60, 60, 60, 0.95);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: rgba(80, 80, 80, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .close-tab {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .close-tab:hover {
+            background: rgba(255, 0, 0, 0.4);
+            transform: rotate(90deg);
+        }
+
+        .new-tab-btn {
+            background: rgba(40, 40, 40, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .new-tab-btn:hover {
+            background: rgba(60, 60, 60, 0.95);
+            transform: translateY(-2px);
+        }
+
+        /* Search Bar Styles */
+        .search-bar {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(40, 40, 40, 0.95);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(50, 50, 50, 0.95);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 8rem;
+            color: white;
+            transition: all 0.3s ease;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.7);
+        }
+
+        /* Bottom Bar Styles */
+        .bottom-bar {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .time-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .battery-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .battery-icon {
+            width: 30px;
+            height: 15px;
+            border: 2px solid white;
+            border-radius: 3px;
+            position: relative;
+            padding: 1px;
+        }
+
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 8px;
+            background: white;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .battery-level {
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="browser-container">
+        <div class="tab-bar" id="tabBar">
+            <div class="tab active">
+                <span>New Tab</span>
+                <div class="close-tab">×</div>
+            </div>
+            <button class="new-tab-btn">+</button>
+        </div>
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search or enter URL">
+        </div>
+        <div class="content">
+            <div class="logo">ZØRA</div>
+        </div>
+        <div class="bottom-bar">
+            <div class="time-display">
+                <span id="time">00:00:00</span>
+                <span id="timezone">EST</span>
+            </div>
+            <div class="battery-indicator">
+                <div class="battery-icon">
+                    <div class="battery-level" id="batteryLevel"></div>
+                </div>
+                <span id="batteryText">100%</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabBar = document.getElementById('tabBar');
+            const newTabBtn = document.querySelector('.new-tab-btn');
+            let tabCount = 1;
+
+            function createTab() {
+                const tab = document.createElement('div');
+                tab.className = 'tab';
+                tab.innerHTML = `
+                    <span>New Tab ${tabCount}</span>
+                    <div class="close-tab">×</div>
+                `;
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                tabBar.insertBefore(tab, newTabBtn);
+                tabCount++;
+
+                const closeBtn = tab.querySelector('.close-tab');
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    tab.remove();
+                });
+
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                });
+            }
+
+            newTabBtn.addEventListener('click', createTab);
+
+            // Time and Battery Updates
+            function updateTime() {
+                const now = new Date();
+                const timeElement = document.getElementById('time');
+                const timezoneElement = document.getElementById('timezone');
+                
+                timeElement.textContent = now.toLocaleTimeString();
+                timezoneElement.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            }
+
+            setInterval(updateTime, 1000);
+
+            // Battery API
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    function updateBattery() {
+                        const level = battery.level * 100;
+                        const batteryLevel = document.getElementById('batteryLevel');
+                        const batteryText = document.getElementById('batteryText');
+                        
+                        batteryLevel.style.width = `${level}%`;
+                        batteryText.textContent = `${Math.round(level)}%`;
+
+                        if (level <= 20) {
+                            batteryLevel.style.background = '#ff4444';
+                        } else if (level <= 50) {
+                            batteryLevel.style.background = '#ffaa00';
+                        } else {
+                            batteryLevel.style.background = '#4CAF50';
+                        }
+                    }
+
+                    battery.addEventListener('levelchange', updateBattery);
+                    updateBattery();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
