@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZØRA Browser</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         * {
             margin: 0;
@@ -198,6 +201,500 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        
+        /* Replace the existing body background style with: */
+body {
+    height: 100vh;
+    background-image: url('https://images.unsplash.com/photo-1673526759327-54f1f5b27322?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(75,0,130,0.7));
+    z-index: 0;
+}
+
+.browser-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Enhanced Tab Bar Styles */
+.tab-bar {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+.tab {
+    background: rgba(40, 40, 40, 0.9);
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tab:hover {
+    background: rgba(75, 0, 130, 0.4);
+    transform: translateY(-2px);
+    border-color: rgba(138, 43, 226, 0.4);
+}
+
+.tab.active {
+    background: rgba(75, 0, 130, 0.6);
+    border: 1px solid rgba(138, 43, 226, 0.6);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+}
+
+.close-tab {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.close-tab:hover {
+    background: rgba(255, 0, 0, 0.4);
+    transform: rotate(90deg);
+}
+
+.new-tab-btn {
+    background: rgba(75, 0, 130, 0.4);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.new-tab-btn:hover {
+    background: rgba(75, 0, 130, 0.6);
+    transform: translateY(-2px);
+    border-color: rgba(138, 43, 226, 0.5);
+}
+
+/* Search Bar Enhancement */
+.search-bar {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(15px);
+}
+
+.search-input {
+    flex: 1;
+    padding: 14px 24px;
+    border-radius: 15px;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    background: rgba(40, 40, 40, 0.9);
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: rgba(138, 43, 226, 0.7);
+    background: rgba(50, 50, 50, 0.95);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+}
+
+/* Adjust tab bar and search bar sizes */
+.tab-bar {
+    height: 40px;
+    padding: 5px 10px;
+}
+
+.tab {
+    padding: 5px 15px;
+    font-size: 14px;
+}
+
+.search-bar {
+    height: 50px;
+    padding: 8px 15px;
+}
+
+/* Modified bottom bar */
+.bottom-bar {
+    height: 40px;
+    background: rgba(75, 0, 130, 0.85);
+    border-top: 2px solid rgba(138, 43, 226, 0.4);
+    padding: 0 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.nav-button {
+    background: rgba(75, 0, 130, 0.4);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+    background: rgba(75, 0, 130, 0.6);
+}
+
+/* App Launcher Styles */
+.app-launcher-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.3);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-launcher-button:hover {
+    background: rgba(138, 43, 226, 0.5);
+    transform: scale(1.1);
+}
+
+.launcher-icon {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 2px;
+}
+
+.launcher-icon::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
+    animation: dotPulse 2s infinite;
+}
+
+.launcher-icon::after {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    left: 8px;
+    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
+    animation: dotPulse 2s infinite 0.5s;
+}
+
+.app-drawer {
+    position: fixed;
+    bottom: 60px;
+    left: 20px;
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(0.95);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.app-drawer.active {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 400px;
+}
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.app-item:hover {
+    transform: translateY(-5px);
+}
+
+.app-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(138, 43, 226, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.app-item:hover .app-icon {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.app-item span {
+    font-size: 12px;
+    color: white;
+    text-align: center;
+}
+
+@keyframes dotPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Updated Tab Styles */
+.close-tab {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.close-tab:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: rotate(90deg);
+    opacity: 1;
+}
+
+/* Updated App Launcher Styles */
+.app-launcher-button {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    cursor: pointer;
+    margin: 0 20px;
+}
+
+.launcher-circle {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.launcher-circle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+.app-launcher-button:hover .launcher-circle {
+    transform: scale(1.1);
+}
+
+.app-launcher-button.active .launcher-circle {
+    transform: scale(0.9);
+}
+
+.app-launcher-button.active .launcher-circle::before {
+    opacity: 1;
+}
+
+/* Updated App Drawer Styles */
+.app-drawer {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.95);
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 20px;
+    padding: 25px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.app-drawer.active {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    width: 500px;
+}
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.app-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(138, 43, 226, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.app-icon i {
+    font-size: 24px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.app-item:hover {
+    transform: translateY(-5px);
+}
+
+.app-item:hover .app-icon {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.app-item:hover i {
+    transform: scale(1.1);
+}
+
+.app-item span {
+    font-size: 12px;
+    color: white;
+    text-align: center;
+}
+
+/* Animation for app items */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.app-item {
+    animation: fadeInUp 0.3s ease backwards;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.app-item:nth-child(1) { animation-delay: 0.1s; }
+.app-item:nth-child(2) { animation-delay: 0.15s; }
+.app-item:nth-child(3) { animation-delay: 0.2s; }
+.app-item:nth-child(4) { animation-delay: 0.25s; }
+.app-item:nth-child(5) { animation-delay: 0.3s; }
+.app-item:nth-child(6) { animation-delay: 0.35s; }
+.app-item:nth-child(7) { animation-delay: 0.4s; }
+.app-item:nth-child(8) { animation-delay: 0.45s; }
+.app-item:nth-child(9) { animation-delay: 0.5s; }
+.app-item:nth-child(10) { animation-delay: 0.55s; }
+.app-item:nth-child(11) { animation-delay: 0.6s; }
+.app-item:nth-child(12) { animation-delay: 0.65s; }
+
+
+
     </style>
 </head>
 <body>
@@ -215,19 +712,75 @@
         <div class="content">
             <div class="logo">ZØRA</div>
         </div>
-        <div class="bottom-bar">
-            <div class="time-display">
-                <span id="time">00:00:00</span>
-                <span id="timezone">EST</span>
-            </div>
-            <div class="battery-indicator">
-                <div class="battery-icon">
-                    <div class="battery-level" id="batteryLevel"></div>
-                </div>
-                <span id="batteryText">100%</span>
-            </div>
+<div class="bottom-bar">
+    <div class="battery-indicator">
+        <div class="battery-icon">
+            <div class="battery-level" id="batteryLevel"></div>
+        </div>
+        <span id="batteryText">100%</span>
+    </div>
+    <div class="app-launcher-button">
+        <div class="launcher-circle"></div>
+    </div>
+</div>
+
+<div class="app-drawer" id="appDrawer">
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-store"></i></div>
+            <span>App Store</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-gamepad"></i></div>
+            <span>Games</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-sticky-note"></i></div>
+            <span>Notes</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-cog"></i></div>
+            <span>Settings</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-folder"></i></div>
+            <span>Files</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-paint-brush"></i></div>
+            <span>Themes</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-shield-alt"></i></div>
+            <span>Security</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-mobile-alt"></i></div>
+            <span>Mobile</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-download"></i></div>
+            <span>Downloads</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-history"></i></div>
+            <span>History</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-bookmark"></i></div>
+            <span>Bookmarks</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-extension"></i></div>
+            <span>Extensions</span>
         </div>
     </div>
+</div>
+
+
+
+    
+
 
     <script>
         // Tab functionality
@@ -301,6 +854,35 @@
                 });
             }
         });
+        
+        // App Launcher functionality
+const appLauncher = document.querySelector('.app-launcher-button');
+const appDrawer = document.getElementById('appDrawer');
+
+appLauncher.addEventListener('click', () => {
+    appDrawer.classList.toggle('active');
+    appLauncher.classList.toggle('active');
+});
+
+// Close app drawer when clicking outside
+document.addEventListener('click', (e) => {
+    if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
+        appDrawer.classList.remove('active');
+        appLauncher.classList.remove('active');
+    }
+});
+
+// Add hover animation for app items
+document.querySelectorAll('.app-item').forEach(item => {
+    item.addEventListener('mouseenter', () => {
+        item.style.transform = 'translateY(-5px)';
+    });
+    
+    item.addEventListener('mouseleave', () => {
+        item.style.transform = 'translateY(0)';
+    });
+});
+
     </script>
 </body>
 </html>
