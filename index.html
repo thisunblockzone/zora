@@ -1183,6 +1183,53 @@ function createTabGroup(color) {
     visibility: visible;
 }
 
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 0 20px;
+}
+
+.nav-buttons {
+    position: absolute;
+    left: 20px;
+}
+
+.action-buttons {
+    position: absolute;
+    right: 20px;
+}
+
+.search-input {
+    width: 40%;
+    max-width: 600px;
+}
+
+/* Enhanced options menu styles */
+.options-menu {
+    padding: 8px 0;
+}
+
+.menu-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+    background: rgba(138, 43, 226, 0.2);
+    transform: translateX(5px);
+}
+
+.menu-item i {
+    width: 20px;
+    text-align: center;
+}
+
 
     </style>
 </head>
@@ -1821,6 +1868,131 @@ searchInput.addEventListener('keypress', (e) => {
         }
     }
 });
+
+// Modify the search input event listener
+function handleSearch(searchInput, tab) {
+    const input = searchInput.value;
+    if (input) {
+        const content = tab.querySelector('.tab-content');
+        const logo = content.querySelector('.logo');
+        
+        if (logo) {
+            logo.style.display = 'none';
+        }
+        
+        // Check if input is a URL or search term
+        const isUrl = input.includes('.') && !input.includes(' ');
+        let url;
+        let searchTitle;
+        
+        if (isUrl) {
+            url = input.startsWith('http') ? input : `https://${input}`;
+            searchTitle = url.split('/')[0];
+        } else {
+            // Format as DuckDuckGo search
+            url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+            searchTitle = `${input} - DuckDuckGo`;
+        }
+        
+        const iframe = document.createElement('iframe');
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        
+        const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
+        iframe.src = proxyUrl;
+        
+        // Update tab title
+        const tabSpan = tab.querySelector('span');
+        tabSpan.textContent = searchTitle;
+        
+        content.innerHTML = '';
+        content.appendChild(iframe);
+        
+        // Add to history
+        addToHistory(url, searchTitle);
+    }
+}
+
+// Modify createTab function
+function createTab() {
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    
+    const tabContent = document.createElement('div');
+    tabContent.className = 'tab-content';
+    tabContent.innerHTML = `<div class="logo">ZØRA</div>`;
+    
+    tab.innerHTML = `
+        <span>New Tab</span>
+        <div class="close-tab">×</div>
+    `;
+    
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    tabBar.insertBefore(tab, newTabBtn);
+    content.appendChild(tabContent);
+    
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        tab.classList.add('active');
+        tabContent.style.display = 'block';
+    });
+    
+    const closeBtn = tab.querySelector('.close-tab');
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tab.remove();
+        tabContent.remove();
+    });
+}
+
+// Options menu functionality
+const optionsBtn = document.getElementById('optionsBtn');
+const optionsMenu = document.getElementById('optionsMenu');
+
+optionsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    optionsMenu.classList.toggle('active');
+});
+
+// Handle menu item clicks
+document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const action = item.id;
+        switch(action) {
+            case 'newTabOption':
+                createTab();
+                break;
+            case 'newWindowOption':
+                window.open(window.location.href, '_blank');
+                break;
+            case 'historyOption':
+                showHistory();
+                break;
+            case 'downloadsOption':
+                showDownloads();
+                break;
+            case 'bookmarksOption':
+                showBookmarks();
+                break;
+            case 'settingsOption':
+                showSettings();
+                break;
+        }
+        optionsMenu.classList.remove('active');
+    });
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
+        optionsMenu.classList.remove('active');
+    }
+});
+
 
 
     </script>
