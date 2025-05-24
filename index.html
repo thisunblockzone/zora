@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +8,8 @@
     <title>ZØRA Browser</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
+
 
     <style>
         * {
@@ -18,119 +22,117 @@
 
         body {
             height: 100vh;
-            background-image: url('https://images.unsplash.com/photo-1673526759327-54f1f5b27322?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(45deg, #000000, #4B0082, #800080);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: white;
-            position: relative;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(75,0,130,0.7));
-            z-index: 0;
         }
 
         .browser-container {
-            position: relative;
-            z-index: 1;
             width: 100%;
             height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
+        /* Tab Bar Styles */
         .tab-bar {
-            background: rgba(20, 20, 20, 0.85);
-            padding: 15px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-            height: 40px;
-            padding: 5px 10px;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .tab {
-            background: rgba(40, 40, 40, 0.9);
-            border-radius: 12px;
-            padding: 5px 15px;
+            background: rgba(40, 40, 40, 0.95);
+            border-radius: 8px;
+            padding: 10px 20px;
             color: white;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(138, 43, 226, 0.2);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .tab:hover {
-            background: rgba(75, 0, 130, 0.4);
+            background: rgba(60, 60, 60, 0.95);
             transform: translateY(-2px);
-            border-color: rgba(138, 43, 226, 0.4);
         }
 
         .tab.active {
-            background: rgba(75, 0, 130, 0.6);
-            border: 1px solid rgba(138, 43, 226, 0.6);
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+            background: rgba(80, 80, 80, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .search-bar {
-            background: rgba(20, 20, 20, 0.85);
-            padding: 25px 15px 15px 15px;
+        .close-tab {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
-            backdrop-filter: blur(15px);
-            height: 50px;
-            border-bottom: 2px solid rgba(138, 43, 226, 0.3);
-            box-shadow: 0 4px 15px -5px rgba(138, 43, 226, 0.4);
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .close-tab:hover {
+            background: rgba(255, 0, 0, 0.4);
+            transform: rotate(90deg);
+        }
+
+        .new-tab-btn {
+            background: rgba(40, 40, 40, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .new-tab-btn:hover {
+            background: rgba(60, 60, 60, 0.95);
+            transform: translateY(-2px);
+        }
+
+        /* Search Bar Styles */
+        .search-bar {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 15px;
+            display: flex;
+            align-items: center;
         }
 
         .search-input {
             flex: 1;
-            padding: 14px 24px;
-            border-radius: 15px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            background: rgba(40, 40, 40, 0.9);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(40, 40, 40, 0.95);
             color: white;
             font-size: 16px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .search-input:focus {
             outline: none;
-            border-color: rgba(138, 43, 226, 0.7);
+            border-color: rgba(138, 43, 226, 0.5);
             background: rgba(50, 50, 50, 0.95);
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
         }
 
+        /* Content Area */
         .content {
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .content iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
         }
 
         .logo {
@@ -146,14 +148,21 @@
             text-shadow: 0 0 20px rgba(138, 43, 226, 0.7);
         }
 
+        /* Bottom Bar Styles */
         .bottom-bar {
-            height: 40px;
-            background: rgba(75, 0, 130, 0.85);
-            border-top: 2px solid rgba(138, 43, 226, 0.4);
-            padding: 0 20px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 10px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .time-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .battery-indicator {
@@ -190,265 +199,470 @@
             transition: all 0.3s ease;
         }
 
-        .time-display {
-            color: white;
-            font-size: 14px;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-
-        .app-launcher-button {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(138, 43, 226, 0.3);
-            cursor: pointer;
-            position: relative;
-            transition: all 0.3s ease;
-            margin-right: auto;
-            margin-left: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .app-launcher-button:hover {
-            background: rgba(138, 43, 226, 0.5);
-            transform: scale(1.1);
-        }
-
-        .launcher-circle {
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .launcher-circle::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
-            opacity: 0;
-            transition: all 0.5s ease;
-        }
-
-        .app-launcher-button:hover .launcher-circle {
-            transform: scale(1.1);
-        }
-
-        .app-launcher-button.active .launcher-circle {
-            transform: scale(0.9);
-        }
-
-        .app-launcher-button.active .launcher-circle::before {
-            opacity: 1;
-        }
-
-        .app-drawer {
-            position: fixed;
-            bottom: 60px;
-            left: 20px;
-            background: rgba(20, 20, 20, 0.95);
-            border-radius: 20px;
-            padding: 25px;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transform: scale(0.95);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            transform-origin: bottom left;
-        }
-
-        .app-drawer.active {
-            transform: scale(1);
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 25px;
-            width: 500px;
-        }
-
-        .app-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.3s ease backwards;
-        }
-
-        .app-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(138, 43, 226, 0.2);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(138, 43, 226, 0.3);
-        }
-
-        .app-icon i {
-            font-size: 24px;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .app-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .app-item:hover .app-icon {
-            background: rgba(138, 43, 226, 0.4);
-            transform: scale(1.1);
-        }
-
-        .app-item span {
-            font-size: 12px;
-            color: white;
-            text-align: center;
-        }
-
-        .new-tab-btn {
-            font-size: 24px;
-            padding: 5px 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            background: rgba(75, 0, 130, 0.4);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            color: white;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .new-tab-btn:hover {
-            background: rgba(75, 0, 130, 0.6);
-            transform: translateY(-2px);
-            border-color: rgba(138, 43, 226, 0.5);
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .app-item:nth-child(1) { animation-delay: 0.1s; }
-        .app-item:nth-child(2) { animation-delay: 0.15s; }
-        .app-item:nth-child(3) { animation-delay: 0.2s; }
-        .app-item:nth-child(4) { animation-delay: 0.25s; }
-        .app-item:nth-child(5) { animation-delay: 0.3s; }
-        .app-item:nth-child(6) { animation-delay: 0.35s; }
-        .app-item:nth-child(7) { animation-delay: 0.4s; }
-        .app-item:nth-child(8) { animation-delay: 0.45s; }
-        .app-item:nth-child(9) { animation-delay: 0.5s; }
-        .app-item:nth-child(10) { animation-delay: 0.55s; }
-        .app-item:nth-child(11) { animation-delay: 0.6s; }
-        .app-item:nth-child(12) { animation-delay: 0.65s; }
         
-        .welcome-screen {
-    position: fixed;
+        /* Replace the existing body background style with: */
+body {
+    height: 100vh;
+    background-image: url('https://images.unsplash.com/photo-1673526759327-54f1f5b27322?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: absolute;
     top: 0;
     left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(75,0,130,0.7));
+    z-index: 0;
+}
+
+.browser-container {
+    position: relative;
+    z-index: 1;
     width: 100%;
-    height: 100%;
-    background: #000;
-    z-index: 9999;
+    height: 100vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+}
+
+/* Enhanced Tab Bar Styles */
+.tab-bar {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 15px;
+    display: flex;
     align-items: center;
+    gap: 12px;
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(138, 43, 226, 0.2);
 }
 
-.welcome-content {
-    text-align: center;
-}
-
-.welcome-text {
-    color: #8a2be2;
-    font-size: 4rem;
-    opacity: 0;
-    transform: translateY(20px);
-    margin-bottom: 2rem;
-}
-
-.name-input-container {
-    margin-top: 2rem;
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.name-input-container input {
-    padding: 15px 25px;
-    border-radius: 30px;
-    border: 2px solid #8a2be2;
-    background: transparent;
+.tab {
+    background: rgba(40, 40, 40, 0.9);
+    border-radius: 12px;
+    padding: 12px 24px;
     color: white;
-    font-size: 1.2rem;
-    margin-right: 10px;
-    outline: none;
-    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.name-input-container input:focus {
-    border-color: #9b4deb;
+.tab:hover {
+    background: rgba(75, 0, 130, 0.4);
+    transform: translateY(-2px);
+    border-color: rgba(138, 43, 226, 0.4);
+}
+
+.tab.active {
+    background: rgba(75, 0, 130, 0.6);
+    border: 1px solid rgba(138, 43, 226, 0.6);
     box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
 }
 
-.name-input-container button {
-    padding: 15px 30px;
-    border-radius: 30px;
-    border: none;
-    background: #8a2be2;
+.close-tab {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.close-tab:hover {
+    background: rgba(255, 0, 0, 0.4);
+    transform: rotate(90deg);
+}
+
+.new-tab-btn {
+    background: rgba(75, 0, 130, 0.4);
+    border: 1px solid rgba(138, 43, 226, 0.3);
     color: white;
-    font-size: 1.2rem;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.new-tab-btn:hover {
+    background: rgba(75, 0, 130, 0.6);
+    transform: translateY(-2px);
+    border-color: rgba(138, 43, 226, 0.5);
+}
+
+/* Search Bar Enhancement */
+.search-bar {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(15px);
+}
+
+.search-input {
+    flex: 1;
+    padding: 14px 24px;
+    border-radius: 15px;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    background: rgba(40, 40, 40, 0.9);
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: rgba(138, 43, 226, 0.7);
+    background: rgba(50, 50, 50, 0.95);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+}
+
+/* Adjust tab bar and search bar sizes */
+.tab-bar {
+    height: 40px;
+    padding: 5px 10px;
+}
+
+.tab {
+    padding: 5px 15px;
+    font-size: 14px;
+}
+
+.search-bar {
+    height: 50px;
+    padding: 8px 15px;
+}
+
+/* Modified bottom bar */
+.bottom-bar {
+    height: 40px;
+    background: rgba(75, 0, 130, 0.85);
+    border-top: 2px solid rgba(138, 43, 226, 0.4);
+    padding: 0 20px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.nav-button {
+    background: rgba(75, 0, 130, 0.4);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.name-input-container button:hover {
-    background: #9b4deb;
-    transform: translateY(-2px);
+.nav-button:hover {
+    background: rgba(75, 0, 130, 0.6);
 }
 
-.fade-in {
-    animation: fadeIn 1s forwards;
+/* App Launcher Styles */
+.app-launcher-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.3);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.fade-out {
-    animation: fadeOut 1s forwards;
+.app-launcher-button:hover {
+    background: rgba(138, 43, 226, 0.5);
+    transform: scale(1.1);
 }
 
-.welcome-message {
-    color: #8a2be2;
-    font-size: 4rem;
+.launcher-icon {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 2px;
+}
+
+.launcher-icon::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
+    animation: dotPulse 2s infinite;
+}
+
+.launcher-icon::after {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    left: 8px;
+    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
+    animation: dotPulse 2s infinite 0.5s;
+}
+
+.app-drawer {
+    position: fixed;
+    bottom: 60px;
+    left: 20px;
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transform: scale(0.95);
     opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
 }
 
-@keyframes fadeIn {
+.app-drawer.active {
+    transform: scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    width: 400px;
+}
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.app-item:hover {
+    transform: translateY(-5px);
+}
+
+.app-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(138, 43, 226, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.app-item:hover .app-icon {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.app-item span {
+    font-size: 12px;
+    color: white;
+    text-align: center;
+}
+
+@keyframes dotPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Updated Tab Styles */
+.close-tab {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.close-tab:hover {
+    background: rgba(255, 0, 0, 0.2);
+    transform: rotate(90deg);
+    opacity: 1;
+}
+
+/* Updated App Launcher Styles */
+.app-launcher-button {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    cursor: pointer;
+    margin: 0 20px;
+}
+
+.launcher-circle {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.launcher-circle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
+    opacity: 0;
+    transition: all 0.5s ease;
+}
+
+.app-launcher-button:hover .launcher-circle {
+    transform: scale(1.1);
+}
+
+.app-launcher-button.active .launcher-circle {
+    transform: scale(0.9);
+}
+
+.app-launcher-button.active .launcher-circle::before {
+    opacity: 1;
+}
+
+/* Updated App Drawer Styles */
+.app-drawer {
+    position: fixed;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.95);
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 20px;
+    padding: 25px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.app-drawer.active {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+    width: 500px;
+}
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.app-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(138, 43, 226, 0.2);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.app-icon i {
+    font-size: 24px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.app-item:hover {
+    transform: translateY(-5px);
+}
+
+.app-item:hover .app-icon {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.app-item:hover i {
+    transform: scale(1.1);
+}
+
+.app-item span {
+    font-size: 12px;
+    color: white;
+    text-align: center;
+}
+
+/* Animation for app items */
+@keyframes fadeInUp {
     from {
         opacity: 0;
         transform: translateY(20px);
@@ -459,11 +673,254 @@
     }
 }
 
-@keyframes fadeOut {
-    to {
-        opacity: 0;
-    }
+.app-item {
+    animation: fadeInUp 0.3s ease backwards;
 }
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.app-item:nth-child(1) { animation-delay: 0.1s; }
+.app-item:nth-child(2) { animation-delay: 0.15s; }
+.app-item:nth-child(3) { animation-delay: 0.2s; }
+.app-item:nth-child(4) { animation-delay: 0.25s; }
+.app-item:nth-child(5) { animation-delay: 0.3s; }
+.app-item:nth-child(6) { animation-delay: 0.35s; }
+.app-item:nth-child(7) { animation-delay: 0.4s; }
+.app-item:nth-child(8) { animation-delay: 0.45s; }
+.app-item:nth-child(9) { animation-delay: 0.5s; }
+.app-item:nth-child(10) { animation-delay: 0.55s; }
+.app-item:nth-child(11) { animation-delay: 0.6s; }
+.app-item:nth-child(12) { animation-delay: 0.65s; }
+
+.new-tab-btn {
+    font-size: 24px;  /* Make the + icon bigger */
+    padding: 5px 15px;  /* Reduce padding to keep button size reasonable */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.search-bar {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 15px;
+    padding-bottom: 25px; /* Extended bottom padding */
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(15px);
+    border-bottom: 2px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 4px 15px -5px rgba(138, 43, 226, 0.4); /* Added glow */
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.content iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Navigation buttons */
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+    margin-right: 15px;
+}
+
+.nav-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.2);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.nav-button:hover {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Search bar modifications */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+}
+
+.search-input {
+    flex: 0.7; /* Adjust this value to control width */
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-left: 10px;
+}
+
+.action-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.2);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.action-button:hover {
+    background: rgba(138, 43, 226, 0.4);
+}
+
+/* Options menu */
+.options-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    padding: 10px 0;
+    min-width: 200px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.options-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.menu-item {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover {
+    background: rgba(138, 43, 226, 0.2);
+}
+
+.menu-item i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Modified tab styles */
+.tab {
+    padding: 8px 20px;
+    height: 36px;
+}
+
+/* Adjust search bar layout */
+.search-bar {
+    height: 70px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.nav-button {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+}
+
+.search-input {
+    flex: 1;
+    max-width: calc(100% - 300px); /* Adjust based on your needs */
+}
+
+.action-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.action-button {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+}
+
+/* Fullscreen button */
+.fullscreen-button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.2);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.fullscreen-button:hover {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+/* Adjust tab size */
+.tab {
+    height: 32px;
+    padding: 0 15px;
+    font-size: 13px;
+}
+
+.close-tab {
+    width: 16px;
+    height: 16px;
+    font-size: 14px;
+}
+
 
     </style>
 </head>
@@ -476,163 +933,225 @@
             </div>
             <button class="new-tab-btn">+</button>
         </div>
-        <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Search or enter URL">
-        </div>
-        <div class="content">
-            <div class="logo">ZØRA</div>
-        </div>
-        <div class="bottom-bar">
-            <div class="app-launcher-button">
-                <div class="launcher-circle"></div>
+<div class="search-bar">
+    <div class="nav-buttons">
+        <button class="nav-button" id="backBtn" title="Back">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <button class="nav-button" id="forwardBtn" title="Forward">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+        <button class="nav-button" id="refreshBtn" title="Refresh">
+            <i class="fas fa-redo"></i>
+        </button>
+    </div>
+    <input type="text" class="search-input" placeholder="Search or enter URL">
+    <div class="action-buttons">
+        <button class="action-button" id="inspectBtn" title="Inspect">
+            <i class="fas fa-code"></i>
+        </button>
+        <button class="action-button fullscreen-button" id="fullscreenBtn" title="Fullscreen">
+            <i class="fas fa-expand"></i>
+        </button>
+        <button class="action-button" id="optionsBtn" title="More">
+            <i class="fas fa-ellipsis-v"></i>
+        </button>
+        <div class="options-menu" id="optionsMenu">
+            <div class="menu-item" id="newTabOption">
+                <i class="fas fa-plus"></i>
+                <span>New tab</span>
             </div>
-            <div class="time-display" id="time"></div>
-            <div class="battery-indicator">
-                <div class="battery-icon">
-                    <div class="battery-level" id="batteryLevel"></div>
-                </div>
-                <span id="batteryText">100%</span>
+            <div class="menu-item" id="newWindowOption">
+                <i class="fas fa-window-maximize"></i>
+                <span>New window</span>
             </div>
-        </div>
-
-        <div class="app-drawer" id="appDrawer">
-            <div class="app-grid">
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-store"></i></div>
-                    <span>App Store</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-gamepad"></i></div>
-                    <span>Games</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-sticky-note"></i></div>
-                    <span>Notes</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-cog"></i></div>
-                    <span>Settings</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-folder"></i></div>
-                    <span>Files</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-paint-brush"></i></div>
-                    <span>Themes</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-shield-alt"></i></div>
-                    <span>Security</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-mobile-alt"></i></div>
-                    <span>Mobile</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-download"></i></div>
-                    <span>Downloads</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-history"></i></div>
-                    <span>History</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-bookmark"></i></div>
-                    <span>Bookmarks</span>
-                </div>
-                <div class="app-item">
-                    <div class="app-icon"><i class="fas fa-extension"></i></div>
-                    <span>Extensions</span>
-                </div>
+            <div class="menu-item">
+                <i class="fas fa-history"></i>
+                <span>History</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-download"></i>
+                <span>Downloads</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-bookmark"></i>
+                <span>Bookmarks</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
             </div>
         </div>
     </div>
+</div>
+
+        <div class="content">
+            <div class="logo">ZØRA</div>
+        </div>
+<div class="bottom-bar">
+    <div class="battery-indicator">
+        <div class="battery-icon">
+            <div class="battery-level" id="batteryLevel"></div>
+        </div>
+        <span id="batteryText">100%</span>
+    </div>
+    <div class="app-launcher-button">
+        <div class="launcher-circle"></div>
+    </div>
+</div>
+
+<div class="app-drawer" id="appDrawer">
+    <div class="app-grid">
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-store"></i></div>
+            <span>App Store</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-gamepad"></i></div>
+            <span>Games</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-sticky-note"></i></div>
+            <span>Notes</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-cog"></i></div>
+            <span>Settings</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-folder"></i></div>
+            <span>Files</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-paint-brush"></i></div>
+            <span>Themes</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-shield-alt"></i></div>
+            <span>Security</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-mobile-alt"></i></div>
+            <span>Mobile</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-download"></i></div>
+            <span>Downloads</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-history"></i></div>
+            <span>History</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-bookmark"></i></div>
+            <span>Bookmarks</span>
+        </div>
+        <div class="app-item">
+            <div class="app-icon"><i class="fas fa-extension"></i></div>
+            <span>Extensions</span>
+        </div>
+    </div>
+</div>
+
+
+
+    
+
 
     <script>
     
-    function checkFirstVisit() {
-    if (!localStorage.getItem('userName')) {
-        showWelcomeScreen();
+    // Add to your existing JavaScript
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (keep existing code)
+
+    // Navigation history
+    let currentIframe = null;
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const optionsBtn = document.getElementById('optionsBtn');
+    const optionsMenu = document.getElementById('optionsMenu');
+
+    function updateNavButtons() {
+        if (currentIframe) {
+            backBtn.disabled = !currentIframe.contentWindow.history.length;
+            forwardBtn.disabled = true; // Enable when forward history exists
+        } else {
+            backBtn.disabled = true;
+            forwardBtn.disabled = true;
+        }
     }
-}
 
-function showWelcomeScreen() {
-    const welcomeScreen = document.createElement('div');
-    welcomeScreen.className = 'welcome-screen';
-    welcomeScreen.innerHTML = `
-        <div class="welcome-content">
-            <h1 class="welcome-text">Welcome</h1>
-            <div class="name-input-container">
-                <input type="text" id="nameInput" placeholder="Enter your name" maxlength="20">
-                <button id="submitName">Continue</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(welcomeScreen);
-
-    // Add animations
-    setTimeout(() => {
-        welcomeScreen.querySelector('.welcome-text').classList.add('fade-in');
-        setTimeout(() => {
-            welcomeScreen.querySelector('.name-input-container').classList.add('fade-in');
-        }, 1000);
-    }, 100);
-
-    // Handle enter key
-    document.getElementById('nameInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleNameSubmission();
+    backBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            currentIframe.contentWindow.history.back();
         }
     });
 
-    // Handle button click
-    document.getElementById('submitName').addEventListener('click', handleNameSubmission);
-
-    function handleNameSubmission() {
-        const nameInput = document.getElementById('nameInput');
-        const name = nameInput.value.trim();
-        if (name) {
-            localStorage.setItem('userName', name);
-            welcomeScreen.querySelector('.welcome-content').innerHTML = `
-                <h1 class="welcome-message">Welcome, ${name}</h1>
-            `;
-            
-            // Add fade-in to new welcome message
-            setTimeout(() => {
-                welcomeScreen.querySelector('.welcome-message').classList.add('fade-in');
-            }, 100);
-
-            // Fade out and remove welcome screen
-            setTimeout(() => {
-                welcomeScreen.classList.add('fade-out');
-                setTimeout(() => {
-                    welcomeScreen.remove();
-                }, 1000);
-            }, 2000);
-        } else {
-            nameInput.style.borderColor = 'red';
-            setTimeout(() => {
-                nameInput.style.borderColor = '#8a2be2';
-            }, 1000);
+    forwardBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            currentIframe.contentWindow.history.forward();
         }
+    });
+
+    refreshBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            currentIframe.contentWindow.location.reload();
+        }
+    });
+
+    // Options menu
+    optionsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        optionsMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
+            optionsMenu.classList.remove('active');
+        }
+    });
+
+    // Modify createTab function
+    function createTab() {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.innerHTML = `
+            <span>New Tab</span>
+            <div class="close-tab">×</div>
+        `;
+        
+        // ... (rest of createTab function)
     }
-}
 
-// Add this to your existing DOMContentLoaded event listener
-document.addEventListener('DOMContentLoaded', () => {
-    // Your existing code here...
-
-    // Add this line to check for first visit
-    checkFirstVisit();
+    // Modify iframe creation
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const url = searchInput.value;
+            if (url) {
+                logo.style.display = 'none';
+                
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                
+                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url.replace('https://', '').replace('http://', '')}`;
+                iframe.src = proxyUrl;
+                
+                content.innerHTML = '';
+                content.appendChild(iframe);
+                currentIframe = iframe;
+                updateNavButtons();
+            }
+        }
+    });
 });
 
+        // Tab functionality
         document.addEventListener('DOMContentLoaded', () => {
             const tabBar = document.getElementById('tabBar');
             const newTabBtn = document.querySelector('.new-tab-btn');
-            const searchInput = document.querySelector('.search-input');
-            const content = document.querySelector('.content');
-            const logo = document.querySelector('.logo');
             let tabCount = 1;
 
             function createTab() {
@@ -658,55 +1177,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 tab.addEventListener('click', () => {
                     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
-                    searchInput.value = '';
-                    content.innerHTML = '<div class="logo">ZØRA</div>';
                 });
             }
 
             newTabBtn.addEventListener('click', createTab);
 
-            searchInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    const input = searchInput.value.trim();
-                    if (input) {
-                        logo.style.display = 'none';
-                        
-                        const iframe = document.createElement('iframe');
-                        iframe.style.width = '100%';
-                        iframe.style.height = '100%';
-                        iframe.style.border = 'none';
-                        
-                        const isUrl = input.includes('.') && !input.includes(' ');
-                        let finalUrl;
-                        
-                        if (isUrl) {
-                            finalUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${input.replace('https://', '').replace('http://', '')}`;
-                        } else {
-                            finalUrl = `https://thisunblockzone.github.io/active/iframe.html#https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-                        }
-                        
-                        iframe.src = finalUrl;
-                        searchInput.value = finalUrl;
-                        
-                        content.innerHTML = '';
-                        content.appendChild(iframe);
-                    }
-                }
-            });
-
+            // Time and Battery Updates
             function updateTime() {
                 const now = new Date();
                 const timeElement = document.getElementById('time');
-                timeElement.textContent = now.toLocaleTimeString('en-US', { 
-                    hour12: false,
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                const timezoneElement = document.getElementById('timezone');
+                
+                timeElement.textContent = now.toLocaleTimeString();
+                timezoneElement.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
             }
 
             setInterval(updateTime, 1000);
-            updateTime();
 
+            // Battery API
             if ('getBattery' in navigator) {
                 navigator.getBattery().then(battery => {
                     function updateBattery() {
@@ -730,32 +1218,170 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateBattery();
                 });
             }
-
-            const appLauncher = document.querySelector('.app-launcher-button');
-            const appDrawer = document.getElementById('appDrawer');
-
-            appLauncher.addEventListener('click', () => {
-                appDrawer.classList.toggle('active');
-                appLauncher.classList.toggle('active');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
-                    appDrawer.classList.remove('active');
-                    appLauncher.classList.remove('active');
-                }
-            });
-
-            document.querySelectorAll('.app-item').forEach(item => {
-                item.addEventListener('mouseenter', () => {
-                    item.style.transform = 'translateY(-5px)';
-                });
-                
-                item.addEventListener('mouseleave', () => {
-                    item.style.transform = 'translateY(0)';
-                });
-            });
         });
+        
+        // App Launcher functionality
+const appLauncher = document.querySelector('.app-launcher-button');
+const appDrawer = document.getElementById('appDrawer');
+
+appLauncher.addEventListener('click', () => {
+    appDrawer.classList.toggle('active');
+    appLauncher.classList.toggle('active');
+});
+
+// Close app drawer when clicking outside
+document.addEventListener('click', (e) => {
+    if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
+        appDrawer.classList.remove('active');
+        appLauncher.classList.remove('active');
+    }
+});
+
+// Add hover animation for app items
+document.querySelectorAll('.app-item').forEach(item => {
+    item.addEventListener('mouseenter', () => {
+        item.style.transform = 'translateY(-5px)';
+    });
+    
+    item.addEventListener('mouseleave', () => {
+        item.style.transform = 'translateY(0)';
+    });
+});
+
+// Add this to your existing script section
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.querySelector('.search-input');
+    const content = document.querySelector('.content');
+    const logo = document.querySelector('.logo');
+
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const url = searchInput.value;
+            if (url) {
+                // Hide the logo
+                logo.style.display = 'none';
+                
+                // Create and insert iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                
+                // Construct the proxy URL
+                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url.replace('https://', '').replace('http://', '')}`;
+                iframe.src = proxyUrl;
+                
+                // Clear existing content and add iframe
+                content.innerHTML = '';
+                content.appendChild(iframe);
+            }
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (keep existing initialization code)
+
+    const inspectBtn = document.getElementById('inspectBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    let isInspectorActive = false;
+
+    // Initialize Eruda
+    function toggleInspector() {
+        if (!isInspectorActive) {
+            eruda.init();
+            isInspectorActive = true;
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
+        } else {
+            eruda.destroy();
+            isInspectorActive = false;
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
+        }
+    }
+
+    inspectBtn.addEventListener('click', toggleInspector);
+
+    // Fullscreen functionality
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+    }
+
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    // Update fullscreen button icon when fullscreen state changes
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        } else {
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+        }
+    });
+
+    // New tab functionality in options menu
+    document.getElementById('newTabOption').addEventListener('click', () => {
+        createTab();
+        optionsMenu.classList.remove('active');
+    });
+
+    // New window functionality
+    document.getElementById('newWindowOption').addEventListener('click', () => {
+        window.open(window.location.href, '_blank');
+        optionsMenu.classList.remove('active');
+    });
+
+    // Modify iframe creation to include Eruda
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const url = searchInput.value;
+            if (url) {
+                logo.style.display = 'none';
+                
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                
+                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url.replace('https://', '').replace('http://', '')}`;
+                iframe.src = proxyUrl;
+                
+                content.innerHTML = '';
+                content.appendChild(iframe);
+                currentIframe = iframe;
+                updateNavButtons();
+
+                // If inspector is active, reinitialize it for the new page
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        eruda.init();
+                    }, 1000);
+                }
+            }
+        }
+    });
+
+    // Handle iframe navigation events
+    function setupIframeListeners(iframe) {
+        iframe.addEventListener('load', () => {
+            updateNavButtons();
+            if (isInspectorActive) {
+                setTimeout(() => {
+                    eruda.init();
+                }, 1000);
+            }
+        });
+    }
+});
+
+
+
     </script>
 </body>
 </html>
