@@ -921,6 +921,268 @@ body::before {
     font-size: 14px;
 }
 
+/* Search bar adjustments */
+.search-bar {
+    padding: 0 20px;
+    gap: 15px;
+}
+
+.nav-buttons {
+    margin-right: 10px;
+    min-width: 110px; /* Fixed width for navigation buttons */
+}
+
+.search-input {
+    flex: 1;
+    max-width: calc(100% - 380px); /* Adjust for better spacing */
+    margin: 0 15px;
+}
+
+.action-buttons {
+    min-width: 110px; /* Fixed width for action buttons */
+    justify-content: flex-end;
+}
+
+/* Enhanced tab animations */
+.tab {
+    height: 36px;
+    padding: 0 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: rgba(138, 43, 226, 0.6);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.tab:hover::after {
+    width: 100%;
+}
+
+.tab.active::after {
+    width: 100%;
+    background: rgba(138, 43, 226, 1);
+}
+
+.close-tab {
+    width: 20px;
+    height: 20px;
+    font-size: 16px;
+    opacity: 0.7;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-tab:hover {
+    background: rgba(255, 0, 0, 0.3);
+    opacity: 1;
+}
+
+/* Enhanced menu items */
+.menu-item {
+    padding: 12px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: rgba(138, 43, 226, 0.2);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.menu-item:hover::after {
+    transform: scaleX(1);
+}
+
+.menu-item:hover {
+    background: rgba(138, 43, 226, 0.2);
+    transform: translateX(5px);
+}
+
+/* History popup */
+.history-popup, .bookmarks-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 400px;
+    max-width: 600px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+}
+
+.history-popup.active, .bookmarks-popup.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+}
+
+.popup-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.clear-button {
+    padding: 8px 15px;
+    background: rgba(138, 43, 226, 0.3);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-button:hover {
+    background: rgba(138, 43, 226, 0.5);
+}
+
+.history-list, .bookmarks-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-item, .bookmark-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.history-item:hover, .bookmark-item:hover {
+    background: rgba(138, 43, 226, 0.2);
+}
+
+.item-icon {
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-title {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.item-url {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.remove-button {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.history-item:hover .remove-button,
+.bookmark-item:hover .remove-button {
+    opacity: 1;
+}
+
+/* Bookmark button */
+.bookmark-button {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.bookmark-button.active {
+    color: #ffd700;
+}
+
+// Add to your CSS
+.tab-group {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    background: rgba(138, 43, 226, 0.2);
+    border-radius: 8px;
+    margin-right: 10px;
+}
+
+.group-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+// Add to JavaScript
+function createTabGroup(color) {
+    const group = document.createElement('div');
+    group.className = 'tab-group';
+    
+    const indicator = document.createElement('div');
+    indicator.className = 'group-indicator';
+    indicator.style.background = color;
+    
+    group.appendChild(indicator);
+    return group;
+}
+
+// Add this CSS
+.tab-preview 
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 150px;
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.tab:hover .tab-preview {
+    opacity: 1;
+    visibility: visible;
+}
+
 
     </style>
 </head>
@@ -984,6 +1246,27 @@ body::before {
         </div>
     </div>
 </div>
+
+
+<!-- Add these divs after your existing content -->
+<div class="history-popup" id="historyPopup">
+    <div class="popup-header">
+        <div class="popup-title">History</div>
+        <button class="clear-button" id="clearHistory">Clear History</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+</div>
+
+<div class="bookmarks-popup" id="bookmarksPopup">
+    <div class="popup-header">
+        <div class="popup-title">Bookmarks</div>
+        <button class="bookmark-button" id="addBookmark">
+            <i class="fas fa-bookmark"></i>
+        </button>
+    </div>
+    <div class="bookmarks-list" id="bookmarksList"></div>
+</div>
+
 
         <div class="content">
             <div class="logo">ZØRA</div>
@@ -1380,6 +1663,164 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Add to your existing JavaScript
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (keep existing initialization code)
+
+    // History management
+    let browserHistory = [];
+    const historyPopup = document.getElementById('historyPopup');
+    const historyList = document.getElementById('historyList');
+    const clearHistoryBtn = document.getElementById('clearHistory');
+
+    function addToHistory(url, title) {
+        browserHistory.unshift({
+            url,
+            title: title || url,
+            timestamp: new Date().getTime()
+        });
+        updateHistoryList();
+        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
+    }
+
+    function updateHistoryList() {
+        historyList.innerHTML = browserHistory.map(item => `
+            <div class="history-item">
+                <i class="fas fa-clock item-icon"></i>
+                <div class="item-details">
+                    <div class="item-title">${item.title}</div>
+                    <div class="item-url">${item.url}</div>
+                </div>
+                <button class="remove-button" onclick="removeFromHistory('${item.timestamp}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // Bookmark management
+    let bookmarks = [];
+    const bookmarksPopup = document.getElementById('bookmarksPopup');
+    const bookmarksList = document.getElementById('bookmarksList');
+    const addBookmarkBtn = document.getElementById('addBookmark');
+
+    function toggleBookmark(url, title) {
+        const exists = bookmarks.find(b => b.url === url);
+        if (exists) {
+            bookmarks = bookmarks.filter(b => b.url !== url);
+            addBookmarkBtn.classList.remove('active');
+        } else {
+            bookmarks.push({
+                url,
+                title: title || url,
+                timestamp: new Date().getTime()
+            });
+            addBookmarkBtn.classList.add('active');
+        }
+        updateBookmarksList();
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    }
+
+    function updateBookmarksList() {
+        bookmarksList.innerHTML = bookmarks.map(item => `
+            <div class="bookmark-item">
+                <i class="fas fa-bookmark item-icon"></i>
+                <div class="item-details">
+                    <div class="item-title">${item.title}</div>
+                    <div class="item-url">${item.url}</div>
+                </div>
+                <button class="remove-button" onclick="removeBookmark('${item.timestamp}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // Event listeners for menu items
+    document.querySelector('.menu-item:nth-child(3)').addEventListener('click', () => {
+        historyPopup.classList.add('active');
+        optionsMenu.classList.remove('active');
+    });
+
+    document.querySelector('.menu-item:nth-child(5)').addEventListener('click', () => {
+        bookmarksPopup.classList.add('active');
+        optionsMenu.classList.remove('active');
+    });
+
+    // Close popups when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!historyPopup.contains(e.target) && !e.target.closest('.menu-item')) {
+            historyPopup.classList.remove('active');
+        }
+        if (!bookmarksPopup.contains(e.target) && !e.target.closest('.menu-item')) {
+            bookmarksPopup.classList.remove('active');
+        }
+    });
+
+    // Clear history
+    clearHistoryBtn.addEventListener('click', () => {
+        browserHistory = [];
+        updateHistoryList();
+        localStorage.removeItem('browserHistory');
+    });
+
+    // Load saved data
+    const savedHistory = localStorage.getItem('browserHistory');
+    if (savedHistory) {
+        browserHistory = JSON.parse(savedHistory);
+        updateHistoryList();
+    }
+
+    const savedBookmarks = localStorage.getItem('bookmarks');
+    if (savedBookmarks) {
+        bookmarks = JSON.parse(savedBookmarks);
+        updateBookmarksList();
+    }
+});
+
+// Modify the search input event listener
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const input = searchInput.value;
+        if (input) {
+            logo.style.display = 'none';
+            
+            // Check if input is a URL or search term
+            const isUrl = input.includes('.') && !input.includes(' ');
+            let url;
+            let searchTitle;
+            
+            if (isUrl) {
+                url = input;
+                searchTitle = url.split('/')[0];
+            } else {
+                // Format as DuckDuckGo search
+                url = `duckduckgo.com/?q=${encodeURIComponent(input)}`;
+                searchTitle = `${input} - DuckDuckGo`;
+            }
+            
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            
+            const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url}`;
+            iframe.src = proxyUrl;
+            
+            // Update tab title
+            const activeTab = document.querySelector('.tab.active span');
+            activeTab.textContent = searchTitle;
+            
+            content.innerHTML = '';
+            content.appendChild(iframe);
+            currentIframe = iframe;
+            updateNavButtons();
+            
+            // Add to history
+            addToHistory(url, searchTitle);
+        }
+    }
+});
 
 
     </script>
