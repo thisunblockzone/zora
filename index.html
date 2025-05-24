@@ -1230,6 +1230,40 @@ function createTabGroup(color) {
     text-align: center;
 }
 
+#context-menu {
+    background-color: rgba(30, 30, 30, 0.95);
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+    color: white;
+    width: 200px;
+    padding: 0.8em 0.6em;
+    font-size: 14px;
+    position: fixed;
+    visibility: hidden;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    border-radius: 8px;
+    z-index: 1000;
+}
+
+.item {
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.item:hover {
+    background-color: rgba(138, 43, 226, 0.2);
+    cursor: pointer;
+}
+
+/* Modify search bar width */
+.search-input {
+    flex: 1;
+    max-width: 70%; /* Increased from previous value */
+    margin: 0 auto;
+}
+
+
 
     </style>
 </head>
@@ -1383,10 +1417,13 @@ function createTabGroup(color) {
     </div>
 </div>
 
-
-
-    
-
+<div id="context-menu">
+    <div class="item">View</div>
+    <div class="item">Refresh</div>
+    <div class="item">Copy</div>
+    <div class="item">Customize</div>
+    <div class="item">Save As</div>
+</div>
 
     <script>
     
@@ -1993,6 +2030,150 @@ document.addEventListener('click', (e) => {
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (keep existing initialization code)
+
+    const searchInput = document.querySelector('.search-input');
+    
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const input = searchInput.value.trim();
+            if (input) {
+                const isUrl = input.includes('.') && !input.includes(' ');
+                let url;
+                let displayUrl;
+                
+                if (isUrl) {
+                    url = input.startsWith('http') ? input : `https://${input}`;
+                    displayUrl = url;
+                } else {
+                    url = `https://duckduckgo.com/search?q=${encodeURIComponent(input)}`;
+                    displayUrl = url;
+                }
+                
+                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
+                
+                // Update search bar with display URL
+                searchInput.value = displayUrl;
+                
+                // Create and insert iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = proxyUrl;
+                
+                // Hide logo and update content
+                document.querySelector('.logo').style.display = 'none';
+                document.querySelector('.content').innerHTML = '';
+                document.querySelector('.content').appendChild(iframe);
+                
+                // Update tab title
+                const activeTab = document.querySelector('.tab.active span');
+                activeTab.textContent = isUrl ? new URL(url).hostname : `Search: ${input}`;
+                
+                // Initialize Eruda for the iframe
+                if (isInspectorActive) {
+                    iframe.onload = () => {
+                        iframe.contentWindow.eruda.init();
+                    };
+                }
+            }
+        }
+    });
+
+    // Tab switching logic
+    function createTab() {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.innerHTML = `
+            <span>New Tab</span>
+            <div class="close-tab">×</div>
+        `;
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        tabBar.insertBefore(tab, newTabBtn);
+        
+        // Reset content for new tab
+        document.querySelector('.content').innerHTML = '<div class="logo">ZØRA</div>';
+        searchInput.value = '';
+        
+        // Add tab click handler
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+        
+        // Add close handler
+        const closeBtn = tab.querySelector('.close-tab');
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            tab.remove();
+            if (document.querySelectorAll('.tab').length === 0) {
+                createTab();
+            }
+        });
+    }
+
+    // Context menu logic
+    let events = ["contextmenu", "touchstart"];
+    let contextMenu = document.getElementById("context-menu");
+    let timeout;
+    let lastTap = 0;
+
+    events.forEach((eventType) => {
+        document.addEventListener(eventType, (e) => {
+            e.preventDefault();
+            let mouseX = e.clientX || e.touches[0].clientX;
+            let mouseY = e.clientY || e.touches[0].clientY;
+            let menuHeight = contextMenu.getBoundingClientRect().height;
+            let menuWidth = contextMenu.getBoundingClientRect().width;
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+
+            // Position menu
+            if (width - mouseX <= 200) {
+                contextMenu.style.left = width - menuWidth + "px";
+            } else {
+                contextMenu.style.left = mouseX + "px";
+            }
+
+            if (height - mouseY <= 200) {
+                contextMenu.style.top = mouseY - menuHeight + "px";
+            } else {
+                contextMenu.style.top = mouseY + "px";
+            }
+
+            contextMenu.style.visibility = "visible";
+        }, { passive: false });
+    });
+
+    // Handle double tap
+    document.addEventListener("touchend", (e) => {
+        let currentTime = new Date().getTime();
+        let tapLength = currentTime - lastTap;
+        clearTimeout(timeout);
+        
+        if (tapLength < 500 && tapLength > 0) {
+            contextMenu.style.visibility = "hidden";
+            e.preventDefault();
+        } else {
+            timeout = setTimeout(() => {
+                clearTimeout(timeout);
+            }, 500);
+        }
+        lastTap = currentTime;
+    });
+
+    // Close menu on outside click
+    document.addEventListener("click", (e) => {
+        if (!contextMenu.contains(e.target)) {
+            contextMenu.style.visibility = "hidden";
+        }
+    });
+});
 
 
     </script>
