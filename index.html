@@ -1442,15 +1442,107 @@ function createTabGroup(color) {
 
     <script>
     
-    // Add to your existing JavaScript
+// Tab functionality
 document.addEventListener('DOMContentLoaded', () => {
-    // ... (keep existing code)
-
-    // Navigation history
+    const tabBar = document.getElementById('tabBar');
+    const newTabBtn = document.querySelector('.new-tab-btn');
+    const searchInput = document.querySelector('.search-input');
+    const content = document.querySelector('.content');
+    const logo = document.querySelector('.logo');
+    let tabCount = 1;
     let currentIframe = null;
+    let isInspectorActive = false;
+
+    function createTab() {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.innerHTML = `
+            <span>New Tab</span>
+            <div class="close-tab">×</div>
+        `;
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        tabBar.insertBefore(tab, newTabBtn);
+        tabCount++;
+
+        const closeBtn = tab.querySelector('.close-tab');
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            tab.remove();
+            if (document.querySelectorAll('.tab').length === 0) {
+                createTab();
+            }
+        });
+
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+    }
+
+    newTabBtn.addEventListener('click', createTab);
+
+    // Search functionality
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const input = searchInput.value.trim();
+            if (input) {
+                // Check if input is a URL or search term
+                const isUrl = input.includes('.') && !input.includes(' ');
+                let url;
+                let tabTitle;
+                
+                if (isUrl) {
+                    // Handle URL input
+                    url = input.startsWith('http') ? input : `https://${input}`;
+                    tabTitle = new URL(url).hostname;
+                } else {
+                    // Handle search term
+                    url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+                    tabTitle = `${input} - DuckDuckGo`;
+                }
+                
+                // Create proxy URL
+                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
+                
+                // Update tab title
+                const activeTab = document.querySelector('.tab.active span');
+                activeTab.textContent = tabTitle;
+                
+                // Hide logo and create iframe
+                logo.style.display = 'none';
+                
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = proxyUrl;
+                
+                content.innerHTML = '';
+                content.appendChild(iframe);
+                currentIframe = iframe;
+                
+                // If inspector is active, reinitialize it for the new page
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        eruda.init();
+                    }, 1000);
+                }
+
+                // Add to history
+                addToHistory(url, tabTitle);
+            }
+        }
+    });
+
+    // Navigation buttons functionality
     const backBtn = document.getElementById('backBtn');
     const forwardBtn = document.getElementById('forwardBtn');
     const refreshBtn = document.getElementById('refreshBtn');
+    const inspectBtn = document.getElementById('inspectBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
     const optionsBtn = document.getElementById('optionsBtn');
     const optionsMenu = document.getElementById('optionsMenu');
 
@@ -1482,193 +1574,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Options menu
-    optionsBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        optionsMenu.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
-            optionsMenu.classList.remove('active');
-        }
-    });
-
-    // Modify createTab function
-    function createTab() {
-        const tab = document.createElement('div');
-        tab.className = 'tab';
-        tab.innerHTML = `
-            <span>New Tab</span>
-            <div class="close-tab">×</div>
-        `;
-        
-        // ... (rest of createTab function)
-    }
-
-    // Modify iframe creation
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const url = searchInput.value;
-            if (url) {
-                logo.style.display = 'none';
-                
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                
-                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url.replace('https://', '').replace('http://', '')}`;
-                iframe.src = proxyUrl;
-                
-                content.innerHTML = '';
-                content.appendChild(iframe);
-                currentIframe = iframe;
-                updateNavButtons();
-            }
-        }
-    });
-});
-
-        // Tab functionality
-        document.addEventListener('DOMContentLoaded', () => {
-            const tabBar = document.getElementById('tabBar');
-            const newTabBtn = document.querySelector('.new-tab-btn');
-            let tabCount = 1;
-
-            function createTab() {
-                const tab = document.createElement('div');
-                tab.className = 'tab';
-                tab.innerHTML = `
-                    <span>New Tab ${tabCount}</span>
-                    <div class="close-tab">×</div>
-                `;
-                
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                tabBar.insertBefore(tab, newTabBtn);
-                tabCount++;
-
-                const closeBtn = tab.querySelector('.close-tab');
-                closeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    tab.remove();
-                });
-
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                });
-            }
-
-            newTabBtn.addEventListener('click', createTab);
-
-            // Time and Battery Updates
-            function updateTime() {
-                const now = new Date();
-                const timeElement = document.getElementById('time');
-                const timezoneElement = document.getElementById('timezone');
-                
-                timeElement.textContent = now.toLocaleTimeString();
-                timezoneElement.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            }
-
-            setInterval(updateTime, 1000);
-
-            // Battery API
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(battery => {
-                    function updateBattery() {
-                        const level = battery.level * 100;
-                        const batteryLevel = document.getElementById('batteryLevel');
-                        const batteryText = document.getElementById('batteryText');
-                        
-                        batteryLevel.style.width = `${level}%`;
-                        batteryText.textContent = `${Math.round(level)}%`;
-
-                        if (level <= 20) {
-                            batteryLevel.style.background = '#ff4444';
-                        } else if (level <= 50) {
-                            batteryLevel.style.background = '#ffaa00';
-                        } else {
-                            batteryLevel.style.background = '#4CAF50';
-                        }
-                    }
-
-                    battery.addEventListener('levelchange', updateBattery);
-                    updateBattery();
-                });
-            }
-        });
-        
-        // App Launcher functionality
-const appLauncher = document.querySelector('.app-launcher-button');
-const appDrawer = document.getElementById('appDrawer');
-
-appLauncher.addEventListener('click', () => {
-    appDrawer.classList.toggle('active');
-    appLauncher.classList.toggle('active');
-});
-
-// Close app drawer when clicking outside
-document.addEventListener('click', (e) => {
-    if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
-        appDrawer.classList.remove('active');
-        appLauncher.classList.remove('active');
-    }
-});
-
-// Add hover animation for app items
-document.querySelectorAll('.app-item').forEach(item => {
-    item.addEventListener('mouseenter', () => {
-        item.style.transform = 'translateY(-5px)';
-    });
-    
-    item.addEventListener('mouseleave', () => {
-        item.style.transform = 'translateY(0)';
-    });
-});
-
-// Add this to your existing script section
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.querySelector('.search-input');
-    const content = document.querySelector('.content');
-    const logo = document.querySelector('.logo');
-
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const url = searchInput.value;
-            if (url) {
-                // Hide the logo
-                logo.style.display = 'none';
-                
-                // Create and insert iframe
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                
-                // Construct the proxy URL
-                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url.replace('https://', '').replace('http://', '')}`;
-                iframe.src = proxyUrl;
-                
-                // Clear existing content and add iframe
-                content.innerHTML = '';
-                content.appendChild(iframe);
-            }
-        }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (keep existing initialization code)
-
-    const inspectBtn = document.getElementById('inspectBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    let isInspectorActive = false;
-
-    // Initialize Eruda
+    // Inspector functionality
     function toggleInspector() {
         if (!isInspectorActive) {
             eruda.init();
@@ -1698,73 +1604,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fullscreenBtn.addEventListener('click', toggleFullscreen);
 
-    // Update fullscreen button icon when fullscreen state changes
-    document.addEventListener('fullscreenchange', () => {
-        if (document.fullscreenElement) {
-            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-        } else {
-            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+    // Options menu functionality
+    optionsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        optionsMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
+            optionsMenu.classList.remove('active');
         }
     });
-
-    // New tab functionality in options menu
-    document.getElementById('newTabOption').addEventListener('click', () => {
-        createTab();
-        optionsMenu.classList.remove('active');
-    });
-
-    // New window functionality
-    document.getElementById('newWindowOption').addEventListener('click', () => {
-        window.open(window.location.href, '_blank');
-        optionsMenu.classList.remove('active');
-    });
-
-    // Modify iframe creation to include Eruda
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const url = searchInput.value;
-            if (url) {
-                logo.style.display = 'none';
-                
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                
-                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url.replace('https://', '').replace('http://', '')}`;
-                iframe.src = proxyUrl;
-                
-                content.innerHTML = '';
-                content.appendChild(iframe);
-                currentIframe = iframe;
-                updateNavButtons();
-
-                // If inspector is active, reinitialize it for the new page
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        eruda.init();
-                    }, 1000);
-                }
-            }
-        }
-    });
-
-    // Handle iframe navigation events
-    function setupIframeListeners(iframe) {
-        iframe.addEventListener('load', () => {
-            updateNavButtons();
-            if (isInspectorActive) {
-                setTimeout(() => {
-                    eruda.init();
-                }, 1000);
-            }
-        });
-    }
-});
-
-// Add to your existing JavaScript
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (keep existing initialization code)
 
     // History management
     let browserHistory = [];
@@ -1797,397 +1647,80 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    // Bookmark management
-    let bookmarks = [];
-    const bookmarksPopup = document.getElementById('bookmarksPopup');
-    const bookmarksList = document.getElementById('bookmarksList');
-    const addBookmarkBtn = document.getElementById('addBookmark');
+    // App Launcher functionality
+    const appLauncher = document.querySelector('.app-launcher-button');
+    const appDrawer = document.getElementById('appDrawer');
 
-    function toggleBookmark(url, title) {
-        const exists = bookmarks.find(b => b.url === url);
-        if (exists) {
-            bookmarks = bookmarks.filter(b => b.url !== url);
-            addBookmarkBtn.classList.remove('active');
-        } else {
-            bookmarks.push({
-                url,
-                title: title || url,
-                timestamp: new Date().getTime()
-            });
-            addBookmarkBtn.classList.add('active');
-        }
-        updateBookmarksList();
-        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-    }
-
-    function updateBookmarksList() {
-        bookmarksList.innerHTML = bookmarks.map(item => `
-            <div class="bookmark-item">
-                <i class="fas fa-bookmark item-icon"></i>
-                <div class="item-details">
-                    <div class="item-title">${item.title}</div>
-                    <div class="item-url">${item.url}</div>
-                </div>
-                <button class="remove-button" onclick="removeBookmark('${item.timestamp}')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `).join('');
-    }
-
-    // Event listeners for menu items
-    document.querySelector('.menu-item:nth-child(3)').addEventListener('click', () => {
-        historyPopup.classList.add('active');
-        optionsMenu.classList.remove('active');
+    appLauncher.addEventListener('click', () => {
+        appDrawer.classList.toggle('active');
+        appLauncher.classList.toggle('active');
     });
 
-    document.querySelector('.menu-item:nth-child(5)').addEventListener('click', () => {
-        bookmarksPopup.classList.add('active');
-        optionsMenu.classList.remove('active');
-    });
-
-    // Close popups when clicking outside
     document.addEventListener('click', (e) => {
-        if (!historyPopup.contains(e.target) && !e.target.closest('.menu-item')) {
-            historyPopup.classList.remove('active');
-        }
-        if (!bookmarksPopup.contains(e.target) && !e.target.closest('.menu-item')) {
-            bookmarksPopup.classList.remove('active');
+        if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
+            appDrawer.classList.remove('active');
+            appLauncher.classList.remove('active');
         }
     });
 
-    // Clear history
-    clearHistoryBtn.addEventListener('click', () => {
-        browserHistory = [];
-        updateHistoryList();
-        localStorage.removeItem('browserHistory');
+    // Context menu
+    const contextMenu = document.getElementById('context-menu');
+    let timeout;
+    let lastTap = 0;
+
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        const menuHeight = contextMenu.getBoundingClientRect().height;
+        const menuWidth = contextMenu.getBoundingClientRect().width;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        contextMenu.style.left = width - mouseX <= 200 ? 
+            `${width - menuWidth}px` : `${mouseX}px`;
+        contextMenu.style.top = height - mouseY <= 200 ? 
+            `${mouseY - menuHeight}px` : `${mouseY}px`;
+        contextMenu.style.visibility = 'visible';
     });
 
-    // Load saved data
+    document.addEventListener('click', (e) => {
+        if (!contextMenu.contains(e.target)) {
+            contextMenu.style.visibility = 'hidden';
+        }
+    });
+
+    // Battery indicator
+    if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+            function updateBattery() {
+                const level = battery.level * 100;
+                const batteryLevel = document.getElementById('batteryLevel');
+                const batteryText = document.getElementById('batteryText');
+                
+                batteryLevel.style.width = `${level}%`;
+                batteryText.textContent = `${Math.round(level)}%`;
+
+                if (level <= 20) {
+                    batteryLevel.style.background = '#ff4444';
+                } else if (level <= 50) {
+                    batteryLevel.style.background = '#ffaa00';
+                } else {
+                    batteryLevel.style.background = '#4CAF50';
+                }
+            }
+
+            battery.addEventListener('levelchange', updateBattery);
+            updateBattery();
+        });
+    }
+
+    // Load saved history
     const savedHistory = localStorage.getItem('browserHistory');
     if (savedHistory) {
         browserHistory = JSON.parse(savedHistory);
         updateHistoryList();
     }
-
-    const savedBookmarks = localStorage.getItem('bookmarks');
-    if (savedBookmarks) {
-        bookmarks = JSON.parse(savedBookmarks);
-        updateBookmarksList();
-    }
-});
-
-// Modify the search input event listener
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const input = searchInput.value;
-        if (input) {
-            logo.style.display = 'none';
-            
-            // Check if input is a URL or search term
-            const isUrl = input.includes('.') && !input.includes(' ');
-            let url;
-            let searchTitle;
-            
-            if (isUrl) {
-                url = input;
-                searchTitle = url.split('/')[0];
-            } else {
-                // Format as DuckDuckGo search
-                url = `duckduckgo.com/?q=${encodeURIComponent(input)}`;
-                searchTitle = `${input} - DuckDuckGo`;
-            }
-            
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            
-            const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#https://${url}`;
-            iframe.src = proxyUrl;
-            
-            // Update tab title
-            const activeTab = document.querySelector('.tab.active span');
-            activeTab.textContent = searchTitle;
-            
-            content.innerHTML = '';
-            content.appendChild(iframe);
-            currentIframe = iframe;
-            updateNavButtons();
-            
-            // Add to history
-            addToHistory(url, searchTitle);
-        }
-    }
-});
-
-// Modify the search input event listener
-function handleSearch(searchInput, tab) {
-    const input = searchInput.value;
-    if (input) {
-        const content = tab.querySelector('.tab-content');
-        const logo = content.querySelector('.logo');
-        
-        if (logo) {
-            logo.style.display = 'none';
-        }
-        
-        // Check if input is a URL or search term
-        const isUrl = input.includes('.') && !input.includes(' ');
-        let url;
-        let searchTitle;
-        
-        if (isUrl) {
-            url = input.startsWith('http') ? input : `https://${input}`;
-            searchTitle = url.split('/')[0];
-        } else {
-            // Format as DuckDuckGo search
-            url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-            searchTitle = `${input} - DuckDuckGo`;
-        }
-        
-        const iframe = document.createElement('iframe');
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-        iframe.style.border = 'none';
-        
-        const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-        iframe.src = proxyUrl;
-        
-        // Update tab title
-        const tabSpan = tab.querySelector('span');
-        tabSpan.textContent = searchTitle;
-        
-        content.innerHTML = '';
-        content.appendChild(iframe);
-        
-        // Add to history
-        addToHistory(url, searchTitle);
-    }
-}
-
-// Modify createTab function
-function createTab() {
-    const tab = document.createElement('div');
-    tab.className = 'tab';
-    
-    const tabContent = document.createElement('div');
-    tabContent.className = 'tab-content';
-    tabContent.innerHTML = `<div class="logo">ZØRA</div>`;
-    
-    tab.innerHTML = `
-        <span>New Tab</span>
-        <div class="close-tab">×</div>
-    `;
-    
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    
-    tabBar.insertBefore(tab, newTabBtn);
-    content.appendChild(tabContent);
-    
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-        tab.classList.add('active');
-        tabContent.style.display = 'block';
-    });
-    
-    const closeBtn = tab.querySelector('.close-tab');
-    closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        tab.remove();
-        tabContent.remove();
-    });
-}
-
-// Options menu functionality
-const optionsBtn = document.getElementById('optionsBtn');
-const optionsMenu = document.getElementById('optionsMenu');
-
-optionsBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    optionsMenu.classList.toggle('active');
-});
-
-// Handle menu item clicks
-document.querySelectorAll('.menu-item').forEach(item => {
-    item.addEventListener('click', () => {
-        const action = item.id;
-        switch(action) {
-            case 'newTabOption':
-                createTab();
-                break;
-            case 'newWindowOption':
-                window.open(window.location.href, '_blank');
-                break;
-            case 'historyOption':
-                showHistory();
-                break;
-            case 'downloadsOption':
-                showDownloads();
-                break;
-            case 'bookmarksOption':
-                showBookmarks();
-                break;
-            case 'settingsOption':
-                showSettings();
-                break;
-        }
-        optionsMenu.classList.remove('active');
-    });
-});
-
-// Close menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
-        optionsMenu.classList.remove('active');
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (keep existing initialization code)
-
-    const searchInput = document.querySelector('.search-input');
-    
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const input = searchInput.value.trim();
-            if (input) {
-                const isUrl = input.includes('.') && !input.includes(' ');
-                let url;
-                let displayUrl;
-                
-                if (isUrl) {
-                    url = input.startsWith('http') ? input : `https://${input}`;
-                    displayUrl = url;
-                } else {
-                    url = `https://duckduckgo.com/search?q=${encodeURIComponent(input)}`;
-                    displayUrl = url;
-                }
-                
-                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-                
-                // Update search bar with display URL
-                searchInput.value = displayUrl;
-                
-                // Create and insert iframe
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = proxyUrl;
-                
-                // Hide logo and update content
-                document.querySelector('.logo').style.display = 'none';
-                document.querySelector('.content').innerHTML = '';
-                document.querySelector('.content').appendChild(iframe);
-                
-                // Update tab title
-                const activeTab = document.querySelector('.tab.active span');
-                activeTab.textContent = isUrl ? new URL(url).hostname : `Search: ${input}`;
-                
-                // Initialize Eruda for the iframe
-                if (isInspectorActive) {
-                    iframe.onload = () => {
-                        iframe.contentWindow.eruda.init();
-                    };
-                }
-            }
-        }
-    });
-
-    // Tab switching logic
-    function createTab() {
-        const tab = document.createElement('div');
-        tab.className = 'tab';
-        tab.innerHTML = `
-            <span>New Tab</span>
-            <div class="close-tab">×</div>
-        `;
-        
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        tabBar.insertBefore(tab, newTabBtn);
-        
-        // Reset content for new tab
-        document.querySelector('.content').innerHTML = '<div class="logo">ZØRA</div>';
-        searchInput.value = '';
-        
-        // Add tab click handler
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-        });
-        
-        // Add close handler
-        const closeBtn = tab.querySelector('.close-tab');
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            tab.remove();
-            if (document.querySelectorAll('.tab').length === 0) {
-                createTab();
-            }
-        });
-    }
-
-    // Context menu logic
-    let events = ["contextmenu", "touchstart"];
-    let contextMenu = document.getElementById("context-menu");
-    let timeout;
-    let lastTap = 0;
-
-    events.forEach((eventType) => {
-        document.addEventListener(eventType, (e) => {
-            e.preventDefault();
-            let mouseX = e.clientX || e.touches[0].clientX;
-            let mouseY = e.clientY || e.touches[0].clientY;
-            let menuHeight = contextMenu.getBoundingClientRect().height;
-            let menuWidth = contextMenu.getBoundingClientRect().width;
-            let width = window.innerWidth;
-            let height = window.innerHeight;
-
-            // Position menu
-            if (width - mouseX <= 200) {
-                contextMenu.style.left = width - menuWidth + "px";
-            } else {
-                contextMenu.style.left = mouseX + "px";
-            }
-
-            if (height - mouseY <= 200) {
-                contextMenu.style.top = mouseY - menuHeight + "px";
-            } else {
-                contextMenu.style.top = mouseY + "px";
-            }
-
-            contextMenu.style.visibility = "visible";
-        }, { passive: false });
-    });
-
-    // Handle double tap
-    document.addEventListener("touchend", (e) => {
-        let currentTime = new Date().getTime();
-        let tapLength = currentTime - lastTap;
-        clearTimeout(timeout);
-        
-        if (tapLength < 500 && tapLength > 0) {
-            contextMenu.style.visibility = "hidden";
-            e.preventDefault();
-        } else {
-            timeout = setTimeout(() => {
-                clearTimeout(timeout);
-            }, 500);
-        }
-        lastTap = currentTime;
-    });
-
-    // Close menu on outside click
-    document.addEventListener("click", (e) => {
-        if (!contextMenu.contains(e.target)) {
-            contextMenu.style.visibility = "hidden";
-        }
-    });
 });
 
 
