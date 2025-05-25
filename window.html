@@ -556,7 +556,7 @@
             </div>
         </div>
         <div class="browser-content">
-            <iframe src="https://thisunblockzone.github.io/zora/"></iframe>
+            <iframe src="https://spotfy.one/"></iframe>
         </div>
     </div>
 
@@ -589,16 +589,15 @@
                     <button class="install-btn">Install</button>
                 </div>
             </div>
-            <div class="store-app" data-app="poki">
-                <img src="https://play-lh.googleusercontent.com/DTzWtkxfnKwFO3ruybY1SKjJQnLYeuK3KmQmwV5OQ3dULr5iXxeEtzBLceultrKTIUTr=w240-h480-rw" alt="Poki">
-                <div class="app-info">
-                    <h3>Poki</h3>
-                    <p>Online Games</p>
-                    <button class="install-btn">Install</button>
-                </div>
-            </div>
-        </div>
-    </div>
+			<div class="store-app" data-app="poki">
+   			 	<img src="https://play-lh.googleusercontent.com/DTzWtkxfnKwFO3ruybY1SKjJQnLYeuK3KmQmwV5OQ3dULr5iXxeEtzBLceultrKTIUTr=w240-h480-rw" alt="Poki">
+    			<div class="app-info">
+      		  	<h3>Poki</h3>
+        		<p>Online Games Platform</p>
+        		<button class="install-btn">Install</button>
+    		</div>
+		</div>
+	</div>
 </div>
 
 
@@ -998,9 +997,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Helper function to get app URL
     function getAppUrl(appName) {
         const urls = {
-            geforcenow: 'https://play.geforcenow.com',
-            tiktok: 'https://tiktok.com',
-            poki: 'https://poki.com'
+            geforcenow: 'https://thisunblockzone.github.io/active/iframe.html#https://play.geforcenow.com',
+            tiktok: 'https://thisunblockzone.github.io/active/iframe.html#https://tiktok.com',
+            poki: 'https://thisunblockzone.github.io/active/iframe.html#https://poki.com'
             // Add more apps as needed
         };
         return urls[appName] || '';
@@ -1015,6 +1014,100 @@ document.addEventListener("DOMContentLoaded", () => {
             // Add more icons as needed
         };
         return icons[appName] || 'fas fa-window-maximize';
+    }
+});
+
+</script>
+
+<script>
+    const appIcons = document.querySelectorAll('.app-icon');
+    const taskbarIcons = document.querySelectorAll('.taskbar-icon');
+    const installButtons = document.querySelectorAll('.install-btn');
+    
+    appIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const app = icon.dataset.app;
+            if (app) openWindow(app);
+        });
+    });
+
+    taskbarIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const app = icon.dataset.app;
+            if (app) openWindow(app);
+        });
+    });
+
+    installButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const app = button.closest('.store-app').dataset.app;
+            alert(`Installing ${app}...`);
+            button.textContent = "Installed";
+            button.classList.add('installed');
+        });
+    });
+
+    function openWindow(app) {
+        document.querySelectorAll('.browser-window').forEach(win => win.classList.remove('active'));
+        const appWindow = document.getElementById(`${app}Window`);
+        if (appWindow) appWindow.classList.add('active');
+    }
+
+    document.querySelectorAll('.control-button.close').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const windowElement = btn.closest('.browser-window');
+            windowElement.classList.remove('active');
+        });
+    });
+
+    document.querySelectorAll('.control-button.minimize').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const windowElement = btn.closest('.browser-window');
+            windowElement.classList.remove('active');
+        });
+    });
+
+    document.querySelectorAll('.control-button.maximize').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const windowElement = btn.closest('.browser-window');
+            windowElement.classList.toggle('maximized');
+        });
+    });
+</script>
+
+<script>
+const appIcons = document.querySelectorAll('.app-icon');
+
+appIcons.forEach(icon => {
+    icon.addEventListener('click', () => {
+        const appName = icon.dataset.app;
+        if (!appName) return;
+
+        const windowElement = document.getElementById(appName + 'Window');
+        if (windowElement) {
+            windowElement.classList.add('active');
+            windowElement.style.display = 'block'; // Optional: ensures visibility
+        }
+
+        // ✅ Don't activate taskbar for 'browser' (Zora)
+        if (appName !== 'browser') {
+            activateTaskbarIcon(appName);
+        }
+    });
+});
+
+function activateTaskbarIcon(appName) {
+    const icon = document.querySelector(`.taskbar-icon[data-app="${appName}"]`);
+    if (icon) {
+        icon.classList.add('active');
+    }
+}
+
+// 🧹 Optional: Make sure Zora isn't pre-active on load
+document.addEventListener('DOMContentLoaded', () => {
+    const browserIcon = document.querySelector('.taskbar-icon[data-app="browser"]');
+    if (browserIcon) {
+        browserIcon.classList.remove('active');
     }
 });
 
