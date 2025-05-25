@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1568,6 +1569,27 @@ function createTabGroup(color) {
     font-size: 14px;
 }
 
+/* Add to your existing CSS */
+.eruda-container {
+    z-index: 100000 !important;
+}
+
+.content iframe {
+    z-index: 1;
+}
+
+.search-bar {
+    z-index: 10;
+}
+
+.tab-bar {
+    z-index: 10;
+}
+
+.options-menu {
+    z-index: 100000;
+}
+
 
     </style>
 </head>
@@ -2744,6 +2766,167 @@ searchInput.addEventListener('keypress', (e) => {
             addToHistory(url, activeTab.querySelector('span').textContent);
         }
     }
+});
+
+// Enhanced tab data structure
+const tabData = new Map();
+
+// Load saved tab states from localStorage
+function loadSavedTabs() {
+    const savedTabs = localStorage.getItem('zoraTabStates');
+    if (savedTabs) {
+        const parsedTabs = JSON.parse(savedTabs);
+        Object.entries(parsedTabs).forEach(([tabId, data]) => {
+            tabData.set(tabId, {
+                ...data,
+                scrollPosition: data.scrollPosition || 0
+            });
+        });
+    }
+}
+
+// Save tab states to localStorage
+function saveTabStates() {
+    const tabStates = {};
+    tabData.forEach((data, tabId) => {
+        tabStates[tabId] = {
+            ...data,
+            scrollPosition: currentIframe?.contentWindow?.pageYOffset || 0
+        };
+    });
+    localStorage.setItem('zoraTabStates', JSON.stringify(tabStates));
+}
+
+// Enhanced switchTab function
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    const tabId = tab.getAttribute('data-tab-id');
+    const data = tabData.get(tabId);
+    
+    if (data) {
+        searchInput.value = data.searchValue;
+        if (data.hasIframe) {
+            // Save current tab's scroll position before switching
+            const currentTab = document.querySelector('.tab.active');
+            if (currentTab && currentIframe) {
+                const currentTabId = currentTab.getAttribute('data-tab-id');
+                const currentData = tabData.get(currentTabId);
+                if (currentData) {
+                    currentData.scrollPosition = currentIframe.contentWindow.pageYOffset;
+                }
+            }
+
+            // Create or show iframe
+            let iframe = document.querySelector(`iframe[data-tab-id="${tabId}"]`);
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.setAttribute('data-tab-id', tabId);
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = data.url;
+                
+                iframe.onload = () => {
+                    // Restore scroll position
+                    if (data.scrollPosition) {
+                        iframe.contentWindow.scrollTo(0, data.scrollPosition);
+                    }
+                    
+                    // Initialize Eruda if inspector is active
+                    if (isInspectorActive) {
+                        initializeInspector(iframe);
+                    }
+                };
+                
+                content.appendChild(iframe);
+            }
+            
+            currentIframe = iframe;
+            
+            // Hide other iframes
+            document.querySelectorAll('iframe').forEach(otherIframe => {
+                if (otherIframe !== iframe) {
+                    otherIframe.style.display = 'none';
+                }
+            });
+            
+            iframe.style.display = 'block';
+            
+            // Hide logo
+            const logo = content.querySelector('.logo');
+            if (logo) logo.style.display = 'none';
+        } else {
+            // Show logo for new tabs
+            content.innerHTML = '<div class="logo">ZØRA</div>';
+            currentIframe = null;
+        }
+        
+        saveTabStates();
+    }
+}
+
+// Enhanced Eruda integration
+let isInspectorActive = false;
+
+function initializeInspector(iframe) {
+    if (iframe && iframe.contentWindow) {
+        try {
+            // Remove any existing Eruda instance
+            if (iframe.contentWindow.eruda) {
+                iframe.contentWindow.eruda.destroy();
+            }
+
+            // Create new Eruda instance
+            const script = iframe.contentWindow.document.createElement('script');
+            script.src = '//cdn.jsdelivr.net/npm/eruda';
+            script.onload = () => {
+                iframe.contentWindow.eruda.init({
+                    container: iframe.contentWindow.document.body,
+                    tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
+                });
+                
+                // Style adjustments for Eruda
+                const erudaContainer = iframe.contentWindow.document.querySelector('.eruda-container');
+                if (erudaContainer) {
+                    erudaContainer.style.zIndex = '100000';
+                    erudaContainer.style.position = 'fixed';
+                }
+            };
+            iframe.contentWindow.document.head.appendChild(script);
+        } catch (e) {
+            console.log('Error initializing inspector:', e);
+        }
+    }
+}
+
+// Update inspect button handler
+document.getElementById('inspectBtn').addEventListener('click', () => {
+    isInspectorActive = !isInspectorActive;
+    const inspectBtn = document.getElementById('inspectBtn');
+    
+    if (currentIframe) {
+        if (isInspectorActive) {
+            initializeInspector(currentIframe);
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
+        } else {
+            try {
+                if (currentIframe.contentWindow.eruda) {
+                    currentIframe.contentWindow.eruda.destroy();
+                }
+            } catch (e) {
+                console.log('Error destroying inspector:', e);
+            }
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
+        }
+    }
+});
+
+// Load saved tabs on startup
+document.addEventListener('DOMContentLoaded', () => {
+    loadSavedTabs();
+    // ... rest of your initialization code ...
 });
 
 
