@@ -1432,13 +1432,6 @@ function createTabGroup(color) {
     </div>
 </div>
 
-<div id="context-menu">
-    <div class="item">View</div>
-    <div class="item">Refresh</div>
-    <div class="item">Copy</div>
-    <div class="item">Customize</div>
-    <div class="item">Save As</div>
-</div>
 
     <script>
     
@@ -1663,32 +1656,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Context menu
-    const contextMenu = document.getElementById('context-menu');
-    let timeout;
-    let lastTap = 0;
-
-    document.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-        const menuHeight = contextMenu.getBoundingClientRect().height;
-        const menuWidth = contextMenu.getBoundingClientRect().width;
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
-        contextMenu.style.left = width - mouseX <= 200 ? 
-            `${width - menuWidth}px` : `${mouseX}px`;
-        contextMenu.style.top = height - mouseY <= 200 ? 
-            `${mouseY - menuHeight}px` : `${mouseY}px`;
-        contextMenu.style.visibility = 'visible';
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!contextMenu.contains(e.target)) {
-            contextMenu.style.visibility = 'hidden';
-        }
-    });
 
     // Battery indicator
     if ('getBattery' in navigator) {
