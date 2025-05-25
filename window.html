@@ -266,15 +266,87 @@
             border: none;
         }
         
+
 .browser-window {
-    ...
-    top: 100px;
-    left: 100px;
-    transform: scale(0.95);
-    ...
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 85vh;
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.3);
 }
 
-transform: scale(1);
+.browser-content {
+    height: calc(100% - 40px);
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+}
+
+.browser-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: auto;
+}
+
+.browser-header {
+    position: relative;
+    z-index: 2;
+}
+
+/* Make desktop icons stay behind browser window */
+.desktop-icons {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 15px;
+    padding: 15px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Make browser window appear above desktop icons but below taskbar */
+.browser-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 85vh;
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    z-index: 1000; /* Add this line */
+}
+
+/* Make taskbar stay on top */
+.taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 2000; /* Add this line */
+}
 
 
     </style>
@@ -316,137 +388,97 @@ transform: scale(1);
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const browserWindow = document.getElementById('browserWindow');
-            const closeBtn = document.querySelector('.control-button.close');
-            const browserIcons = document.querySelectorAll('[data-app="browser"]');
-            const maximizeBtn = document.querySelector('.control-button.maximize');
-            const minimizeBtn = document.querySelector('.control-button.minimize');
-            let isBrowserActive = false;
-            let isMaximized = false;
+  document.addEventListener('DOMContentLoaded', () => {
+    const browserWindow = document.getElementById('browserWindow');
+    const closeBtn = document.querySelector('.control-button.close');
+    const browserIcons = document.querySelectorAll('[data-app="browser"]');
+    const maximizeBtn = document.querySelector('.control-button.maximize');
+    const minimizeBtn = document.querySelector('.control-button.minimize');
+    const taskbarIcon = document.querySelector('.taskbar-icon[data-app="browser"]');
+    const browserHeader = browserWindow.querySelector('.browser-header');
+    const iframe = browserWindow.querySelector('iframe');
 
-            function toggleBrowser(show) {
-                browserWindow.classList.toggle('active', show);
-                document.querySelector('.taskbar-icon[data-app="browser"]').classList.toggle('active', show);
-                isBrowserActive = show;
-            }
+    let isBrowserActive = false;
+    let isMaximized = false;
+    let isDragging = false;
+    let initialX, initialY, currentX, currentY;
 
-            browserIcons.forEach(icon => {
-                icon.addEventListener('click', () => toggleBrowser(!isBrowserActive));
-                icon.addEventListener('dblclick', () => toggleBrowser(true));
-            });
-
-            closeBtn.addEventListener('click', () => toggleBrowser(false));
-
-            maximizeBtn.addEventListener('click', () => {
-                isMaximized = !isMaximized;
-                browserWindow.classList.toggle('maximized', isMaximized);
-                maximizeBtn.innerHTML = isMaximized ? '<i class="fas fa-clone"></i>' : '<i class="fas fa-square"></i>';
-            });
-
-            minimizeBtn.addEventListener('click', () => {
-                browserWindow.classList.add('minimized');
-                setTimeout(() => {
-                    browserWindow.style.visibility = 'hidden';
-                }, 300);
-            });
-
-            const browserHeader = document.querySelector('.browser-header');
-            let isDragging = false, currentX, currentY, initialX, initialY, xOffset = 0, yOffset = 0;
-
-            function dragStart(e) {
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
-                if (e.target === browserHeader) isDragging = true;
-            }
-
-            function drag(e) {
-                if (!isDragging) return;
-                e.preventDefault();
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-                xOffset = currentX;
-                yOffset = currentY;
-                browserWindow.style.transform = `translate(${currentX}px, ${currentY}px)`;
-            }
-
-            function dragEnd() {
-                initialX = currentX;
-                initialY = currentY;
-                isDragging = false;
-            }
-
-            browserHeader.addEventListener('mousedown', dragStart);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', dragEnd);
-        });
-    </script>
-    
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const browserWindow = document.getElementById('browserWindow');
-        const closeBtn = document.querySelector('.control-button.close');
-        const browserIcons = document.querySelectorAll('[data-app="browser"]');
-        const maximizeBtn = document.querySelector('.control-button.maximize');
-        const minimizeBtn = document.querySelector('.control-button.minimize');
-        const taskbarIcon = document.querySelector('.taskbar-icon[data-app="browser"]');
-        const browserHeader = browserWindow.querySelector('.browser-header');
-
-        let isBrowserActive = false;
-        let isMaximized = false;
-        let isDragging = false;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        // Show/Hide browser window
-        function toggleBrowser(show) {
-            browserWindow.classList.toggle('active', show);
-            taskbarIcon.classList.toggle('active', show);
-            isBrowserActive = show;
+    function toggleBrowser(show) {
+        browserWindow.classList.toggle('active', show);
+        taskbarIcon.classList.toggle('active', show);
+        isBrowserActive = show;
+        if (!show) {
+            browserWindow.classList.remove('maximized');
+            isMaximized = false;
+            maximizeBtn.innerHTML = '<i class="fas fa-square"></i>';
         }
+    }
 
-        browserIcons.forEach(icon => {
-            icon.addEventListener('click', () => toggleBrowser(!isBrowserActive));
-            icon.addEventListener('dblclick', () => toggleBrowser(true));
-        });
+    function setTransform(x, y) {
+        if (!isMaximized) {
+            browserWindow.style.left = `${x}px`;
+            browserWindow.style.top = `${y}px`;
+        }
+    }
 
-        closeBtn.addEventListener('click', () => toggleBrowser(false));
-
-        maximizeBtn.addEventListener('click', () => {
-            isMaximized = !isMaximized;
-            browserWindow.classList.toggle('maximized', isMaximized);
-            maximizeBtn.innerHTML = isMaximized ? '<i class="fas fa-clone"></i>' : '<i class="fas fa-square"></i>';
-        });
-
-        minimizeBtn.addEventListener('click', () => {
-            browserWindow.classList.add('minimized');
-            setTimeout(() => {
-                browserWindow.style.visibility = 'hidden';
-            }, 300);
-        });
-
-        // --- DRAGGABLE WINDOW LOGIC ---
-        browserHeader.addEventListener('mousedown', (e) => {
-            if (isMaximized) return; // prevent dragging when maximized
-            isDragging = true;
-            const rect = browserWindow.getBoundingClientRect();
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
-            document.body.style.userSelect = 'none';
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            browserWindow.style.left = `${e.clientX - offsetX}px`;
-            browserWindow.style.top = `${e.clientY - offsetY}px`;
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            document.body.style.userSelect = '';
-        });
+    browserIcons.forEach(icon => {
+        icon.addEventListener('click', () => toggleBrowser(!isBrowserActive));
     });
+
+    taskbarIcon.addEventListener('click', () => {
+        if (browserWindow.classList.contains('minimized')) {
+            browserWindow.classList.remove('minimized');
+            toggleBrowser(true);
+        } else {
+            toggleBrowser(!isBrowserActive);
+        }
+    });
+
+    closeBtn.addEventListener('click', () => toggleBrowser(false));
+
+    maximizeBtn.addEventListener('click', () => {
+        isMaximized = !isMaximized;
+        browserWindow.classList.toggle('maximized', isMaximized);
+        maximizeBtn.innerHTML = isMaximized ? 
+            '<i class="fas fa-clone"></i>' : 
+            '<i class="fas fa-square"></i>';
+    });
+
+    minimizeBtn.addEventListener('click', () => {
+        browserWindow.classList.add('minimized');
+        isBrowserActive = false;
+        taskbarIcon.classList.remove('active');
+    });
+
+    browserHeader.addEventListener('mousedown', (e) => {
+        if (isMaximized) return;
+        isDragging = true;
+        const rect = browserWindow.getBoundingClientRect();
+        initialX = e.clientX - rect.left;
+        initialY = e.clientY - rect.top;
+        browserHeader.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+        setTransform(currentX, currentY);
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        browserHeader.style.cursor = 'grab';
+    });
+
+    // Set initial position
+    browserWindow.style.top = '50%';
+    browserWindow.style.left = '50%';
+});
+
 </script>
+
 
 </body>
 </html>
