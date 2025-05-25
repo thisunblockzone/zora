@@ -1347,6 +1347,148 @@ function createTabGroup(color) {
     z-index: 100000;
 }
 
+/* Add these new animation styles to your existing CSS */
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Enhanced popup styles */
+.popup {
+    animation: scaleIn 0.3s ease-out;
+}
+
+.popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(138, 43, 226, 0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+    background: rgba(255, 0, 0, 0.4);
+    transform: rotate(90deg);
+}
+
+/* Bookmark styles */
+.bookmark-button {
+    background: rgba(138, 43, 226, 0.2);
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.bookmark-button:hover {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.bookmark-button.active {
+    color: #ffd700;
+}
+
+/* Enhanced history/bookmark item styles */
+.history-item, .bookmark-item {
+    animation: slideIn 0.3s ease-out;
+    position: relative;
+    padding: 15px;
+    margin: 8px 0;
+    background: rgba(138, 43, 226, 0.1);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.history-item:hover, .bookmark-item:hover {
+    background: rgba(138, 43, 226, 0.2);
+    transform: translateX(5px);
+}
+
+.remove-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: white;
+    opacity: 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.history-item:hover .remove-button,
+.bookmark-item:hover .remove-button {
+    opacity: 1;
+}
+
+/* Popup animations */
+.history-popup, .bookmarks-popup {
+    animation: scaleIn 0.3s ease-out;
+}
+
+/* Tab animations */
+.tab {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Enhanced popup styles */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.popup-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+
 
     </style>
 </head>
@@ -1474,15 +1616,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const newTabBtn = document.querySelector('.new-tab-btn');
     const searchInput = document.querySelector('.search-input');
     const content = document.querySelector('.content');
-    const logo = document.querySelector('.logo');
+    const optionsMenu = document.getElementById('optionsMenu');
+    const historyPopup = document.getElementById('historyPopup');
+    const bookmarksPopup = document.getElementById('bookmarksPopup');
     let tabCount = 2;
     let currentIframe = null;
     let isInspectorActive = false;
 
-    // Store tab data with persistent search values
+    // Create options overlay
+    const optionsOverlay = document.createElement('div');
+    optionsOverlay.className = 'options-overlay';
+    document.body.appendChild(optionsOverlay);
+
+    // Initialize storage
+    let browserHistory = JSON.parse(localStorage.getItem('browserHistory') || '[]');
+    let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
     const tabData = new Map();
 
-    // Initialize the first tab's data
+    // Initialize first tab
     tabData.set('tab-1', {
         url: '',
         title: 'New Tab',
@@ -1492,15 +1643,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listeners to the initial tab
     const initialTab = document.querySelector('.tab');
+    initialTab.setAttribute('data-tab-id', 'tab-1');
     initialTab.querySelector('.close-tab').addEventListener('click', (e) => {
         e.stopPropagation();
-        if (document.querySelectorAll('.tab').length === 1) {
-            return;
-        }
-        tabData.delete(initialTab.getAttribute('data-tab-id'));
-        initialTab.remove();
-        if (document.querySelectorAll('.tab').length === 0) {
-            createTab();
+        if (document.querySelectorAll('.tab').length > 1) {
+            tabData.delete('tab-1');
+            initialTab.remove();
+            // Switch to another tab if available
+            const firstTab = document.querySelector('.tab');
+            if (firstTab) {
+                switchTab(firstTab);
+            }
         }
     });
 
@@ -1508,37 +1661,21 @@ document.addEventListener('DOMContentLoaded', () => {
         switchTab(initialTab);
     });
 
-    // Add input event listener to update searchValue in real-time
-    searchInput.addEventListener('input', (e) => {
-        const activeTab = document.querySelector('.tab.active');
-        if (activeTab) {
-            const tabId = activeTab.getAttribute('data-tab-id');
-            const data = tabData.get(tabId);
-            if (data) {
-                data.searchValue = e.target.value;
-                tabData.set(tabId, data);
-            }
-        }
-    });
-
     function createTab() {
-        const activeTab = document.querySelector('.tab.active');
-        const activeTabData = activeTab ? tabData.get(activeTab.getAttribute('data-tab-id')) : null;
-        const inheritedSearchValue = activeTabData ? activeTabData.searchValue : '';
-
         const tab = document.createElement('div');
         tab.className = 'tab';
-        tab.setAttribute('data-tab-id', `tab-${tabCount}`);
+        const newTabId = `tab-${tabCount}`;
+        tab.setAttribute('data-tab-id', newTabId);
         tab.innerHTML = `
             <span>New Tab</span>
             <div class="close-tab">×</div>
         `;
 
-        // Create tab data object with inherited search value
-        tabData.set(`tab-${tabCount}`, {
+        // Initialize new tab with empty data
+        tabData.set(newTabId, {
             url: '',
             title: 'New Tab',
-            searchValue: inheritedSearchValue,
+            searchValue: '',
             hasIframe: false
         });
 
@@ -1548,27 +1685,25 @@ document.addEventListener('DOMContentLoaded', () => {
         tabBar.insertBefore(tab, newTabBtn);
         tabCount++;
 
-        // Reset content but keep search input value
+        // Reset content and search
         content.innerHTML = `<div class="logo">ZØRA</div>`;
-        searchInput.value = inheritedSearchValue;
+        searchInput.value = '';
         currentIframe = null;
 
-        const closeBtn = tab.querySelector('.close-tab');
-        closeBtn.addEventListener('click', (e) => {
+        tab.querySelector('.close-tab').addEventListener('click', (e) => {
             e.stopPropagation();
-            if (document.querySelectorAll('.tab').length === 1) {
-                return;
-            }
-            tabData.delete(tab.getAttribute('data-tab-id'));
-            tab.remove();
-            if (document.querySelectorAll('.tab').length === 0) {
-                createTab();
+            if (document.querySelectorAll('.tab').length > 1) {
+                tabData.delete(newTabId);
+                tab.remove();
+                // Switch to the next available tab
+                const firstTab = document.querySelector('.tab');
+                if (firstTab) {
+                    switchTab(firstTab);
+                }
             }
         });
 
-        tab.addEventListener('click', () => {
-            switchTab(tab);
-        });
+        tab.addEventListener('click', () => switchTab(tab));
     }
 
     function switchTab(tab) {
@@ -1579,7 +1714,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = tabData.get(tabId);
 
         if (data) {
-            searchInput.value = data.searchValue; // Restore search value
+            searchInput.value = ''; // Clear search input on tab switch
             if (data.hasIframe) {
                 content.innerHTML = '';
                 const iframe = document.createElement('iframe');
@@ -1602,8 +1737,102 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    newTabBtn.addEventListener('click', createTab);
+    // Bookmark functions
+    function addBookmark(url, title) {
+        if (!bookmarks.some(b => b.url === url)) {
+            bookmarks.unshift({ url, title, timestamp: Date.now() });
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            updateBookmarksList();
+        }
+    }
 
+    function removeBookmark(timestamp) {
+        bookmarks = bookmarks.filter(b => b.timestamp !== timestamp);
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        updateBookmarksList();
+    }
+
+    function updateBookmarksList() {
+        const bookmarksList = document.getElementById('bookmarksList');
+        if (bookmarksList) {
+            bookmarksList.innerHTML = bookmarks.map(bookmark => `
+                <div class="bookmark-item">
+                    <i class="fas fa-bookmark"></i>
+                    <div class="item-details">
+                        <div class="item-title">${bookmark.title}</div>
+                        <div class="item-url">${bookmark.url}</div>
+                    </div>
+                    <button class="remove-button" onclick="removeBookmark(${bookmark.timestamp})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+    }
+
+    // History functions
+    function addToHistory(url, title) {
+        browserHistory.unshift({
+            url,
+            title,
+            timestamp: Date.now()
+        });
+        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
+        updateHistoryList();
+    }
+
+    function clearHistory() {
+        browserHistory = [];
+        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
+        updateHistoryList();
+    }
+
+    function updateHistoryList() {
+        const historyList = document.getElementById('historyList');
+        if (historyList) {
+            historyList.innerHTML = browserHistory.map(item => `
+                <div class="history-item">
+                    <i class="fas fa-clock"></i>
+                    <div class="item-details">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-url">${item.url}</div>
+                    </div>
+                    <button class="remove-button" onclick="removeFromHistory(${item.timestamp})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Navigation functions
+    function goBack() {
+        if (currentIframe) {
+            try {
+                currentIframe.contentWindow.history.back();
+            } catch (e) {
+                console.log('Cannot navigate back');
+            }
+        }
+    }
+
+    function goForward() {
+        if (currentIframe) {
+            try {
+                currentIframe.contentWindow.history.forward();
+            } catch (e) {
+                console.log('Cannot navigate forward');
+            }
+        }
+    }
+
+    function refresh() {
+        if (currentIframe) {
+            currentIframe.src = currentIframe.src;
+        }
+    }
+
+    // Search functionality
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             const input = searchInput.value.trim();
@@ -1612,23 +1841,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tabId = activeTab.getAttribute('data-tab-id');
 
                 const isUrl = input.includes('.') && !input.includes(' ');
-                let url;
-                let tabTitle;
-
-                if (isUrl) {
-                    url = input.startsWith('http') ? input : `https://${input}`;
-                    tabTitle = new URL(url).hostname;
-                } else {
-                    url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-                    tabTitle = `${input} - DuckDuckGo`;
-                }
+                let url = isUrl ? 
+                    (input.startsWith('http') ? input : `https://${input}`) :
+                    `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
 
                 const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-
-                activeTab.querySelector('span').textContent = tabTitle;
+                
+                activeTab.querySelector('span').textContent = isUrl ? new URL(url).hostname : `${input} - Search`;
+                
                 tabData.set(tabId, {
                     url: proxyUrl,
-                    title: tabTitle,
+                    title: activeTab.querySelector('span').textContent,
                     searchValue: input,
                     hasIframe: true
                 });
@@ -1648,238 +1871,54 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 1000);
                 }
 
-                addToHistory(url, tabTitle);
+                addToHistory(url, activeTab.querySelector('span').textContent);
             }
         }
     });
 
+    // Initialize Inspector
     function initializeInspector(iframe) {
         if (iframe && iframe.contentWindow) {
-            const iframeWindow = iframe.contentWindow;
             eruda.init({
-                container: iframeWindow.document.body,
+                container: iframe.contentWindow.document.body,
                 tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
             });
         }
     }
 
-    function toggleInspector() {
-        if (!isInspectorActive) {
-            if (currentIframe) {
-                initializeInspector(currentIframe);
-                isInspectorActive = true;
-                inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
-            }
-        } else {
-            eruda.destroy();
-            isInspectorActive = false;
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
-        }
-    }
-
-    const backBtn = document.getElementById('backBtn');
-    const forwardBtn = document.getElementById('forwardBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const inspectBtn = document.getElementById('inspectBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const optionsBtn = document.getElementById('optionsBtn');
-    const optionsMenu = document.getElementById('optionsMenu');
-
-    backBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            currentIframe.contentWindow.history.back();
-        }
+    // Add close buttons to popups
+    [historyPopup, bookmarksPopup].forEach(popup => {
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'popup-close';
+        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        closeBtn.onclick = () => popup.classList.remove('active');
+        popup.appendChild(closeBtn);
     });
 
-    forwardBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            currentIframe.contentWindow.history.forward();
-        }
-    });
-
-    refreshBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            currentIframe.contentWindow.location.reload();
-        }
-    });
-
-    inspectBtn.addEventListener('click', toggleInspector);
-
-    fullscreenBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-            }
-        }
-    });
-
-    optionsBtn.addEventListener('click', (e) => {
+    // Options menu functionality
+    document.getElementById('optionsBtn').addEventListener('click', (e) => {
         e.stopPropagation();
         optionsMenu.classList.toggle('active');
+        optionsOverlay.classList.toggle('active');
     });
 
-    document.addEventListener('click', (e) => {
-        if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
-            optionsMenu.classList.remove('active');
-        }
+    optionsOverlay.addEventListener('click', () => {
+        optionsMenu.classList.remove('active');
+        optionsOverlay.classList.remove('active');
     });
 
-    let browserHistory = [];
-    const historyPopup = document.getElementById('historyPopup');
-    const historyList = document.getElementById('historyList');
-    const clearHistoryBtn = document.getElementById('clearHistory');
-
-    function addToHistory(url, title) {
-        browserHistory.unshift({
-            url,
-            title: title || url,
-            timestamp: new Date().getTime()
-        });
-        updateHistoryList();
-        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
-    }
-
-    function updateHistoryList() {
-        historyList.innerHTML = browserHistory.map(item => `
-            <div class="history-item">
-                <i class="fas fa-clock item-icon"></i>
-                <div class="item-details">
-                    <div class="item-title">${item.title}</div>
-                    <div class="item-url">${item.url}</div>
-                </div>
-                <button class="remove-button" onclick="removeFromHistory('${item.timestamp}')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `).join('');
-    }
-
-    const appLauncher = document.querySelector('.app-launcher-button');
-    const appDrawer = document.getElementById('appDrawer');
-
-    if (appLauncher && appDrawer) {
-        appLauncher.addEventListener('click', () => {
-            appDrawer.classList.toggle('active');
-            appLauncher.classList.toggle('active');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
-                appDrawer.classList.remove('active');
-                appLauncher.classList.remove('active');
-            }
-        });
-    }
-
-    if ('getBattery' in navigator) {
-        navigator.getBattery().then(battery => {
-            function updateBattery() {
-                const level = battery.level * 100;
-                const batteryLevel = document.getElementById('batteryLevel');
-                const batteryText = document.getElementById('batteryText');
-
-                if (batteryLevel && batteryText) {
-                    batteryLevel.style.width = `${level}%`;
-                    batteryText.textContent = `${Math.round(level)}%`;
-
-                    if (level <= 20) {
-                        batteryLevel.style.background = '#ff4444';
-                    } else if (level <= 50) {
-                        batteryLevel.style.background = '#ffaa00';
-                    } else {
-                        batteryLevel.style.background = '#4CAF50';
-                    }
-                }
-            }
-
-            battery.addEventListener('levelchange', updateBattery);
-            updateBattery();
-        });
-    }
-
-    const savedHistory = localStorage.getItem('browserHistory');
-    if (savedHistory) {
-        browserHistory = JSON.parse(savedHistory);
-        updateHistoryList();
-    }
-});
-
-// Add to your existing JavaScript
-function enhanceNavigation() {
-    const backBtn = document.getElementById('backBtn');
-    const forwardBtn = document.getElementById('forwardBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
-
-    function updateNavigationState() {
-        if (currentIframe) {
-            try {
-                const iframeWindow = currentIframe.contentWindow;
-                backBtn.disabled = !iframeWindow.history.length;
-                forwardBtn.disabled = !iframeWindow.history.length;
-            } catch (e) {
-                console.log('Cannot access iframe history');
-            }
-        }
-    }
-
-    backBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            try {
-                currentIframe.contentWindow.history.back();
-                setTimeout(updateNavigationState, 100);
-            } catch (e) {
-                console.log('Cannot navigate back');
-            }
-        }
-    });
-
-    forwardBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            try {
-                currentIframe.contentWindow.history.forward();
-                setTimeout(updateNavigationState, 100);
-            } catch (e) {
-                console.log('Cannot navigate forward');
-            }
-        }
-    });
-
-    refreshBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            try {
-                currentIframe.contentWindow.location.reload();
-            } catch (e) {
-                console.log('Cannot refresh page');
-            }
-        }
-    });
-
-    // Add keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'r') {
-            e.preventDefault();
-            refreshBtn.click();
-        }
-    });
-}
-
-// Add menu item functionality
-function initializeMenuItems() {
+    // Initialize menu items
     const menuItems = {
-        newTabOption: () => createTab(),
+        newTabOption: createTab,
         newWindowOption: () => window.open(window.location.href),
-        historyOption: () => document.getElementById('historyPopup').classList.add('active'),
+        historyOption: () => historyPopup.classList.add('active'),
         downloadsOption: () => alert('Downloads feature coming soon'),
-        bookmarksOption: () => document.getElementById('bookmarksPopup').classList.add('active'),
+        bookmarksOption: () => bookmarksPopup.classList.add('active'),
         zoomInOption: () => {
             if (currentIframe) {
                 try {
-                    currentIframe.contentWindow.document.body.style.zoom = 
-                        (parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1') + 0.1);
+                    const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
+                    currentIframe.contentWindow.document.body.style.zoom = currentZoom + 0.1;
                 } catch (e) {
                     console.log('Cannot zoom in');
                 }
@@ -1888,8 +1927,8 @@ function initializeMenuItems() {
         zoomOutOption: () => {
             if (currentIframe) {
                 try {
-                    currentIframe.contentWindow.document.body.style.zoom = 
-                        (parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1') - 0.1);
+                    const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
+                    currentIframe.contentWindow.document.body.style.zoom = currentZoom - 0.1;
                 } catch (e) {
                     console.log('Cannot zoom out');
                 }
@@ -1913,271 +1952,46 @@ function initializeMenuItems() {
             element.addEventListener('click', () => {
                 handler();
                 optionsMenu.classList.remove('active');
+                optionsOverlay.classList.remove('active');
             });
         }
     });
-}
 
-// Call these functions in your DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', () => {
-    // ... your existing code ...
-    enhanceNavigation();
-    initializeMenuItems();
-});
-
-// Add to your existing JavaScript
-function initializeKeyboardShortcuts() {
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey) {
-            switch (e.key) {
-                case 't':
-                    e.preventDefault();
-                    createTab();
-                    break;
-                case 'n':
-                    e.preventDefault();
-                    window.open(window.location.href);
-                    break;
-                case 'w':
-                    e.preventDefault();
-                    closeCurrentTab();
-                    break;
-                case 'h':
-                    e.preventDefault();
-                    document.getElementById('historyPopup').classList.add('active');
-                    break;
-                case 'b':
-                    e.preventDefault();
-                    document.getElementById('bookmarksPopup').classList.add('active');
-                    break;
-            }
-        }
-    });
-}
-
-// Call this in your DOMContentLoaded event
-document.addEventListener('DOMContentLoaded', () => {
-    // ... your existing code ...
-    initializeKeyboardShortcuts();
-});
-
-function initializeMenuItems() {
-    const menuItems = {
-        newTabOption: createTab,
-        newWindowOption: () => window.open(window.location.href),
-        historyOption: () => document.getElementById('historyPopup').classList.add('active'),
-        downloadsOption: () => alert('Downloads feature coming soon'),
-        bookmarksOption: () => document.getElementById('bookmarksPopup').classList.add('active'),
-        zoomInOption: () => handleZoom(0.1),
-        zoomOutOption: () => handleZoom(-0.1),
-        printOption: handlePrint,
-        settingsOption: () => alert('Settings feature coming soon')
-    };
-
-    Object.entries(menuItems).forEach(([id, handler]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('click', () => {
-                handler();
-                document.getElementById('optionsMenu').classList.remove('active');
-            });
-        }
-    });
-}
-
-function handleZoom(delta) {
-    if (currentIframe) {
-        try {
-            const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
-            currentIframe.contentWindow.document.body.style.zoom = currentZoom + delta;
-        } catch (e) {
-            console.log('Cannot zoom');
-        }
-    }
-}
-
-function handlePrint() {
-    if (currentIframe) {
-        try {
-            currentIframe.contentWindow.print();
-        } catch (e) {
-            console.log('Cannot print');
-        }
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const tabBar = document.getElementById('tabBar');
-    const newTabBtn = document.querySelector('.new-tab-btn');
-    const searchInput = document.querySelector('.search-input');
-    const content = document.querySelector('.content');
-    const logo = document.querySelector('.logo');
-    let tabCount = 2;
-    let currentIframe = null;
-    let isInspectorActive = false;
-
-    // Store tab data
-    const tabData = new Map();
-
-    // Initialize the first tab's data
-    tabData.set('tab-1', {
-        url: '',
-        title: 'New Tab',
-        searchValue: '',
-        hasIframe: false
-    });
-
-    function createTab() {
-        const tab = document.createElement('div');
-        tab.className = 'tab';
-        tab.setAttribute('data-tab-id', `tab-${tabCount}`);
-        tab.innerHTML = `
-            <span>New Tab</span>
-            <div class="close-tab">×</div>
-        `;
-
-        // Create new tab data with empty search value
-        tabData.set(`tab-${tabCount}`, {
-            url: '',
-            title: 'New Tab',
-            searchValue: '', // Empty search value for new tab
-            hasIframe: false
-        });
-
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        tabBar.insertBefore(tab, newTabBtn);
-        tabCount++;
-
-        // Reset content and clear search input
-        content.innerHTML = `<div class="logo">ZØRA</div>`;
-        searchInput.value = ''; // Clear search input
-        currentIframe = null;
-
-        const closeBtn = tab.querySelector('.close-tab');
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (document.querySelectorAll('.tab').length === 1) {
-                return;
-            }
-            tabData.delete(tab.getAttribute('data-tab-id'));
-            tab.remove();
-            if (document.querySelectorAll('.tab').length === 0) {
-                createTab();
-            }
-        });
-
-        tab.addEventListener('click', () => {
-            switchTab(tab);
-        });
-    }
-
-    // Navigation functions
-    function goBack() {
-        if (currentIframe) {
-            try {
-                const iframeDoc = currentIframe.contentWindow.document;
-                const currentUrl = new URL(iframeDoc.location.href);
-                const originalUrl = currentUrl.hash.slice(1);
-                
-                if (originalUrl) {
-                    const newUrl = new URL(originalUrl);
-                    history.back();
-                    currentIframe.src = `https://thisunblockzone.github.io/active/iframe.html#${newUrl.toString()}`;
-                }
-            } catch (e) {
-                console.log('Cannot navigate back');
-            }
-        }
-    }
-
-    function goForward() {
-        if (currentIframe) {
-            try {
-                const iframeDoc = currentIframe.contentWindow.document;
-                const currentUrl = new URL(iframeDoc.location.href);
-                const originalUrl = currentUrl.hash.slice(1);
-                
-                if (originalUrl) {
-                    const newUrl = new URL(originalUrl);
-                    history.forward();
-                    currentIframe.src = `https://thisunblockzone.github.io/active/iframe.html#${newUrl.toString()}`;
-                }
-            } catch (e) {
-                console.log('Cannot navigate forward');
-            }
-        }
-    }
-
-    function refresh() {
-        if (currentIframe) {
-            const currentSrc = currentIframe.src;
-            currentIframe.src = currentSrc;
-        }
-    }
-
-    // Initialize menu items
-    function initializeMenuItems() {
-        const menuItems = {
-            newTabOption: () => createTab(),
-            newWindowOption: () => window.open(window.location.href),
-            historyOption: () => document.getElementById('historyPopup').classList.add('active'),
-            downloadsOption: () => alert('Downloads feature coming soon'),
-            bookmarksOption: () => document.getElementById('bookmarksPopup').classList.add('active'),
-            zoomInOption: () => {
-                if (currentIframe) {
-                    try {
-                        const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
-                        currentIframe.contentWindow.document.body.style.zoom = currentZoom + 0.1;
-                    } catch (e) {
-                        console.log('Cannot zoom in');
-                    }
-                }
-            },
-            zoomOutOption: () => {
-                if (currentIframe) {
-                    try {
-                        const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
-                        currentIframe.contentWindow.document.body.style.zoom = currentZoom - 0.1;
-                    } catch (e) {
-                        console.log('Cannot zoom out');
-                    }
-                }
-            },
-            printOption: () => {
-                if (currentIframe) {
-                    try {
-                        currentIframe.contentWindow.print();
-                    } catch (e) {
-                        console.log('Cannot print');
-                    }
-                }
-            },
-            settingsOption: () => alert('Settings feature coming soon')
-        };
-
-        Object.entries(menuItems).forEach(([id, handler]) => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('click', () => {
-                    handler();
-                    document.getElementById('optionsMenu').classList.remove('active');
-                });
-            }
-        });
-    }
-
-    // Add event listeners for navigation buttons
+    // Event listeners
+    newTabBtn.addEventListener('click', createTab);
+    document.getElementById('clearHistory').addEventListener('click', clearHistory);
     document.getElementById('backBtn').addEventListener('click', goBack);
     document.getElementById('forwardBtn').addEventListener('click', goForward);
     document.getElementById('refreshBtn').addEventListener('click', refresh);
+    document.getElementById('inspectBtn').addEventListener('click', () => {
+        isInspectorActive = !isInspectorActive;
+        if (currentIframe) {
+            if (isInspectorActive) {
+                initializeInspector(currentIframe);
+            } else {
+                eruda.destroy();
+            }
+        }
+    });
 
-    // Initialize menu items
-    initializeMenuItems();
+    // Initialize bookmark button
+    const bookmarkBtn = document.createElement('button');
+    bookmarkBtn.className = 'bookmark-button';
+    bookmarkBtn.innerHTML = '<i class="fas fa-bookmark"></i>';
+    bookmarkBtn.onclick = () => {
+        if (currentIframe) {
+            const activeTab = document.querySelector('.tab.active');
+            const url = currentIframe.src;
+            const title = activeTab.querySelector('span').textContent;
+            addBookmark(url, title);
+            bookmarkBtn.classList.add('active');
+        }
+    };
+    document.querySelector('.action-buttons').insertBefore(bookmarkBtn, document.getElementById('optionsBtn'));
 
-    // Rest of your existing code...
-    // (Keep all other functions and event listeners the same)
+    // Initial setup
+    updateHistoryList();
+    updateBookmarksList();
 });
 
 
