@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1435,24 +1432,62 @@ function createTabGroup(color) {
 
     <script>
     
-// Tab functionality
 document.addEventListener('DOMContentLoaded', () => {
     const tabBar = document.getElementById('tabBar');
     const newTabBtn = document.querySelector('.new-tab-btn');
     const searchInput = document.querySelector('.search-input');
     const content = document.querySelector('.content');
     const logo = document.querySelector('.logo');
-    let tabCount = 1;
+    let tabCount = 2; // Start at 2 since we already have tab-1
     let currentIframe = null;
     let isInspectorActive = false;
+    
+    // Store tab data
+    const tabData = new Map();
+
+    // Initialize the first tab's data
+    tabData.set('tab-1', {
+        url: '',
+        title: 'New Tab',
+        searchValue: '',
+        hasIframe: false
+    });
+
+    // Add event listeners to the initial tab
+    const initialTab = document.querySelector('.tab');
+    initialTab.querySelector('.close-tab').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (document.querySelectorAll('.tab').length === 1) {
+            // Don't allow closing the last tab
+            return;
+        }
+        tabData.delete(initialTab.getAttribute('data-tab-id'));
+        initialTab.remove();
+        if (document.querySelectorAll('.tab').length === 0) {
+            createTab();
+        }
+    });
+
+    initialTab.addEventListener('click', () => {
+        switchTab(initialTab);
+    });
 
     function createTab() {
         const tab = document.createElement('div');
         tab.className = 'tab';
+        tab.setAttribute('data-tab-id', `tab-${tabCount}`);
         tab.innerHTML = `
             <span>New Tab</span>
             <div class="close-tab">×</div>
         `;
+        
+        // Create tab data object
+        tabData.set(`tab-${tabCount}`, {
+            url: '',
+            title: 'New Tab',
+            searchValue: '',
+            hasIframe: false
+        });
         
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
@@ -1460,9 +1495,19 @@ document.addEventListener('DOMContentLoaded', () => {
         tabBar.insertBefore(tab, newTabBtn);
         tabCount++;
 
+        // Reset content for new tab
+        content.innerHTML = `<div class="logo">ZØRA</div>`;
+        searchInput.value = '';
+        currentIframe = null;
+
         const closeBtn = tab.querySelector('.close-tab');
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (document.querySelectorAll('.tab').length === 1) {
+                // Don't allow closing the last tab
+                return;
+            }
+            tabData.delete(tab.getAttribute('data-tab-id'));
             tab.remove();
             if (document.querySelectorAll('.tab').length === 0) {
                 createTab();
@@ -1470,9 +1515,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+            switchTab(tab);
         });
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        const tabId = tab.getAttribute('data-tab-id');
+        const data = tabData.get(tabId);
+        
+        if (data) {
+            searchInput.value = data.searchValue;
+            if (data.hasIframe) {
+                content.innerHTML = '';
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = data.url;
+                content.appendChild(iframe);
+                currentIframe = iframe;
+                
+                // Reinitialize inspector if active
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        initializeInspector(iframe);
+                    }, 1000);
+                }
+            } else {
+                content.innerHTML = `<div class="logo">ZØRA</div>`;
+                currentIframe = null;
+            }
+        }
     }
 
     newTabBtn.addEventListener('click', createTab);
@@ -1482,53 +1558,79 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') {
             const input = searchInput.value.trim();
             if (input) {
-                // Check if input is a URL or search term
+                const activeTab = document.querySelector('.tab.active');
+                const tabId = activeTab.getAttribute('data-tab-id');
+                
                 const isUrl = input.includes('.') && !input.includes(' ');
                 let url;
                 let tabTitle;
                 
                 if (isUrl) {
-                    // Handle URL input
                     url = input.startsWith('http') ? input : `https://${input}`;
                     tabTitle = new URL(url).hostname;
                 } else {
-                    // Handle search term
                     url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
                     tabTitle = `${input} - DuckDuckGo`;
                 }
                 
-                // Create proxy URL
                 const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
                 
-                // Update tab title
-                const activeTab = document.querySelector('.tab.active span');
-                activeTab.textContent = tabTitle;
+                // Update tab title and data
+                activeTab.querySelector('span').textContent = tabTitle;
+                tabData.set(tabId, {
+                    url: proxyUrl,
+                    title: tabTitle,
+                    searchValue: input,
+                    hasIframe: true
+                });
                 
-                // Hide logo and create iframe
-                logo.style.display = 'none';
-                
+                // Create and show iframe
+                content.innerHTML = '';
                 const iframe = document.createElement('iframe');
                 iframe.style.width = '100%';
                 iframe.style.height = '100%';
                 iframe.style.border = 'none';
                 iframe.src = proxyUrl;
-                
-                content.innerHTML = '';
                 content.appendChild(iframe);
                 currentIframe = iframe;
                 
-                // If inspector is active, reinitialize it for the new page
+                // If inspector is active, initialize it for the new iframe
                 if (isInspectorActive) {
                     setTimeout(() => {
-                        eruda.init();
+                        initializeInspector(iframe);
                     }, 1000);
                 }
 
-                // Add to history
                 addToHistory(url, tabTitle);
             }
         }
     });
+
+    function initializeInspector(iframe) {
+        if (iframe && iframe.contentWindow) {
+            // Target the iframe's window for inspection
+            const iframeWindow = iframe.contentWindow;
+            eruda.init({
+                container: iframeWindow.document.body,
+                tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
+            });
+        }
+    }
+
+    // Inspector functionality
+    function toggleInspector() {
+        if (!isInspectorActive) {
+            if (currentIframe) {
+                initializeInspector(currentIframe);
+                isInspectorActive = true;
+                inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
+            }
+        } else {
+            eruda.destroy();
+            isInspectorActive = false;
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
+        }
+    }
 
     // Navigation buttons functionality
     const backBtn = document.getElementById('backBtn');
@@ -1538,16 +1640,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const optionsBtn = document.getElementById('optionsBtn');
     const optionsMenu = document.getElementById('optionsMenu');
-
-    function updateNavButtons() {
-        if (currentIframe) {
-            backBtn.disabled = !currentIframe.contentWindow.history.length;
-            forwardBtn.disabled = true; // Enable when forward history exists
-        } else {
-            backBtn.disabled = true;
-            forwardBtn.disabled = true;
-        }
-    }
 
     backBtn.addEventListener('click', () => {
         if (currentIframe) {
@@ -1567,23 +1659,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Inspector functionality
-    function toggleInspector() {
-        if (!isInspectorActive) {
-            eruda.init();
-            isInspectorActive = true;
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
-        } else {
-            eruda.destroy();
-            isInspectorActive = false;
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
-        }
-    }
-
     inspectBtn.addEventListener('click', toggleInspector);
 
     // Fullscreen functionality
-    function toggleFullscreen() {
+    fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
             fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
@@ -1593,9 +1672,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
             }
         }
-    }
-
-    fullscreenBtn.addEventListener('click', toggleFullscreen);
+    });
 
     // Options menu functionality
     optionsBtn.addEventListener('click', (e) => {
@@ -1655,7 +1732,6 @@ document.addEventListener('DOMContentLoaded', () => {
             appLauncher.classList.remove('active');
         }
     });
-
 
     // Battery indicator
     if ('getBattery' in navigator) {
