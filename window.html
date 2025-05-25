@@ -1,1 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background-image: url('https://images.unsplash.com/photo-1673526759327-54f1f5b27322?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+        }
+
+        .desktop-icons {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 20px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .app-icon {
+            width: 70px;
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .app-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .icon-img {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .icon-text {
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(15px);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .taskbar-icons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .taskbar-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .taskbar-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .taskbar-icon.active {
+            background: rgba(138, 43, 226, 0.4);
+        }
+
+        /* Browser Window Styles */
+        .browser-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90vw;
+            height: 85vh;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .browser-window.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .browser-header {
+            height: 40px;
+            background: rgba(40, 40, 40, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-button {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27c93f; }
+
+        .browser-content {
+            height: calc(100% - 40px);
+        }
+
+        .browser-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* App Launcher Button */
+        .app-launcher-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(138, 43, 226, 0.3);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-launcher-button:hover {
+            background: rgba(138, 43, 226, 0.5);
+            transform: scale(1.1);
+        }
+
+        .launcher-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .launcher-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .app-launcher-button:hover .launcher-circle::before {
+            opacity: 1;
+        }
+        
+        /* Replace the window controls CSS with this */
+.window-controls {
+    display: flex;
+    gap: 8px;
+    margin-right: 15px;
+}
+
+.control-button {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.control-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.control-button.close:hover {
+    background: rgba(255, 0, 0, 0.2);
+}
+
+.control-button.maximize:hover {
+    background: rgba(138, 43, 226, 0.2);
+}
+
+.control-button.minimize:hover {
+    background: rgba(138, 43, 226, 0.2);
+}
+
+/* Add window state classes */
+.browser-window.maximized {
+    width: 100vw !important;
+    height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    border-radius: 0;
+}
+
+.browser-window.minimized {
+    transform: translate(-50%, 100vh) scale(0.5);
+    opacity: 0;
+}
+
+/* Add this to your CSS */
+.taskbar-icon[data-app="browser"] {
+    background: linear-gradient(45deg, #4B0082, #800080);
+    box-shadow: 0 2px 8px rgba(138, 43, 226, 0.3);
+}
+
+.taskbar-icon[data-app="browser"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
+}
+
+.taskbar-icon[data-app="browser"].active {
+    background: linear-gradient(45deg, #800080, #4B0082);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="desktop-icons">
+        <div class="app-icon" data-app="browser">
+            <div class="icon-img">
+                <i class="fas fa-globe"></i>
+            </div>
+            <span class="icon-text">Browser</span>
+        </div>
+        <div class="app-icon">
+            <div class="icon-img">
+                <i class="fas fa-folder"></i>
+            </div>
+            <span class="icon-text">Files</span>
+        </div>
+        <div class="app-icon">
+            <div class="icon-img">
+                <i class="fas fa-cog"></i>
+            </div>
+            <span class="icon-text">Settings</span>
+        </div>
+        <div class="app-icon">
+            <div class="icon-img">
+                <i class="fab fa-spotify"></i>
+            </div>
+            <span class="icon-text">Spotify</span>
+        </div>
+        <div class="app-icon">
+            <div class="icon-img">
+                <i class="fas fa-store"></i>
+            </div>
+            <span class="icon-text">Store</span>
+        </div>
+    </div>
+
+    <div class="browser-window" id="browserWindow">
+        <div class="browser-header">
+<!-- Replace the window controls div with this -->
+<div class="window-controls">
+    <button class="control-button minimize" title="Minimize">
+        <i class="fas fa-minus"></i>
+    </button>
+    <button class="control-button maximize" title="Maximize">
+        <i class="fas fa-square"></i>
+    </button>
+    <button class="control-button close" title="Close">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+        <div class="browser-content">
+            <iframe src="https://thisunblockzone.github.io/zora/" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <div class="app-launcher-button">
+            <div class="launcher-circle"></div>
+        </div>
+        <div class="taskbar-icons">
+            <div class="taskbar-icon" data-app="browser">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="taskbar-icon">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="taskbar-icon">
+                <i class="fas fa-cog"></i>
+            </div>
+            <div class="taskbar-icon">
+                <i class="fab fa-spotify"></i>
+            </div>
+            <div class="taskbar-icon">
+                <i class="fas fa-store"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const browserWindow = document.getElementById('browserWindow');
+            const closeButton = document.getElementById('closeButton');
+            const browserIcons = document.querySelectorAll('[data-app="browser"]');
+            let isBrowserActive = false;
+
+            function toggleBrowser(show) {
+                if (show) {
+                    browserWindow.classList.add('active');
+                    document.querySelector('.taskbar-icon[data-app="browser"]').classList.add('active');
+                    isBrowserActive = true;
+                } else {
+                    browserWindow.classList.remove('active');
+                    document.querySelector('.taskbar-icon[data-app="browser"]').classList.remove('active');
+                    isBrowserActive = false;
+                }
+            }
+
+            browserIcons.forEach(icon => {
+                icon.addEventListener('click', () => {
+                    if (!isBrowserActive) {
+                        toggleBrowser(true);
+                    } else {
+                        browserWindow.style.opacity = '1';
+                    }
+                });
+            });
+
+            closeButton.addEventListener('click', () => {
+                toggleBrowser(false);
+            });
+
+            // Double-click to open browser
+            browserIcons.forEach(icon => {
+                icon.addEventListener('dblclick', () => {
+                    toggleBrowser(true);
+                });
+            });
+
+            // Make browser window draggable
+            const browserHeader = document.querySelector('.browser-header');
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            browserHeader.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+
+                if (e.target === browserHeader) {
+                    isDragging = true;
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    setTranslate(currentX, currentY, browserWindow);
+                }
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+            }
+
+            function dragEnd() {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+            }
+        });
+        
+        // Add this to your existing JavaScript
+function initializeWindowControls() {
+    const browserWindow = document.getElementById('browserWindow');
+    const minimizeBtn = document.querySelector('.control-button.minimize');
+    const maximizeBtn = document.querySelector('.control-button.maximize');
+    const closeBtn = document.querySelector('.control-button.close');
+    let isMaximized = false;
+
+    minimizeBtn.addEventListener('click', () => {
+        browserWindow.classList.add('minimized');
+        setTimeout(() => {
+            browserWindow.style.visibility = 'hidden';
+        }, 300);
+    });
+
+    maximizeBtn.addEventListener('click', () => {
+        isMaximized = !isMaximized;
+        if (isMaximized) {
+            browserWindow.classList.add('maximized');
+            maximizeBtn.innerHTML = '<i class="fas fa-clone"></i>';
+        } else {
+            browserWindow.classList.remove('maximized');
+            maximizeBtn.innerHTML = '<i class="fas fa-square"></i>';
+        }
+    });
+
+    closeBtn.addEventListener('click', () => {
+        browserWindow.classList.remove('active');
+        document.querySelector('.taskbar-icon[data-app="browser"]').classList.remove('active');
+    });
+
+    // Restore window when clicking taskbar icon
+    document.querySelector('.taskbar-icon[data-app="browser"]').addEventListener('click', () => {
+        if (browserWindow.classList.contains('minimized')) {
+            browserWindow.classList.remove('minimized');
+            browserWindow.style.visibility = 'visible';
+        }
+    });
+}
+
+// Call this function after your DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initializeWindowControls();
+    // ... your other initialization code
+});
+
+    </script>
+</body>
+</html>
 
