@@ -1488,6 +1488,85 @@ function createTabGroup(color) {
 }
 
 
+/* Add to your existing CSS */
+.eruda-container {
+    z-index: 100000 !important; /* Ensure inspector is always on top */
+    position: relative;
+}
+
+.fullscreen-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    z-index: 99999;
+    display: none;
+}
+
+.fullscreen-container.active {
+    display: block;
+}
+
+.content iframe {
+    border: none;
+    width: 100%;
+    height: 100%;
+}
+
+/* Ensure inspector is above iframe content */
+#eruda {
+    position: relative;
+    z-index: 100000 !important;
+}
+
+.eruda-dev-tools {
+    z-index: 100000 !important;
+}
+
+.iframe-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.content {
+    position: relative;
+}
+
+.bookmark-button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(138, 43, 226, 0.2);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: -2px 4px 0 4px; /* <-- move up with negative top margin */
+}
+
+
+.bookmark-button:hover {
+    background: rgba(138, 43, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.bookmark-button.active {
+    color: #ffd700;
+    background: rgba(138, 43, 226, 0.4);
+}
+
+.bookmark-button i {
+    font-size: 14px;
+}
 
 
     </style>
@@ -1977,7 +2056,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize bookmark button
     const bookmarkBtn = document.createElement('button');
     bookmarkBtn.className = 'bookmark-button';
-    bookmarkBtn.innerHTML = '<i class="fas fa-bookmark"></i>';
+    bookmarkBtn.innerHTML = '<i class="fas fa-star"></i>';
     bookmarkBtn.onclick = () => {
         if (currentIframe) {
             const activeTab = document.querySelector('.tab.active');
@@ -1992,6 +2071,679 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial setup
     updateHistoryList();
     updateBookmarksList();
+});
+
+
+// Add these functions inside your DOMContentLoaded event listener
+
+// Initialize Inspector specifically for iframe content
+function initializeInspector(iframe) {
+    if (iframe && iframe.contentWindow) {
+        try {
+            // Remove any existing Eruda instance
+            if (iframe.contentWindow.eruda) {
+                iframe.contentWindow.eruda.destroy();
+            }
+
+            // Initialize new Eruda instance in iframe
+            const script = iframe.contentWindow.document.createElement('script');
+            script.src = '//cdn.jsdelivr.net/npm/eruda';
+            script.onload = () => {
+                iframe.contentWindow.eruda.init({
+                    container: iframe.contentWindow.document.body,
+                    tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
+                });
+                
+                // Style adjustments for Eruda within iframe
+                const erudaContainer = iframe.contentWindow.document.querySelector('.eruda-container');
+                if (erudaContainer) {
+                    erudaContainer.style.zIndex = '100000';
+                    erudaContainer.style.position = 'fixed';
+                }
+            };
+            iframe.contentWindow.document.head.appendChild(script);
+        } catch (e) {
+            console.log('Error initializing inspector:', e);
+        }
+    }
+}
+
+// Fullscreen handling
+function toggleFullscreen(iframe) {
+    if (!document.fullscreenElement) {
+        if (iframe) {
+            iframe.requestFullscreen().catch(err => {
+                console.log(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        } else {
+            document.documentElement.requestFullscreen();
+        }
+        document.getElementById('fullscreenBtn').innerHTML = '<i class="fas fa-compress"></i>';
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            document.getElementById('fullscreenBtn').innerHTML = '<i class="fas fa-expand"></i>';
+        }
+    }
+}
+
+// Update the event listeners section:
+document.getElementById('inspectBtn').addEventListener('click', () => {
+    isInspectorActive = !isInspectorActive;
+    const inspectBtn = document.getElementById('inspectBtn');
+    
+    if (currentIframe) {
+        if (isInspectorActive) {
+            initializeInspector(currentIframe);
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
+        } else {
+            try {
+                if (currentIframe.contentWindow.eruda) {
+                    currentIframe.contentWindow.eruda.destroy();
+                }
+            } catch (e) {
+                console.log('Error destroying inspector:', e);
+            }
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
+        }
+    }
+});
+
+document.getElementById('fullscreenBtn').addEventListener('click', () => {
+    toggleFullscreen(currentIframe);
+});
+
+// Modify the search input handler to include inspector reinitialization
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const input = searchInput.value.trim();
+        if (input) {
+            // ... (keep existing search input handling code) ...
+
+            content.innerHTML = '';
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.src = proxyUrl;
+            content.appendChild(iframe);
+            currentIframe = iframe;
+
+            // Reinitialize inspector if active
+            if (isInspectorActive) {
+                iframe.onload = () => {
+                    initializeInspector(iframe);
+                };
+            }
+
+            addToHistory(url, activeTab.querySelector('span').textContent);
+        }
+    }
+});
+
+// Add this to handle fullscreen changes
+document.addEventListener('fullscreenchange', () => {
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    if (document.fullscreenElement) {
+        fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+    } else {
+        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+    }
+});
+
+// Modify the switchTab function to handle inspector
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    const tabId = tab.getAttribute('data-tab-id');
+    const data = tabData.get(tabId);
+
+    if (data) {
+        searchInput.value = ''; // Clear search input on tab switch
+        if (data.hasIframe) {
+            content.innerHTML = '';
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.src = data.url;
+            content.appendChild(iframe);
+            currentIframe = iframe;
+
+            // Reinitialize inspector if active
+            if (isInspectorActive) {
+                iframe.onload = () => {
+                    initializeInspector(iframe);
+                };
+            }
+        } else {
+            content.innerHTML = `<div class="logo">ZØRA</div>`;
+            currentIframe = null;
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tabBar = document.getElementById('tabBar');
+    const newTabBtn = document.querySelector('.new-tab-btn');
+    const searchInput = document.querySelector('.search-input');
+    const content = document.querySelector('.content');
+    const logo = document.querySelector('.logo');
+    let tabCount = 2; // Start at 2 since we already have tab-1
+    let currentIframe = null;
+    let isInspectorActive = false;
+    
+    // Store tab data
+    const tabData = new Map();
+
+    // Initialize the first tab's data
+    tabData.set('tab-1', {
+        url: '',
+        title: 'New Tab',
+        searchValue: '',
+        hasIframe: false
+    });
+
+    // Add event listeners to the initial tab
+    const initialTab = document.querySelector('.tab');
+    initialTab.querySelector('.close-tab').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (document.querySelectorAll('.tab').length === 1) {
+            // Don't allow closing the last tab
+            return;
+        }
+        tabData.delete(initialTab.getAttribute('data-tab-id'));
+        initialTab.remove();
+        if (document.querySelectorAll('.tab').length === 0) {
+            createTab();
+        }
+    });
+
+    initialTab.addEventListener('click', () => {
+        switchTab(initialTab);
+    });
+
+    function createTab() {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.setAttribute('data-tab-id', `tab-${tabCount}`);
+        tab.innerHTML = `
+            <span>New Tab</span>
+            <div class="close-tab">×</div>
+        `;
+        
+        // Create tab data object
+        tabData.set(`tab-${tabCount}`, {
+            url: '',
+            title: 'New Tab',
+            searchValue: '',
+            hasIframe: false
+        });
+        
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        tabBar.insertBefore(tab, newTabBtn);
+        tabCount++;
+
+        // Reset content for new tab
+        content.innerHTML = `<div class="logo">ZØRA</div>`;
+        searchInput.value = '';
+        currentIframe = null;
+
+        const closeBtn = tab.querySelector('.close-tab');
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (document.querySelectorAll('.tab').length === 1) {
+                // Don't allow closing the last tab
+                return;
+            }
+            tabData.delete(tab.getAttribute('data-tab-id'));
+            tab.remove();
+            if (document.querySelectorAll('.tab').length === 0) {
+                createTab();
+            }
+        });
+
+        tab.addEventListener('click', () => {
+            switchTab(tab);
+        });
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        const tabId = tab.getAttribute('data-tab-id');
+        const data = tabData.get(tabId);
+        
+        if (data) {
+            searchInput.value = data.searchValue;
+            if (data.hasIframe) {
+                content.innerHTML = '';
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = data.url;
+                content.appendChild(iframe);
+                currentIframe = iframe;
+                
+                // Reinitialize inspector if active
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        initializeInspector(iframe);
+                    }, 1000);
+                }
+            } else {
+                content.innerHTML = `<div class="logo">ZØRA</div>`;
+                currentIframe = null;
+            }
+        }
+    }
+
+    newTabBtn.addEventListener('click', createTab);
+
+    // Search functionality
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const input = searchInput.value.trim();
+            if (input) {
+                const activeTab = document.querySelector('.tab.active');
+                const tabId = activeTab.getAttribute('data-tab-id');
+                
+                const isUrl = input.includes('.') && !input.includes(' ');
+                let url;
+                let tabTitle;
+                
+                if (isUrl) {
+                    url = input.startsWith('http') ? input : `https://${input}`;
+                    tabTitle = new URL(url).hostname;
+                } else {
+                    url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+                    tabTitle = `${input} - DuckDuckGo`;
+                }
+                
+                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
+                
+                // Update tab title and data
+                activeTab.querySelector('span').textContent = tabTitle;
+                tabData.set(tabId, {
+                    url: proxyUrl,
+                    title: tabTitle,
+                    searchValue: input,
+                    hasIframe: true
+                });
+                
+                // Create and show iframe
+                content.innerHTML = '';
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = proxyUrl;
+                content.appendChild(iframe);
+                currentIframe = iframe;
+                
+                // If inspector is active, initialize it for the new iframe
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        initializeInspector(iframe);
+                    }, 1000);
+                }
+
+                addToHistory(url, tabTitle);
+            }
+        }
+    });
+
+    function initializeInspector(iframe) {
+        if (iframe && iframe.contentWindow) {
+            // Target the iframe's window for inspection
+            const iframeWindow = iframe.contentWindow;
+            eruda.init({
+                container: iframeWindow.document.body,
+                tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
+            });
+        }
+    }
+
+    // Inspector functionality
+    function toggleInspector() {
+        if (!isInspectorActive) {
+            if (currentIframe) {
+                initializeInspector(currentIframe);
+                isInspectorActive = true;
+                inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
+            }
+        } else {
+            eruda.destroy();
+            isInspectorActive = false;
+            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
+        }
+    }
+
+    // Navigation buttons functionality
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const inspectBtn = document.getElementById('inspectBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const optionsBtn = document.getElementById('optionsBtn');
+    const optionsMenu = document.getElementById('optionsMenu');
+
+    backBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            currentIframe.contentWindow.history.back();
+        }
+    });
+
+    forwardBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            currentIframe.contentWindow.history.forward();
+        }
+    });
+
+    refreshBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            currentIframe.contentWindow.location.reload();
+        }
+    });
+
+    inspectBtn.addEventListener('click', toggleInspector);
+
+    // Fullscreen functionality
+    fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+    });
+
+    // Options menu functionality
+    optionsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        optionsMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
+            optionsMenu.classList.remove('active');
+        }
+    });
+
+    // History management
+    let browserHistory = [];
+    const historyPopup = document.getElementById('historyPopup');
+    const historyList = document.getElementById('historyList');
+    const clearHistoryBtn = document.getElementById('clearHistory');
+
+    function addToHistory(url, title) {
+        browserHistory.unshift({
+            url,
+            title: title || url,
+            timestamp: new Date().getTime()
+        });
+        updateHistoryList();
+        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
+    }
+
+    function updateHistoryList() {
+        historyList.innerHTML = browserHistory.map(item => `
+            <div class="history-item">
+                <i class="fas fa-clock item-icon"></i>
+                <div class="item-details">
+                    <div class="item-title">${item.title}</div>
+                    <div class="item-url">${item.url}</div>
+                </div>
+                <button class="remove-button" onclick="removeFromHistory('${item.timestamp}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // App Launcher functionality
+    const appLauncher = document.querySelector('.app-launcher-button');
+    const appDrawer = document.getElementById('appDrawer');
+
+    appLauncher.addEventListener('click', () => {
+        appDrawer.classList.toggle('active');
+        appLauncher.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
+            appDrawer.classList.remove('active');
+            appLauncher.classList.remove('active');
+        }
+    });
+
+    // Battery indicator
+    if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+            function updateBattery() {
+                const level = battery.level * 100;
+                const batteryLevel = document.getElementById('batteryLevel');
+                const batteryText = document.getElementById('batteryText');
+                
+                batteryLevel.style.width = `${level}%`;
+                batteryText.textContent = `${Math.round(level)}%`;
+
+                if (level <= 20) {
+                    batteryLevel.style.background = '#ff4444';
+                } else if (level <= 50) {
+                    batteryLevel.style.background = '#ffaa00';
+                } else {
+                    batteryLevel.style.background = '#4CAF50';
+                }
+            }
+
+            battery.addEventListener('levelchange', updateBattery);
+            updateBattery();
+        });
+    }
+
+    // Load saved history
+    const savedHistory = localStorage.getItem('browserHistory');
+    if (savedHistory) {
+        browserHistory = JSON.parse(savedHistory);
+        updateHistoryList();
+    }
+});
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    const tabId = tab.getAttribute('data-tab-id');
+    const data = tabData.get(tabId);
+    
+    if (data) {
+        searchInput.value = data.searchValue;
+        if (data.hasIframe) {
+            // Check if iframe already exists for this tab
+            const existingIframe = document.querySelector(`iframe[data-tab-id="${tabId}"]`);
+            
+            if (existingIframe) {
+                // If iframe exists, just show it and hide others
+                document.querySelectorAll('iframe').forEach(iframe => {
+                    iframe.style.display = 'none';
+                });
+                existingIframe.style.display = 'block';
+                currentIframe = existingIframe;
+            } else {
+                // If no iframe exists for this tab, create a new one
+                document.querySelectorAll('iframe').forEach(iframe => {
+                    iframe.style.display = 'none';
+                });
+                
+                const iframe = document.createElement('iframe');
+                iframe.setAttribute('data-tab-id', tabId);
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = data.url;
+                content.appendChild(iframe);
+                currentIframe = iframe;
+                
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        initializeInspector(iframe);
+                    }, 1000);
+                }
+            }
+            
+            // Hide the logo if it exists
+            const logo = content.querySelector('.logo');
+            if (logo) logo.style.display = 'none';
+            
+        } else {
+            // For new tabs, show logo and hide all iframes
+            document.querySelectorAll('iframe').forEach(iframe => {
+                iframe.style.display = 'none';
+            });
+            
+            // Show or create logo
+            let logo = content.querySelector('.logo');
+            if (!logo) {
+                content.innerHTML = '<div class="logo">ZØRA</div>';
+            } else {
+                logo.style.display = 'block';
+            }
+            currentIframe = null;
+        }
+    }
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    const tabId = tab.getAttribute('data-tab-id');
+    const data = tabData.get(tabId);
+    
+    if (data) {
+        searchInput.value = data.searchValue;
+        if (data.hasIframe) {
+            // Instead of modifying content, just hide/show the appropriate containers
+            const containers = document.querySelectorAll('.iframe-container');
+            containers.forEach(container => {
+                if (container.getAttribute('data-tab-id') === tabId) {
+                    container.style.display = 'block';
+                    currentIframe = container.querySelector('iframe');
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+
+            // If no container exists for this tab, create one
+            if (!currentIframe) {
+                const container = document.createElement('div');
+                container.className = 'iframe-container';
+                container.setAttribute('data-tab-id', tabId);
+                
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = data.url;
+                
+                container.appendChild(iframe);
+                content.appendChild(container);
+                currentIframe = iframe;
+
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        initializeInspector(iframe);
+                    }, 1000);
+                }
+            }
+
+            // Hide the logo
+            const logo = document.querySelector('.logo');
+            if (logo) logo.style.display = 'none';
+        } else {
+            // For new tabs, hide all iframe containers
+            document.querySelectorAll('.iframe-container').forEach(container => {
+                container.style.display = 'none';
+            });
+
+            // Show logo
+            let logo = document.querySelector('.logo');
+            if (!logo) {
+                content.innerHTML = '<div class="logo">ZØRA</div>';
+            } else {
+                logo.style.display = 'block';
+            }
+            currentIframe = null;
+        }
+    }
+}
+
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const input = searchInput.value.trim();
+        if (input) {
+            const activeTab = document.querySelector('.tab.active');
+            const tabId = activeTab.getAttribute('data-tab-id');
+
+            const isUrl = input.includes('.') && !input.includes(' ');
+            let url = isUrl ? 
+                (input.startsWith('http') ? input : `https://${input}`) :
+                `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+
+            const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
+            
+            activeTab.querySelector('span').textContent = isUrl ? new URL(url).hostname : `${input} - Search`;
+            
+            // Hide all existing containers
+            document.querySelectorAll('.iframe-container').forEach(container => {
+                container.style.display = 'none';
+            });
+
+            // Create new container for this tab
+            const container = document.createElement('div');
+            container.className = 'iframe-container';
+            container.setAttribute('data-tab-id', tabId);
+            
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.src = proxyUrl;
+            
+            container.appendChild(iframe);
+            content.appendChild(container);
+            currentIframe = iframe;
+
+            // Update tab data
+            tabData.set(tabId, {
+                url: proxyUrl,
+                title: activeTab.querySelector('span').textContent,
+                searchValue: input,
+                hasIframe: true
+            });
+
+            // Hide logo
+            const logo = document.querySelector('.logo');
+            if (logo) logo.style.display = 'none';
+
+            if (isInspectorActive) {
+                setTimeout(() => {
+                    initializeInspector(iframe);
+                }, 1000);
+            }
+
+            addToHistory(url, activeTab.querySelector('span').textContent);
+        }
+    }
 });
 
 
