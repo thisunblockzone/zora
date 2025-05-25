@@ -348,6 +348,11 @@
     z-index: 2000; /* Add this line */
 }
 
+.browser-window.active {
+    opacity: 1;
+    visibility: visible;
+}
+
 
     </style>
 </head>
@@ -388,7 +393,7 @@
     </div>
 
     <script>
-  document.addEventListener('DOMContentLoaded', () => {
+ document.addEventListener('DOMContentLoaded', () => {
     const browserWindow = document.getElementById('browserWindow');
     const closeBtn = document.querySelector('.control-button.close');
     const browserIcons = document.querySelectorAll('[data-app="browser"]');
@@ -401,7 +406,7 @@
     let isBrowserActive = false;
     let isMaximized = false;
     let isDragging = false;
-    let initialX, initialY, currentX, currentY;
+    let offsetX, offsetY;
 
     function toggleBrowser(show) {
         browserWindow.classList.toggle('active', show);
@@ -411,13 +416,6 @@
             browserWindow.classList.remove('maximized');
             isMaximized = false;
             maximizeBtn.innerHTML = '<i class="fas fa-square"></i>';
-        }
-    }
-
-    function setTransform(x, y) {
-        if (!isMaximized) {
-            browserWindow.style.left = `${x}px`;
-            browserWindow.style.top = `${y}px`;
         }
     }
 
@@ -450,32 +448,55 @@
         taskbarIcon.classList.remove('active');
     });
 
-    browserHeader.addEventListener('mousedown', (e) => {
-        if (isMaximized) return;
-        isDragging = true;
-        const rect = browserWindow.getBoundingClientRect();
-        initialX = e.clientX - rect.left;
-        initialY = e.clientY - rect.top;
-        browserHeader.style.cursor = 'grabbing';
-    });
+browserHeader.addEventListener('mousedown', (e) => {
+    if (isMaximized) return;
+    isDragging = true;
 
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        currentX = e.clientX - initialX;
-        currentY = e.clientY - initialY;
-        setTransform(currentX, currentY);
+    const windowRect = browserWindow.getBoundingClientRect();
+    offsetX = e.clientX - windowRect.left;
+    offsetY = e.clientY - windowRect.top;
+
+    browserHeader.style.cursor = 'grabbing';
+    iframe.style.pointerEvents = 'none';
+
+    // Optional: prevent text selection while dragging
+    document.body.style.userSelect = 'none';
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    const x = e.clientX - offsetX;
+    const y = e.clientY - offsetY;
+
+    requestAnimationFrame(() => {
+        // Clear any previous transform so left/top work properly
+        browserWindow.style.transform = 'none';
+
+        // Set left/top to follow cursor exactly
+        browserWindow.style.left = `${x}px`;
+        browserWindow.style.top = `${y}px`;
     });
+});
+
+document.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        browserHeader.style.cursor = 'grab';
+        iframe.style.pointerEvents = 'auto';
+        document.body.style.userSelect = '';
+    }
+});
+
 
     document.addEventListener('mouseup', () => {
         isDragging = false;
         browserHeader.style.cursor = 'grab';
+        iframe.style.pointerEvents = 'auto';
     });
-
-    // Set initial position
-    browserWindow.style.top = '50%';
-    browserWindow.style.left = '50%';
 });
+
 
 </script>
 
