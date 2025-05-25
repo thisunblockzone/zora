@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1275,95 +1276,195 @@ function createTabGroup(color) {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Add to your existing CSS */
+.options-menu {
+    z-index: 10000; /* Increased z-index */
+}
+
+.eruda-container {
+    z-index: 100000 !important; /* Ensure inspector is always on top */
+}
+
+.nav-buttons button,
+.action-buttons button {
+    z-index: 1000;
+}
+
+.iframe-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Enhanced options menu */
+.options-menu {
+    width: 250px;
+    padding: 10px 0;
+}
+
+.menu-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.menu-separator {
+    height: 1px;
+    background: rgba(138, 43, 226, 0.2);
+    margin: 8px 0;
+}
+
+.menu-item .shortcut {
+    margin-left: auto;
+    opacity: 0.5;
+    font-size: 12px;
+}
+
+/* Add these CSS rules */
+.options-menu {
+    z-index: 100000;
+}
+
+.eruda-container {
+    z-index: 100001 !important;
+}
+
+.content iframe {
+    z-index: 1;
+}
+
+.search-bar {
+    z-index: 10;
+}
+
+.tab-bar {
+    z-index: 10;
+}
+
+.history-popup,
+.bookmarks-popup {
+    z-index: 100000;
+}
 
 
     </style>
 </head>
 <body>
-    <div class="browser-container">
-        <div class="tab-bar" id="tabBar">
-            <div class="tab active">
-                <span>New Tab</span>
-                <div class="close-tab">×</div>
-            </div>
-            <button class="new-tab-btn">+</button>
+<div class="browser-container">
+    <div class="tab-bar" id="tabBar">
+        <div class="tab active">
+            <span>New Tab</span>
+            <div class="close-tab">×</div>
         </div>
-<div class="search-bar">
-    <div class="nav-buttons">
-        <button class="nav-button" id="backBtn" title="Back">
-            <i class="fas fa-arrow-left"></i>
-        </button>
-        <button class="nav-button" id="forwardBtn" title="Forward">
-            <i class="fas fa-arrow-right"></i>
-        </button>
-        <button class="nav-button" id="refreshBtn" title="Refresh">
-            <i class="fas fa-redo"></i>
-        </button>
+        <button class="new-tab-btn">+</button>
     </div>
-    <input type="text" class="search-input" placeholder="Search or enter URL">
-    <div class="action-buttons">
-        <button class="action-button" id="inspectBtn" title="Inspect">
-            <i class="fas fa-code"></i>
-        </button>
-        <button class="action-button fullscreen-button" id="fullscreenBtn" title="Fullscreen">
-            <i class="fas fa-expand"></i>
-        </button>
-        <button class="action-button" id="optionsBtn" title="More">
-            <i class="fas fa-ellipsis-v"></i>
-        </button>
-        <div class="options-menu" id="optionsMenu">
-            <div class="menu-item" id="newTabOption">
-                <i class="fas fa-plus"></i>
-                <span>New tab</span>
+
+    <div class="search-bar">
+        <div class="nav-buttons">
+            <button class="nav-button" id="backBtn" title="Back">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <button class="nav-button" id="forwardBtn" title="Forward">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+            <button class="nav-button" id="refreshBtn" title="Refresh">
+                <i class="fas fa-redo"></i>
+            </button>
+        </div>
+
+        <input type="text" class="search-input" placeholder="Search or enter URL">
+
+        <div class="action-buttons">
+            <button class="action-button" id="inspectBtn" title="Inspect">
+                <i class="fas fa-code"></i>
+            </button>
+            <button class="action-button fullscreen-button" id="fullscreenBtn" title="Fullscreen">
+                <i class="fas fa-expand"></i>
+            </button>
+            <button class="action-button" id="optionsBtn" title="More">
+                <i class="fas fa-ellipsis-v"></i>
+            </button>
+
+            <!-- REPLACED OPTIONS MENU -->
+            <div class="options-menu" id="optionsMenu">
+                <div class="menu-item" id="newTabOption">
+                    <i class="fas fa-plus"></i>
+                    <span>New tab</span>
+                    <span class="shortcut">Ctrl+T</span>
+                </div>
+                <div class="menu-item" id="newWindowOption">
+                    <i class="fas fa-window-maximize"></i>
+                    <span>New window</span>
+                    <span class="shortcut">Ctrl+N</span>
+                </div>
+                <div class="menu-separator"></div>
+                <div class="menu-item" id="historyOption">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                    <span class="shortcut">Ctrl+H</span>
+                </div>
+                <div class="menu-item" id="downloadsOption">
+                    <i class="fas fa-download"></i>
+                    <span>Downloads</span>
+                    <span class="shortcut">Ctrl+J</span>
+                </div>
+                <div class="menu-item" id="bookmarksOption">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Bookmarks</span>
+                    <span class="shortcut">Ctrl+B</span>
+                </div>
+                <div class="menu-separator"></div>
+                <div class="menu-item" id="zoomInOption">
+                    <i class="fas fa-search-plus"></i>
+                    <span>Zoom In</span>
+                    <span class="shortcut">Ctrl+</span>
+                </div>
+                <div class="menu-item" id="zoomOutOption">
+                    <i class="fas fa-search-minus"></i>
+                    <span>Zoom Out</span>
+                    <span class="shortcut">Ctrl-</span>
+                </div>
+                <div class="menu-separator"></div>
+                <div class="menu-item" id="printOption">
+                    <i class="fas fa-print"></i>
+                    <span>Print...</span>
+                    <span class="shortcut">Ctrl+P</span>
+                </div>
+                <div class="menu-item" id="settingsOption">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </div>
             </div>
-            <div class="menu-item" id="newWindowOption">
-                <i class="fas fa-window-maximize"></i>
-                <span>New window</span>
-            </div>
-            <div class="menu-item">
-                <i class="fas fa-history"></i>
-                <span>History</span>
-            </div>
-            <div class="menu-item">
-                <i class="fas fa-download"></i>
-                <span>Downloads</span>
-            </div>
-            <div class="menu-item">
+            <!-- END OF REPLACEMENT -->
+        </div>
+    </div>
+
+    <!-- Popups -->
+    <div class="history-popup" id="historyPopup">
+        <div class="popup-header">
+            <div class="popup-title">History</div>
+            <button class="clear-button" id="clearHistory">Clear History</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+    </div>
+
+    <div class="bookmarks-popup" id="bookmarksPopup">
+        <div class="popup-header">
+            <div class="popup-title">Bookmarks</div>
+            <button class="bookmark-button" id="addBookmark">
                 <i class="fas fa-bookmark"></i>
-                <span>Bookmarks</span>
-            </div>
-            <div class="menu-item">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
-            </div>
+            </button>
         </div>
+        <div class="bookmarks-list" id="bookmarksList"></div>
+    </div>
+
+    <div class="content">
+        <div class="logo">ZØRA</div>
     </div>
 </div>
 
 
-<!-- Add these divs after your existing content -->
-<div class="history-popup" id="historyPopup">
-    <div class="popup-header">
-        <div class="popup-title">History</div>
-        <button class="clear-button" id="clearHistory">Clear History</button>
-    </div>
-    <div class="history-list" id="historyList"></div>
-</div>
-
-<div class="bookmarks-popup" id="bookmarksPopup">
-    <div class="popup-header">
-        <div class="popup-title">Bookmarks</div>
-        <button class="bookmark-button" id="addBookmark">
-            <i class="fas fa-bookmark"></i>
-        </button>
-    </div>
-    <div class="bookmarks-list" id="bookmarksList"></div>
-</div>
-
-
-        <div class="content">
-            <div class="logo">ZØRA</div>
-        </div>
 
 
     <script>
@@ -1374,11 +1475,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.querySelector('.search-input');
     const content = document.querySelector('.content');
     const logo = document.querySelector('.logo');
-    let tabCount = 2; // Start at 2 since we already have tab-1
+    let tabCount = 2;
     let currentIframe = null;
     let isInspectorActive = false;
-    
-    // Store tab data
+
+    // Store tab data with persistent search values
     const tabData = new Map();
 
     // Initialize the first tab's data
@@ -1394,7 +1495,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initialTab.querySelector('.close-tab').addEventListener('click', (e) => {
         e.stopPropagation();
         if (document.querySelectorAll('.tab').length === 1) {
-            // Don't allow closing the last tab
             return;
         }
         tabData.delete(initialTab.getAttribute('data-tab-id'));
@@ -1408,7 +1508,24 @@ document.addEventListener('DOMContentLoaded', () => {
         switchTab(initialTab);
     });
 
+    // Add input event listener to update searchValue in real-time
+    searchInput.addEventListener('input', (e) => {
+        const activeTab = document.querySelector('.tab.active');
+        if (activeTab) {
+            const tabId = activeTab.getAttribute('data-tab-id');
+            const data = tabData.get(tabId);
+            if (data) {
+                data.searchValue = e.target.value;
+                tabData.set(tabId, data);
+            }
+        }
+    });
+
     function createTab() {
+        const activeTab = document.querySelector('.tab.active');
+        const activeTabData = activeTab ? tabData.get(activeTab.getAttribute('data-tab-id')) : null;
+        const inheritedSearchValue = activeTabData ? activeTabData.searchValue : '';
+
         const tab = document.createElement('div');
         tab.className = 'tab';
         tab.setAttribute('data-tab-id', `tab-${tabCount}`);
@@ -1416,31 +1533,30 @@ document.addEventListener('DOMContentLoaded', () => {
             <span>New Tab</span>
             <div class="close-tab">×</div>
         `;
-        
-        // Create tab data object
+
+        // Create tab data object with inherited search value
         tabData.set(`tab-${tabCount}`, {
             url: '',
             title: 'New Tab',
-            searchValue: '',
+            searchValue: inheritedSearchValue,
             hasIframe: false
         });
-        
+
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
+
         tabBar.insertBefore(tab, newTabBtn);
         tabCount++;
 
-        // Reset content for new tab
+        // Reset content but keep search input value
         content.innerHTML = `<div class="logo">ZØRA</div>`;
-        searchInput.value = '';
+        searchInput.value = inheritedSearchValue;
         currentIframe = null;
 
         const closeBtn = tab.querySelector('.close-tab');
         closeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (document.querySelectorAll('.tab').length === 1) {
-                // Don't allow closing the last tab
                 return;
             }
             tabData.delete(tab.getAttribute('data-tab-id'));
@@ -1458,12 +1574,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function switchTab(tab) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
+
         const tabId = tab.getAttribute('data-tab-id');
         const data = tabData.get(tabId);
-        
+
         if (data) {
-            searchInput.value = data.searchValue;
+            searchInput.value = data.searchValue; // Restore search value
             if (data.hasIframe) {
                 content.innerHTML = '';
                 const iframe = document.createElement('iframe');
@@ -1473,8 +1589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 iframe.src = data.url;
                 content.appendChild(iframe);
                 currentIframe = iframe;
-                
-                // Reinitialize inspector if active
+
                 if (isInspectorActive) {
                     setTimeout(() => {
                         initializeInspector(iframe);
@@ -1489,18 +1604,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newTabBtn.addEventListener('click', createTab);
 
-    // Search functionality
     searchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             const input = searchInput.value.trim();
             if (input) {
                 const activeTab = document.querySelector('.tab.active');
                 const tabId = activeTab.getAttribute('data-tab-id');
-                
+
                 const isUrl = input.includes('.') && !input.includes(' ');
                 let url;
                 let tabTitle;
-                
+
                 if (isUrl) {
                     url = input.startsWith('http') ? input : `https://${input}`;
                     tabTitle = new URL(url).hostname;
@@ -1508,10 +1622,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
                     tabTitle = `${input} - DuckDuckGo`;
                 }
-                
+
                 const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-                
-                // Update tab title and data
+
                 activeTab.querySelector('span').textContent = tabTitle;
                 tabData.set(tabId, {
                     url: proxyUrl,
@@ -1519,8 +1632,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     searchValue: input,
                     hasIframe: true
                 });
-                
-                // Create and show iframe
+
                 content.innerHTML = '';
                 const iframe = document.createElement('iframe');
                 iframe.style.width = '100%';
@@ -1529,8 +1641,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 iframe.src = proxyUrl;
                 content.appendChild(iframe);
                 currentIframe = iframe;
-                
-                // If inspector is active, initialize it for the new iframe
+
                 if (isInspectorActive) {
                     setTimeout(() => {
                         initializeInspector(iframe);
@@ -1544,7 +1655,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeInspector(iframe) {
         if (iframe && iframe.contentWindow) {
-            // Target the iframe's window for inspection
             const iframeWindow = iframe.contentWindow;
             eruda.init({
                 container: iframeWindow.document.body,
@@ -1553,7 +1663,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Inspector functionality
     function toggleInspector() {
         if (!isInspectorActive) {
             if (currentIframe) {
@@ -1568,7 +1677,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Navigation buttons functionality
     const backBtn = document.getElementById('backBtn');
     const forwardBtn = document.getElementById('forwardBtn');
     const refreshBtn = document.getElementById('refreshBtn');
@@ -1597,7 +1705,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     inspectBtn.addEventListener('click', toggleInspector);
 
-    // Fullscreen functionality
     fullscreenBtn.addEventListener('click', () => {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen();
@@ -1610,7 +1717,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Options menu functionality
     optionsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         optionsMenu.classList.toggle('active');
@@ -1622,7 +1728,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // History management
     let browserHistory = [];
     const historyPopup = document.getElementById('historyPopup');
     const historyList = document.getElementById('historyList');
@@ -1653,39 +1758,41 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
-    // App Launcher functionality
     const appLauncher = document.querySelector('.app-launcher-button');
     const appDrawer = document.getElementById('appDrawer');
 
-    appLauncher.addEventListener('click', () => {
-        appDrawer.classList.toggle('active');
-        appLauncher.classList.toggle('active');
-    });
+    if (appLauncher && appDrawer) {
+        appLauncher.addEventListener('click', () => {
+            appDrawer.classList.toggle('active');
+            appLauncher.classList.toggle('active');
+        });
 
-    document.addEventListener('click', (e) => {
-        if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
-            appDrawer.classList.remove('active');
-            appLauncher.classList.remove('active');
-        }
-    });
+        document.addEventListener('click', (e) => {
+            if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
+                appDrawer.classList.remove('active');
+                appLauncher.classList.remove('active');
+            }
+        });
+    }
 
-    // Battery indicator
     if ('getBattery' in navigator) {
         navigator.getBattery().then(battery => {
             function updateBattery() {
                 const level = battery.level * 100;
                 const batteryLevel = document.getElementById('batteryLevel');
                 const batteryText = document.getElementById('batteryText');
-                
-                batteryLevel.style.width = `${level}%`;
-                batteryText.textContent = `${Math.round(level)}%`;
 
-                if (level <= 20) {
-                    batteryLevel.style.background = '#ff4444';
-                } else if (level <= 50) {
-                    batteryLevel.style.background = '#ffaa00';
-                } else {
-                    batteryLevel.style.background = '#4CAF50';
+                if (batteryLevel && batteryText) {
+                    batteryLevel.style.width = `${level}%`;
+                    batteryText.textContent = `${Math.round(level)}%`;
+
+                    if (level <= 20) {
+                        batteryLevel.style.background = '#ff4444';
+                    } else if (level <= 50) {
+                        batteryLevel.style.background = '#ffaa00';
+                    } else {
+                        batteryLevel.style.background = '#4CAF50';
+                    }
                 }
             }
 
@@ -1694,12 +1801,383 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Load saved history
     const savedHistory = localStorage.getItem('browserHistory');
     if (savedHistory) {
         browserHistory = JSON.parse(savedHistory);
         updateHistoryList();
     }
+});
+
+// Add to your existing JavaScript
+function enhanceNavigation() {
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    function updateNavigationState() {
+        if (currentIframe) {
+            try {
+                const iframeWindow = currentIframe.contentWindow;
+                backBtn.disabled = !iframeWindow.history.length;
+                forwardBtn.disabled = !iframeWindow.history.length;
+            } catch (e) {
+                console.log('Cannot access iframe history');
+            }
+        }
+    }
+
+    backBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            try {
+                currentIframe.contentWindow.history.back();
+                setTimeout(updateNavigationState, 100);
+            } catch (e) {
+                console.log('Cannot navigate back');
+            }
+        }
+    });
+
+    forwardBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            try {
+                currentIframe.contentWindow.history.forward();
+                setTimeout(updateNavigationState, 100);
+            } catch (e) {
+                console.log('Cannot navigate forward');
+            }
+        }
+    });
+
+    refreshBtn.addEventListener('click', () => {
+        if (currentIframe) {
+            try {
+                currentIframe.contentWindow.location.reload();
+            } catch (e) {
+                console.log('Cannot refresh page');
+            }
+        }
+    });
+
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            refreshBtn.click();
+        }
+    });
+}
+
+// Add menu item functionality
+function initializeMenuItems() {
+    const menuItems = {
+        newTabOption: () => createTab(),
+        newWindowOption: () => window.open(window.location.href),
+        historyOption: () => document.getElementById('historyPopup').classList.add('active'),
+        downloadsOption: () => alert('Downloads feature coming soon'),
+        bookmarksOption: () => document.getElementById('bookmarksPopup').classList.add('active'),
+        zoomInOption: () => {
+            if (currentIframe) {
+                try {
+                    currentIframe.contentWindow.document.body.style.zoom = 
+                        (parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1') + 0.1);
+                } catch (e) {
+                    console.log('Cannot zoom in');
+                }
+            }
+        },
+        zoomOutOption: () => {
+            if (currentIframe) {
+                try {
+                    currentIframe.contentWindow.document.body.style.zoom = 
+                        (parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1') - 0.1);
+                } catch (e) {
+                    console.log('Cannot zoom out');
+                }
+            }
+        },
+        printOption: () => {
+            if (currentIframe) {
+                try {
+                    currentIframe.contentWindow.print();
+                } catch (e) {
+                    console.log('Cannot print');
+                }
+            }
+        },
+        settingsOption: () => alert('Settings feature coming soon')
+    };
+
+    Object.entries(menuItems).forEach(([id, handler]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('click', () => {
+                handler();
+                optionsMenu.classList.remove('active');
+            });
+        }
+    });
+}
+
+// Call these functions in your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', () => {
+    // ... your existing code ...
+    enhanceNavigation();
+    initializeMenuItems();
+});
+
+// Add to your existing JavaScript
+function initializeKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey) {
+            switch (e.key) {
+                case 't':
+                    e.preventDefault();
+                    createTab();
+                    break;
+                case 'n':
+                    e.preventDefault();
+                    window.open(window.location.href);
+                    break;
+                case 'w':
+                    e.preventDefault();
+                    closeCurrentTab();
+                    break;
+                case 'h':
+                    e.preventDefault();
+                    document.getElementById('historyPopup').classList.add('active');
+                    break;
+                case 'b':
+                    e.preventDefault();
+                    document.getElementById('bookmarksPopup').classList.add('active');
+                    break;
+            }
+        }
+    });
+}
+
+// Call this in your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', () => {
+    // ... your existing code ...
+    initializeKeyboardShortcuts();
+});
+
+function initializeMenuItems() {
+    const menuItems = {
+        newTabOption: createTab,
+        newWindowOption: () => window.open(window.location.href),
+        historyOption: () => document.getElementById('historyPopup').classList.add('active'),
+        downloadsOption: () => alert('Downloads feature coming soon'),
+        bookmarksOption: () => document.getElementById('bookmarksPopup').classList.add('active'),
+        zoomInOption: () => handleZoom(0.1),
+        zoomOutOption: () => handleZoom(-0.1),
+        printOption: handlePrint,
+        settingsOption: () => alert('Settings feature coming soon')
+    };
+
+    Object.entries(menuItems).forEach(([id, handler]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('click', () => {
+                handler();
+                document.getElementById('optionsMenu').classList.remove('active');
+            });
+        }
+    });
+}
+
+function handleZoom(delta) {
+    if (currentIframe) {
+        try {
+            const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
+            currentIframe.contentWindow.document.body.style.zoom = currentZoom + delta;
+        } catch (e) {
+            console.log('Cannot zoom');
+        }
+    }
+}
+
+function handlePrint() {
+    if (currentIframe) {
+        try {
+            currentIframe.contentWindow.print();
+        } catch (e) {
+            console.log('Cannot print');
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tabBar = document.getElementById('tabBar');
+    const newTabBtn = document.querySelector('.new-tab-btn');
+    const searchInput = document.querySelector('.search-input');
+    const content = document.querySelector('.content');
+    const logo = document.querySelector('.logo');
+    let tabCount = 2;
+    let currentIframe = null;
+    let isInspectorActive = false;
+
+    // Store tab data
+    const tabData = new Map();
+
+    // Initialize the first tab's data
+    tabData.set('tab-1', {
+        url: '',
+        title: 'New Tab',
+        searchValue: '',
+        hasIframe: false
+    });
+
+    function createTab() {
+        const tab = document.createElement('div');
+        tab.className = 'tab';
+        tab.setAttribute('data-tab-id', `tab-${tabCount}`);
+        tab.innerHTML = `
+            <span>New Tab</span>
+            <div class="close-tab">×</div>
+        `;
+
+        // Create new tab data with empty search value
+        tabData.set(`tab-${tabCount}`, {
+            url: '',
+            title: 'New Tab',
+            searchValue: '', // Empty search value for new tab
+            hasIframe: false
+        });
+
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        tabBar.insertBefore(tab, newTabBtn);
+        tabCount++;
+
+        // Reset content and clear search input
+        content.innerHTML = `<div class="logo">ZØRA</div>`;
+        searchInput.value = ''; // Clear search input
+        currentIframe = null;
+
+        const closeBtn = tab.querySelector('.close-tab');
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (document.querySelectorAll('.tab').length === 1) {
+                return;
+            }
+            tabData.delete(tab.getAttribute('data-tab-id'));
+            tab.remove();
+            if (document.querySelectorAll('.tab').length === 0) {
+                createTab();
+            }
+        });
+
+        tab.addEventListener('click', () => {
+            switchTab(tab);
+        });
+    }
+
+    // Navigation functions
+    function goBack() {
+        if (currentIframe) {
+            try {
+                const iframeDoc = currentIframe.contentWindow.document;
+                const currentUrl = new URL(iframeDoc.location.href);
+                const originalUrl = currentUrl.hash.slice(1);
+                
+                if (originalUrl) {
+                    const newUrl = new URL(originalUrl);
+                    history.back();
+                    currentIframe.src = `https://thisunblockzone.github.io/active/iframe.html#${newUrl.toString()}`;
+                }
+            } catch (e) {
+                console.log('Cannot navigate back');
+            }
+        }
+    }
+
+    function goForward() {
+        if (currentIframe) {
+            try {
+                const iframeDoc = currentIframe.contentWindow.document;
+                const currentUrl = new URL(iframeDoc.location.href);
+                const originalUrl = currentUrl.hash.slice(1);
+                
+                if (originalUrl) {
+                    const newUrl = new URL(originalUrl);
+                    history.forward();
+                    currentIframe.src = `https://thisunblockzone.github.io/active/iframe.html#${newUrl.toString()}`;
+                }
+            } catch (e) {
+                console.log('Cannot navigate forward');
+            }
+        }
+    }
+
+    function refresh() {
+        if (currentIframe) {
+            const currentSrc = currentIframe.src;
+            currentIframe.src = currentSrc;
+        }
+    }
+
+    // Initialize menu items
+    function initializeMenuItems() {
+        const menuItems = {
+            newTabOption: () => createTab(),
+            newWindowOption: () => window.open(window.location.href),
+            historyOption: () => document.getElementById('historyPopup').classList.add('active'),
+            downloadsOption: () => alert('Downloads feature coming soon'),
+            bookmarksOption: () => document.getElementById('bookmarksPopup').classList.add('active'),
+            zoomInOption: () => {
+                if (currentIframe) {
+                    try {
+                        const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
+                        currentIframe.contentWindow.document.body.style.zoom = currentZoom + 0.1;
+                    } catch (e) {
+                        console.log('Cannot zoom in');
+                    }
+                }
+            },
+            zoomOutOption: () => {
+                if (currentIframe) {
+                    try {
+                        const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
+                        currentIframe.contentWindow.document.body.style.zoom = currentZoom - 0.1;
+                    } catch (e) {
+                        console.log('Cannot zoom out');
+                    }
+                }
+            },
+            printOption: () => {
+                if (currentIframe) {
+                    try {
+                        currentIframe.contentWindow.print();
+                    } catch (e) {
+                        console.log('Cannot print');
+                    }
+                }
+            },
+            settingsOption: () => alert('Settings feature coming soon')
+        };
+
+        Object.entries(menuItems).forEach(([id, handler]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('click', () => {
+                    handler();
+                    document.getElementById('optionsMenu').classList.remove('active');
+                });
+            }
+        });
+    }
+
+    // Add event listeners for navigation buttons
+    document.getElementById('backBtn').addEventListener('click', goBack);
+    document.getElementById('forwardBtn').addEventListener('click', goForward);
+    document.getElementById('refreshBtn').addEventListener('click', refresh);
+
+    // Initialize menu items
+    initializeMenuItems();
+
+    // Rest of your existing code...
+    // (Keep all other functions and event listeners the same)
 });
 
 
