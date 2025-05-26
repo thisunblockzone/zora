@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,49 +27,81 @@
         }
 
         .browser-container {
+            position: relative;
+            z-index: 1;
             width: 100%;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            cursor: default;
+        }
+
+        .browser-container.draggable {
+            position: fixed;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            overflow: hidden;
+            will-change: transform;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .browser-container.dragging {
+            box-shadow: 0 20px 50px rgba(138, 43, 226, 0.4);
+            z-index: 10000;
+        }
+
+        /* Tab bar becomes draggable handle */
+        .tab-bar.drag-handle {
+            cursor: move;
+            user-select: none;
+        }
+
+        .tab-bar.dragging {
+            cursor: grabbing;
         }
 
         /* Tab Bar Styles */
         .tab-bar {
-            background: rgba(20, 20, 20, 0.95);
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .tab {
-            background: rgba(40, 40, 40, 0.95);
-            border-radius: 8px;
-            padding: 10px 20px;
-            color: white;
+            background: rgba(20, 20, 20, 0.85);
+            padding: 15px;
             display: flex;
             align-items: center;
             gap: 12px;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            position: relative;
+        }
+
+        .tab {
+            background: rgba(40, 40, 40, 0.9);
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(138, 43, 226, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .tab:hover {
-            background: rgba(60, 60, 60, 0.95);
+            background: rgba(75, 0, 130, 0.4);
             transform: translateY(-2px);
+            border-color: rgba(138, 43, 226, 0.4);
         }
 
         .tab.active {
-            background: rgba(80, 80, 80, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(75, 0, 130, 0.6);
+            border: 1px solid rgba(138, 43, 226, 0.6);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
         }
 
         .close-tab {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             display: flex;
@@ -87,44 +117,49 @@
         }
 
         .new-tab-btn {
-            background: rgba(40, 40, 40, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(75, 0, 130, 0.4);
+            border: 1px solid rgba(138, 43, 226, 0.3);
             color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .new-tab-btn:hover {
-            background: rgba(60, 60, 60, 0.95);
+            background: rgba(75, 0, 130, 0.6);
             transform: translateY(-2px);
+            border-color: rgba(138, 43, 226, 0.5);
         }
 
         /* Search Bar Styles */
         .search-bar {
-            background: rgba(20, 20, 20, 0.95);
+            background: rgba(20, 20, 20, 0.85);
             padding: 15px;
             display: flex;
             align-items: center;
+            backdrop-filter: blur(15px);
         }
 
         .search-input {
             flex: 1;
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(40, 40, 40, 0.95);
+            padding: 14px 24px;
+            border-radius: 15px;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            background: rgba(40, 40, 40, 0.9);
             color: white;
             font-size: 16px;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .search-input:focus {
             outline: none;
-            border-color: rgba(138, 43, 226, 0.5);
+            border-color: rgba(138, 43, 226, 0.7);
             background: rgba(50, 50, 50, 0.95);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
         }
 
         /* Content Area */
@@ -1131,7 +1166,7 @@ body::before {
     color: #ffd700;
 }
 
-// Add to your CSS
+/* Add to your CSS */
 .tab-group {
     display: flex;
     align-items: center;
@@ -1148,21 +1183,14 @@ body::before {
     margin-right: 8px;
 }
 
-// Add to JavaScript
-function createTabGroup(color) {
-    const group = document.createElement('div');
-    group.className = 'tab-group';
-    
-    const indicator = document.createElement('div');
-    indicator.className = 'group-indicator';
-    indicator.style.background = color;
-    
-    group.appendChild(indicator);
-    return group;
+/* Tab group indicator styles */
+.group-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
 }
-
-// Add this CSS
-.tab-preview 
+.tab-preview {
     position: absolute;
     top: 100%;
     left: 50%;
@@ -1590,18 +1618,177 @@ function createTabGroup(color) {
     z-index: 100000;
 }
 
+/* Window controls */
+.window-controls {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 1001;
+}
+
+.window-control {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.window-control.minimize {
+    background: rgba(255, 193, 7, 0.8);
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.window-control.maximize {
+    background: rgba(40, 167, 69, 0.8);
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.window-control.close {
+    background: rgba(220, 53, 69, 0.8);
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.window-control:hover {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+}
+
+/* Resize handles */
+.resize-handle {
+    position: absolute;
+    background: transparent;
+    z-index: 1002;
+}
+
+.resize-handle.corner {
+    width: 10px;
+    height: 10px;
+    background: rgba(138, 43, 226, 0.3);
+    border-radius: 50%;
+}
+
+.resize-handle.bottom-right {
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+}
+
+.resize-handle.bottom-left {
+    bottom: 0;
+    left: 0;
+    cursor: sw-resize;
+}
+
+.resize-handle.top-right {
+    top: 0;
+    right: 0;
+    cursor: ne-resize;
+}
+
+.resize-handle.top-left {
+    top: 0;
+    left: 0;
+    cursor: nw-resize;
+}
+
+/* Edge resize handles */
+.resize-handle.edge {
+    background: transparent;
+}
+
+.resize-handle.top {
+    top: 0;
+    left: 10px;
+    right: 10px;
+    height: 5px;
+    cursor: n-resize;
+}
+
+.resize-handle.bottom {
+    bottom: 0;
+    left: 10px;
+    right: 10px;
+    height: 5px;
+    cursor: s-resize;
+}
+
+.resize-handle.left {
+    left: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 5px;
+    cursor: w-resize;
+}
+
+.resize-handle.right {
+    right: 0;
+    top: 10px;
+    bottom: 10px;
+    width: 5px;
+    cursor: e-resize;
+}
+
+/* Window states */
+.browser-container.maximized {
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    transform: none !important;
+}
+
+.browser-container.minimized {
+    transform: scale(0.1);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+/* Double-click to maximize */
+.tab-bar.drag-handle {
+    cursor: move;
+}
+
+.tab-bar.drag-handle:active {
+    cursor: grabbing;
+}
 
     </style>
 </head>
 <body>
-<div class="browser-container">
+<div class="browser-container" id="browserContainer">
     <div class="tab-bar" id="tabBar">
+        <div class="window-controls">
+            <button class="window-control minimize" title="Minimize">−</button>
+            <button class="window-control maximize" title="Maximize">□</button>
+            <button class="window-control close" title="Close">×</button>
+        </div>
         <div class="tab active">
             <span>New Tab</span>
             <div class="close-tab">×</div>
         </div>
         <button class="new-tab-btn">+</button>
     </div>
+    
+    <!-- Resize handles -->
+    <div class="resize-handle corner bottom-right"></div>
+    <div class="resize-handle corner bottom-left"></div>
+    <div class="resize-handle corner top-right"></div>
+    <div class="resize-handle corner top-left"></div>
+    <div class="resize-handle edge top"></div>
+    <div class="resize-handle edge bottom"></div>
+    <div class="resize-handle edge left"></div>
+    <div class="resize-handle edge right"></div>
 
     <div class="search-bar">
         <div class="nav-buttons">
@@ -1711,6 +1898,292 @@ function createTabGroup(color) {
 
 
     <script>
+// Helper function to create tab groups
+function createTabGroup(color) {
+    const group = document.createElement('div');
+    group.className = 'tab-group';
+    
+    const indicator = document.createElement('div');
+    indicator.className = 'group-indicator';
+    indicator.style.background = color;
+    
+    group.appendChild(indicator);
+    return group;
+}
+
+// Draggable window functionality
+class DraggableWindow {
+    constructor(container) {
+        this.container = container;
+        this.dragHandle = container.querySelector('#tabBar');
+        this.isDragging = false;
+        this.isResizing = false;
+        this.isMaximized = false;
+        this.isMinimized = false;
+        
+        this.currentX = 0;
+        this.currentY = 0;
+        this.initialX = 0;
+        this.initialY = 0;
+        this.xOffset = 0;
+        this.yOffset = 0;
+        
+        this.originalState = {
+            width: '100vw',
+            height: '100vh',
+            top: '0',
+            left: '0'
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.setupWindowControls();
+        this.setupResizeHandles();
+        this.enableFloatingMode();
+    }
+    
+    enableFloatingMode() {
+        this.container.classList.add('draggable');
+        this.container.style.width = '90vw';
+        this.container.style.height = '85vh';
+        this.container.style.top = '50%';
+        this.container.style.left = '50%';
+        this.container.style.transform = 'translate(-50%, -50%)';
+        this.dragHandle.classList.add('drag-handle');
+    }
+    
+    setupEventListeners() {
+        // Drag events
+        this.dragHandle.addEventListener('mousedown', this.dragStart.bind(this));
+        document.addEventListener('mousemove', this.dragMove.bind(this));
+        document.addEventListener('mouseup', this.dragEnd.bind(this));
+        
+        // Double-click to maximize
+        this.dragHandle.addEventListener('dblclick', this.toggleMaximize.bind(this));
+        
+        // Prevent drag on interactive elements
+        this.container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.tab, .new-tab-btn, .window-controls, .search-input, .nav-button, .action-button')) {
+                e.stopPropagation();
+            }
+        });
+    }
+    
+    setupWindowControls() {
+        const minimizeBtn = this.container.querySelector('.window-control.minimize');
+        const maximizeBtn = this.container.querySelector('.window-control.maximize');
+        const closeBtn = this.container.querySelector('.window-control.close');
+        
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', this.minimize.bind(this));
+        }
+        
+        if (maximizeBtn) {
+            maximizeBtn.addEventListener('click', this.toggleMaximize.bind(this));
+        }
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', this.close.bind(this));
+        }
+    }
+    
+    setupResizeHandles() {
+        const resizeHandles = this.container.querySelectorAll('.resize-handle');
+        resizeHandles.forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                this.startResize(e, handle);
+            });
+        });
+    }
+    
+    dragStart(e) {
+        if (e.target.closest('.window-controls, .tab, .new-tab-btn')) return;
+        if (this.isMaximized) return;
+        
+        this.isDragging = true;
+        this.container.classList.add('dragging');
+        this.dragHandle.classList.add('dragging');
+        
+        const rect = this.container.getBoundingClientRect();
+        this.initialX = e.clientX - rect.left;
+        this.initialY = e.clientY - rect.top;
+        
+        this.container.style.transition = 'none';
+        
+        // Disable text selection
+        document.body.style.userSelect = 'none';
+    }
+    
+    dragMove(e) {
+        if (!this.isDragging) return;
+        
+        e.preventDefault();
+        
+        this.currentX = e.clientX - this.initialX;
+        this.currentY = e.clientY - this.initialY;
+        
+        // Constrain to viewport
+        const maxX = window.innerWidth - this.container.offsetWidth;
+        const maxY = window.innerHeight - this.container.offsetHeight;
+        
+        this.currentX = Math.max(0, Math.min(this.currentX, maxX));
+        this.currentY = Math.max(0, Math.min(this.currentY, maxY));
+        
+        // Use transform3d for hardware acceleration
+        this.container.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
+    }
+    
+    dragEnd() {
+        if (!this.isDragging) return;
+        
+        this.isDragging = false;
+        this.container.classList.remove('dragging');
+        this.dragHandle.classList.remove('dragging');
+        
+        // Re-enable text selection
+        document.body.style.userSelect = '';
+        
+        // Update position
+        this.container.style.left = this.currentX + 'px';
+        this.container.style.top = this.currentY + 'px';
+        this.container.style.transform = 'none';
+        this.container.style.transition = 'box-shadow 0.3s ease';
+    }
+    
+    toggleMaximize() {
+        if (this.isMaximized) {
+            this.restore();
+        } else {
+            this.maximize();
+        }
+    }
+    
+    maximize() {
+        if (this.isMaximized) return;
+        
+        // Save current state
+        const rect = this.container.getBoundingClientRect();
+        this.originalState = {
+            width: this.container.style.width || rect.width + 'px',
+            height: this.container.style.height || rect.height + 'px',
+            top: this.container.style.top || rect.top + 'px',
+            left: this.container.style.left || rect.left + 'px',
+            transform: this.container.style.transform
+        };
+        
+        this.container.classList.add('maximized');
+        this.isMaximized = true;
+        
+        // Update maximize button
+        const maximizeBtn = this.container.querySelector('.window-control.maximize');
+        if (maximizeBtn) maximizeBtn.textContent = '◱';
+    }
+    
+    restore() {
+        if (!this.isMaximized) return;
+        
+        this.container.classList.remove('maximized');
+        this.isMaximized = false;
+        
+        // Restore original state
+        this.container.style.width = this.originalState.width;
+        this.container.style.height = this.originalState.height;
+        this.container.style.top = this.originalState.top;
+        this.container.style.left = this.originalState.left;
+        this.container.style.transform = this.originalState.transform;
+        
+        // Update maximize button
+        const maximizeBtn = this.container.querySelector('.window-control.maximize');
+        if (maximizeBtn) maximizeBtn.textContent = '□';
+    }
+    
+    minimize() {
+        this.container.classList.add('minimized');
+        this.isMinimized = true;
+        
+        // Add to taskbar if needed
+        setTimeout(() => {
+            this.container.style.display = 'none';
+        }, 300);
+    }
+    
+    close() {
+        this.container.style.transform = 'scale(0.8)';
+        this.container.style.opacity = '0';
+        
+        setTimeout(() => {
+            // You can add close logic here
+            // For now, just restore the window
+            this.container.style.transform = '';
+            this.container.style.opacity = '';
+        }, 300);
+    }
+    
+    startResize(e, handle) {
+        if (this.isMaximized) return;
+        
+        this.isResizing = true;
+        this.container.style.transition = 'none';
+        
+        const rect = this.container.getBoundingClientRect();
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startWidth = rect.width;
+        const startHeight = rect.height;
+        const startLeft = rect.left;
+        const startTop = rect.top;
+        
+        const handleClasses = handle.className;
+        
+        const resizeMove = (e) => {
+            if (!this.isResizing) return;
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            let newWidth = startWidth;
+            let newHeight = startHeight;
+            let newLeft = startLeft;
+            let newTop = startTop;
+            
+            // Calculate new dimensions based on handle type
+            if (handleClasses.includes('right') || handleClasses.includes('bottom-right') || handleClasses.includes('top-right')) {
+                newWidth = Math.max(400, startWidth + deltaX);
+            }
+            if (handleClasses.includes('left') || handleClasses.includes('bottom-left') || handleClasses.includes('top-left')) {
+                newWidth = Math.max(400, startWidth - deltaX);
+                newLeft = startLeft + deltaX;
+            }
+            if (handleClasses.includes('bottom') || handleClasses.includes('bottom-right') || handleClasses.includes('bottom-left')) {
+                newHeight = Math.max(300, startHeight + deltaY);
+            }
+            if (handleClasses.includes('top') || handleClasses.includes('top-right') || handleClasses.includes('top-left')) {
+                newHeight = Math.max(300, startHeight - deltaY);
+                newTop = startTop + deltaY;
+            }
+            
+            // Apply new dimensions
+            this.container.style.width = newWidth + 'px';
+            this.container.style.height = newHeight + 'px';
+            this.container.style.left = newLeft + 'px';
+            this.container.style.top = newTop + 'px';
+        };
+        
+        const resizeEnd = () => {
+            this.isResizing = false;
+            this.container.style.transition = 'box-shadow 0.3s ease';
+            document.removeEventListener('mousemove', resizeMove);
+            document.removeEventListener('mouseup', resizeEnd);
+        };
+        
+        document.addEventListener('mousemove', resizeMove);
+        document.addEventListener('mouseup', resizeEnd);
+    }
+}
     
 document.addEventListener('DOMContentLoaded', () => {
     const tabBar = document.getElementById('tabBar');
@@ -1723,6 +2196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let tabCount = 2;
     let currentIframe = null;
     let isInspectorActive = false;
+
+    // Initialize draggable window
+    const browserContainer = document.getElementById('browserContainer');
+    const draggableWindow = new DraggableWindow(browserContainer);
 
     // Create options overlay
     const optionsOverlay = document.createElement('div');
@@ -1910,9 +2387,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function goBack() {
         if (currentIframe) {
             try {
+                // Store current navigation state before navigating
+                const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
+                const data = tabData.get(tabId);
+                
+                // Use postMessage for cross-origin iframe navigation
+                currentIframe.contentWindow.postMessage({ action: 'goBack' }, '*');
+                
+                // Direct approach as fallback
+            try {
                 currentIframe.contentWindow.history.back();
             } catch (e) {
-                console.log('Cannot navigate back');
+                    console.log('Using fallback navigation method');
+                    // If direct navigation fails, reload iframe with stored previous URL if available
+                    if (data && data.previousUrl) {
+                        currentIframe.src = data.previousUrl;
+                    }
+                }
+                
+                // Update button states after navigation
+                setTimeout(updateNavigationState, 100);
+            } catch (e) {
+                console.log('Cannot navigate back:', e);
             }
         }
     }
@@ -1920,16 +2416,47 @@ document.addEventListener('DOMContentLoaded', () => {
     function goForward() {
         if (currentIframe) {
             try {
+                // Store current navigation state before navigating
+                const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
+                
+                // Use postMessage for cross-origin iframe navigation
+                currentIframe.contentWindow.postMessage({ action: 'goForward' }, '*');
+                
+                // Direct approach as fallback
+            try {
                 currentIframe.contentWindow.history.forward();
             } catch (e) {
-                console.log('Cannot navigate forward');
+                    console.log('Using fallback navigation method');
+                }
+                
+                // Update button states after navigation
+                setTimeout(updateNavigationState, 100);
+            } catch (e) {
+                console.log('Cannot navigate forward:', e);
             }
         }
     }
 
     function refresh() {
         if (currentIframe) {
-            currentIframe.src = currentIframe.src;
+            try {
+                // Try to use the reload method first (more reliable)
+                try {
+                    currentIframe.contentWindow.location.reload();
+                } catch (e) {
+                    // Fallback to changing src attribute
+                    const currentSrc = currentIframe.src;
+                    currentIframe.src = 'about:blank';
+                    setTimeout(() => {
+                        currentIframe.src = currentSrc;
+                    }, 50);
+                }
+                
+                // Update navigation buttons
+                setTimeout(updateNavigationState, 500);
+            } catch (e) {
+                console.log('Cannot refresh:', e);
+            }
         }
     }
 
@@ -2531,6 +3058,12 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
 
+    function removeFromHistory(timestamp) {
+        browserHistory = browserHistory.filter(item => item.timestamp != timestamp);
+        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
+        updateHistoryList();
+    }
+
     // App Launcher functionality
     const appLauncher = document.querySelector('.app-launcher-button');
     const appDrawer = document.getElementById('appDrawer');
@@ -2929,7 +3462,271 @@ document.addEventListener('DOMContentLoaded', () => {
     // ... rest of your initialization code ...
 });
 
+// Update navigation button states based on iframe history
+function updateNavigationState() {
+    const backBtn = document.getElementById('backBtn');
+    const forwardBtn = document.getElementById('forwardBtn');
+    
+    if (currentIframe) {
+        try {
+            // Get current tab ID
+            const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
+            const data = tabData.get(tabId);
+            
+            // Try to access history length (might fail due to cross-origin)
+            try {
+                const history = currentIframe.contentWindow.history;
+                
+                // Store navigation state in tab data
+                if (data) {
+                    data.canGoBack = history.length > 1;
+                    data.canGoForward = false; // Hard to detect, assume false by default
+                    
+                    // Update tab data
+                    tabData.set(tabId, data);
+                }
+                
+                // Update button states
+                backBtn.disabled = !(history.length > 1);
+                backBtn.style.opacity = backBtn.disabled ? '0.5' : '1';
+                
+                // Forward state is hard to detect, use best effort
+                forwardBtn.disabled = true; // Default to disabled
+                forwardBtn.style.opacity = '0.5';
+            } catch (e) {
+                // Fallback to stored state if available
+                if (data) {
+                    backBtn.disabled = !data.canGoBack;
+                    backBtn.style.opacity = backBtn.disabled ? '0.5' : '1';
+                    
+                    forwardBtn.disabled = !data.canGoForward;
+                    forwardBtn.style.opacity = forwardBtn.disabled ? '0.5' : '1';
+                } else {
+                    // Default states
+                    backBtn.disabled = true;
+                    backBtn.style.opacity = '0.5';
+                    forwardBtn.disabled = true;
+                    forwardBtn.style.opacity = '0.5';
+                }
+            }
+        } catch (e) {
+            console.log('Error updating navigation state:', e);
+            // Default states if error
+            backBtn.disabled = true;
+            backBtn.style.opacity = '0.5';
+            forwardBtn.disabled = true;
+            forwardBtn.style.opacity = '0.5';
+        }
+    } else {
+        // No iframe, disable both buttons
+        backBtn.disabled = true;
+        backBtn.style.opacity = '0.5';
+        forwardBtn.disabled = true;
+        forwardBtn.style.opacity = '0.5';
+    }
+}
 
+// Store previous URL when navigating
+function storeNavigationHistory(iframe, tabId) {
+    if (!iframe || !tabId) return;
+    
+    const data = tabData.get(tabId);
+    if (!data) return;
+    
+    try {
+        // Listen for iframe load events to track navigation
+        iframe.addEventListener('load', () => {
+            // Update navigation state
+            data.previousUrl = data.currentUrl || iframe.src;
+            data.currentUrl = iframe.src;
+            data.canGoBack = true;
+            
+            // Update tab data
+            tabData.set(tabId, data);
+            
+            // Update button states
+            updateNavigationState();
+        });
+    } catch (e) {
+        console.log('Error setting up navigation tracking:', e);
+    }
+}
+
+// ... existing code ...
+
+// Update switchTab function to persist navigation state
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    
+    const tabId = tab.getAttribute('data-tab-id');
+    const data = tabData.get(tabId);
+    
+    if (data) {
+        searchInput.value = data.searchValue;
+        if (data.hasIframe) {
+            // Instead of modifying content, just hide/show the appropriate containers
+            const containers = document.querySelectorAll('.iframe-container');
+            containers.forEach(container => {
+                if (container.getAttribute('data-tab-id') === tabId) {
+                    container.style.display = 'block';
+                    currentIframe = container.querySelector('iframe');
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+
+            // If no container exists for this tab, create one
+            if (!currentIframe) {
+                const container = document.createElement('div');
+                container.className = 'iframe-container';
+                container.setAttribute('data-tab-id', tabId);
+                
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                iframe.style.border = 'none';
+                iframe.src = data.url;
+                
+                container.appendChild(iframe);
+                content.appendChild(container);
+                currentIframe = iframe;
+                
+                // Set up navigation history tracking for this iframe
+                storeNavigationHistory(iframe, tabId);
+
+                if (isInspectorActive) {
+                    setTimeout(() => {
+                        initializeInspector(iframe);
+                    }, 1000);
+                }
+            }
+
+            // Hide the logo
+            const logo = document.querySelector('.logo');
+            if (logo) logo.style.display = 'none';
+            
+            // Update navigation state for the active tab
+            updateNavigationState();
+        } else {
+            // For new tabs, hide all iframe containers
+            document.querySelectorAll('.iframe-container').forEach(container => {
+                container.style.display = 'none';
+            });
+
+            // Show logo
+            let logo = document.querySelector('.logo');
+            if (!logo) {
+                content.innerHTML = '<div class="logo">ZØRA</div>';
+            } else {
+                logo.style.display = 'block';
+            }
+            currentIframe = null;
+            
+            // Disable navigation buttons for new tab
+            updateNavigationState();
+        }
+    }
+}
+
+// ... existing code ...
+
+// Enhanced searchInput event listener to track navigation
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        const input = searchInput.value.trim();
+        if (input) {
+            const activeTab = document.querySelector('.tab.active');
+            const tabId = activeTab.getAttribute('data-tab-id');
+
+            const isUrl = input.includes('.') && !input.includes(' ');
+            let url = isUrl ? 
+                (input.startsWith('http') ? input : `https://${input}`) :
+                `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
+
+            const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
+            
+            activeTab.querySelector('span').textContent = isUrl ? new URL(url).hostname : `${input} - Search`;
+            
+            // Hide all existing containers
+            document.querySelectorAll('.iframe-container').forEach(container => {
+                container.style.display = 'none';
+            });
+
+            // Create new container for this tab
+            const container = document.createElement('div');
+            container.className = 'iframe-container';
+            container.setAttribute('data-tab-id', tabId);
+            
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.src = proxyUrl;
+            
+            container.appendChild(iframe);
+            content.appendChild(container);
+            currentIframe = iframe;
+            
+            // Set up navigation history tracking for this iframe
+            storeNavigationHistory(iframe, tabId);
+
+            // Update tab data with navigation info
+            tabData.set(tabId, {
+                url: proxyUrl,
+                title: activeTab.querySelector('span').textContent,
+                searchValue: input,
+                hasIframe: true,
+                currentUrl: proxyUrl,
+                previousUrl: null,
+                canGoBack: false,
+                canGoForward: false
+            });
+            
+            // Update navigation buttons state
+            updateNavigationState();
+
+            // Hide logo
+            const logo = document.querySelector('.logo');
+            if (logo) logo.style.display = 'none';
+
+            if (isInspectorActive) {
+                setTimeout(() => {
+                    initializeInspector(iframe);
+                }, 1000);
+            }
+
+            addToHistory(url, activeTab.querySelector('span').textContent);
+        }
+    }
+});
+
+// ... existing code ...
+
+// Initialize event listeners for navigation buttons
+document.getElementById('backBtn').addEventListener('click', goBack);
+document.getElementById('forwardBtn').addEventListener('click', goForward);
+document.getElementById('refreshBtn').addEventListener('click', refresh);
+
+// Listen for postMessage events from iframe (for navigation state updates)
+window.addEventListener('message', (event) => {
+    if (event.data && event.data.action === 'updateNavigation') {
+        // Update navigation state based on message from iframe
+        const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
+        const data = tabData.get(tabId);
+        
+        if (data) {
+            data.canGoBack = event.data.canGoBack;
+            data.canGoForward = event.data.canGoForward;
+            tabData.set(tabId, data);
+            
+            // Update navigation buttons
+            updateNavigationState();
+        }
+    }
+});
+
+// ... existing code ...
     </script>
 </body>
 </html>
