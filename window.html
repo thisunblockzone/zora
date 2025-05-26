@@ -606,8 +606,76 @@
     justify-self: center; /* Center icons in their grid cells */
 }
 
+/* Update the desktop-icons class */
+.desktop-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    position: fixed; /* Change to fixed */
+    left: 0;
+    top: 0;
+    z-index: 1;
+    height: calc(100vh - 50px); /* Account for taskbar */
+    overflow: hidden; /* Prevent scrolling */
+    width: 100px; /* Fixed width for the column */
+}
 
+/* Update the app-icon class */
+.app-icon {
+    width: 70px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
+    animation: fadeInUp 0.5s ease backwards;
+    flex-shrink: 0; /* Prevent icons from shrinking */
+}
 
+/* Update icon image container */
+.icon-img {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(45deg, #4B0082, #800080);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Update icon text */
+.icon-text {
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Ensure browser windows don't interfere with icons */
+.browser-window {
+    margin-left: 100px; /* Add margin to avoid overlapping with icons */
+    width: calc(90vw - 100px); /* Adjust width to account for icon space */
+}
+
+/* Update maximized window state to account for icon space */
+.browser-window.maximized {
+    margin-left: 100px;
+    width: calc(100vw - 100px) !important;
+}
 
     </style>
 </head>
@@ -1105,6 +1173,44 @@ document.addEventListener("DOMContentLoaded", () => {
         return urls[appId] || '#';
     }
 });
+
+function createDesktopIcon(appId, title, iconUrl) {
+    const desktopIcons = document.querySelector(".desktop-icons");
+    const existingIcon = document.querySelector(`.app-icon[data-app="${appId}"]`);
+    
+    // Check if we've reached the maximum number of visible icons
+    const maxIcons = Math.floor((window.innerHeight - 65) / 105); // 105 = icon height + gap
+    if (desktopIcons.children.length >= maxIcons && !existingIcon) {
+        alert('Maximum number of icons reached. Please remove some apps first.');
+        return false;
+    }
+    
+    if (!existingIcon) {
+        const newIcon = document.createElement("div");
+        newIcon.className = "app-icon";
+        newIcon.dataset.app = appId;
+        newIcon.innerHTML = `
+            <div class="icon-img">
+                <img src="${iconUrl}" style="width: 100%; height: 100%; border-radius: 10px;">
+            </div>
+            <span class="icon-text">${title}</span>
+        `;
+        
+        desktopIcons.appendChild(newIcon);
+        
+        newIcon.addEventListener("click", () => {
+            const win = windows[appId];
+            if (win) {
+                openWindow(win);
+            } else {
+                createNewWindow(appId, title, getAppUrl(appId));
+            }
+        });
+        
+        return true;
+    }
+    return false;
+}
 
 </script>
 
