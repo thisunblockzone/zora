@@ -1,3732 +1,1218 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZØRA Browser</title>
+    <title>Windows Interface</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="//cdn.jsdelivr.net/npm/eruda"></script>
-
-
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
-            font-weight: 600;
         }
 
         body {
             height: 100vh;
-            background: linear-gradient(45deg, #000000, #4B0082, #800080);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: white;
+            background-image: url('https://images.unsplash.com/photo-1673526759327-54f1f5b27322?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
         }
 
-        .browser-container {
+        .desktop-icons {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 15px;
+            padding: 15px;
             position: relative;
             z-index: 1;
-            width: 100%;
-            height: 100vh;
+        }
+
+        .app-icon {
+            width: 70px;
+            height: 90px;
             display: flex;
             flex-direction: column;
-            cursor: default;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 8px;
+            animation: fadeInUp 0.5s ease backwards;
         }
 
-        .browser-container.draggable {
+        .app-icon:nth-child(1) { animation-delay: 0.1s; }
+        .app-icon:nth-child(2) { animation-delay: 0.2s; }
+        .app-icon:nth-child(3) { animation-delay: 0.3s; }
+        .app-icon:nth-child(4) { animation-delay: 0.4s; }
+        .app-icon:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-img {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(45deg, #4B0082, #800080);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .app-icon:hover .icon-img {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .icon-text {
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .taskbar {
             position: fixed;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            overflow: hidden;
-            will-change: transform;
-            transition: box-shadow 0.3s ease;
-        }
-
-        .browser-container.dragging {
-            box-shadow: 0 20px 50px rgba(138, 43, 226, 0.4);
-            z-index: 10000;
-        }
-
-        /* Tab bar becomes draggable handle */
-        .tab-bar.drag-handle {
-            cursor: move;
-            user-select: none;
-        }
-
-        .tab-bar.dragging {
-            cursor: grabbing;
-        }
-
-        /* Tab Bar Styles */
-        .tab-bar {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
             background: rgba(20, 20, 20, 0.85);
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
             backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-            position: relative;
-        }
-
-        .tab {
-            background: rgba(40, 40, 40, 0.9);
-            border-radius: 12px;
-            padding: 12px 24px;
-            color: white;
             display: flex;
             align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(138, 43, 226, 0.2);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .tab:hover {
-            background: rgba(75, 0, 130, 0.4);
-            transform: translateY(-2px);
-            border-color: rgba(138, 43, 226, 0.4);
-        }
-
-        .tab.active {
-            background: rgba(75, 0, 130, 0.6);
-            border: 1px solid rgba(138, 43, 226, 0.6);
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
-        }
-
-        .close-tab {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .close-tab:hover {
-            background: rgba(255, 0, 0, 0.4);
-            transform: rotate(90deg);
-        }
-
-        .new-tab-btn {
-            background: rgba(75, 0, 130, 0.4);
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .new-tab-btn:hover {
-            background: rgba(75, 0, 130, 0.6);
-            transform: translateY(-2px);
-            border-color: rgba(138, 43, 226, 0.5);
-        }
-
-        /* Search Bar Styles */
-        .search-bar {
-            background: rgba(20, 20, 20, 0.85);
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            backdrop-filter: blur(15px);
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 14px 24px;
-            border-radius: 15px;
-            border: 1px solid rgba(138, 43, 226, 0.3);
-            background: rgba(40, 40, 40, 0.9);
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: rgba(138, 43, 226, 0.7);
-            background: rgba(50, 50, 50, 0.95);
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
-        }
-
-        /* Content Area */
-        .content {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 8rem;
-            color: white;
-            transition: all 0.3s ease;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-            text-shadow: 0 0 20px rgba(138, 43, 226, 0.7);
-        }
-
-        /* Bottom Bar Styles */
-        .bottom-bar {
-            background: rgba(20, 20, 20, 0.95);
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 0 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
         }
 
-        .time-display {
+        .app-launcher-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(138, 43, 226, 0.3);
+            cursor: pointer;
+            margin-right: auto;
             display: flex;
             align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .app-launcher-button:hover {
+            background: rgba(138, 43, 226, 0.5);
+            transform: scale(1.1);
+        }
+
+        .launcher-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .launcher-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .app-launcher-button:hover .launcher-circle::before {
+            opacity: 1;
+        }
+
+        .taskbar-icons {
+            display: flex;
             gap: 10px;
         }
 
-        .battery-indicator {
+        .taskbar-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .taskbar-icon[data-app="browser"] {
+            background: linear-gradient(45deg, #4B0082, #800080);
+            box-shadow: 0 2px 8px rgba(138, 43, 226, 0.3);
+        }
+
+        .taskbar-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .taskbar-icon[data-app="browser"].active {
+            background: linear-gradient(45deg, #800080, #4B0082);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+        }
+
+        .browser-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90vw;
+            height: 85vh;
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 12px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .browser-window.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .browser-window.maximized {
+            width: 100vw !important;
+            height: calc(100vh - 50px) !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+            border-radius: 0;
+        }
+
+        .browser-window.minimized {
+            transform: translate(-50%, 100vh) scale(0.5);
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .browser-header {
+            height: 40px;
+            background: rgba(40, 40, 40, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 15px;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+            cursor: move;
+        }
+
+        .window-controls {
+            display: flex;
             gap: 8px;
         }
 
-        .battery-icon {
-            width: 30px;
-            height: 15px;
-            border: 2px solid white;
-            border-radius: 3px;
-            position: relative;
-            padding: 1px;
+        .control-button {
+            width: 35px;
+            height: 35px;
+            border: none;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
         }
 
-        .battery-icon::after {
-            content: '';
-            position: absolute;
-            right: -4px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 8px;
-            background: white;
-            border-radius: 0 2px 2px 0;
+        .control-button:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        .battery-level {
+        .control-button.close:hover {
+            background: rgba(255, 0, 0, 0.2);
+        }
+
+        .control-button.maximize:hover,
+        .control-button.minimize:hover {
+            background: rgba(138, 43, 226, 0.2);
+        }
+
+        .browser-content {
+            height: calc(100% - 40px);
+        }
+
+        .browser-content iframe {
+            width: 100%;
             height: 100%;
-            background: #4CAF50;
-            border-radius: 1px;
-            transition: all 0.3s ease;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            border: none;
         }
         
-        /* Replace the existing body background style with: */
-body {
-    height: 100vh;
-    background-image: url('https://images.unsplash.com/photo-1673526759327-54f1f5b27322?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    color: white;
-    position: relative;
+
+.browser-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 85vh;
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.3);
 }
 
-body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(0,0,0,0.7), rgba(75,0,130,0.7));
-    z-index: 0;
-}
-
-.browser-container {
+.browser-content {
+    height: calc(100% - 40px);
     position: relative;
     z-index: 1;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+    pointer-events: auto;
 }
 
-/* Enhanced Tab Bar Styles */
-.tab-bar {
-    background: rgba(20, 20, 20, 0.85);
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    backdrop-filter: blur(15px);
-    border-bottom: 1px solid rgba(138, 43, 226, 0.2);
-}
-
-.tab {
-    background: rgba(40, 40, 40, 0.9);
-    border-radius: 12px;
-    padding: 12px 24px;
-    color: white;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(138, 43, 226, 0.2);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.tab:hover {
-    background: rgba(75, 0, 130, 0.4);
-    transform: translateY(-2px);
-    border-color: rgba(138, 43, 226, 0.4);
-}
-
-.tab.active {
-    background: rgba(75, 0, 130, 0.6);
-    border: 1px solid rgba(138, 43, 226, 0.6);
-    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
-}
-
-.close-tab {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.close-tab:hover {
-    background: rgba(255, 0, 0, 0.4);
-    transform: rotate(90deg);
-}
-
-.new-tab-btn {
-    background: rgba(75, 0, 130, 0.4);
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.new-tab-btn:hover {
-    background: rgba(75, 0, 130, 0.6);
-    transform: translateY(-2px);
-    border-color: rgba(138, 43, 226, 0.5);
-}
-
-/* Search Bar Enhancement */
-.search-bar {
-    background: rgba(20, 20, 20, 0.85);
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    backdrop-filter: blur(15px);
-}
-
-.search-input {
-    flex: 1;
-    padding: 14px 24px;
-    border-radius: 15px;
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    background: rgba(40, 40, 40, 0.9);
-    color: white;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: rgba(138, 43, 226, 0.7);
-    background: rgba(50, 50, 50, 0.95);
-    box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
-}
-
-/* Adjust tab bar and search bar sizes */
-.tab-bar {
-    height: 40px;
-    padding: 5px 10px;
-}
-
-.tab {
-    padding: 5px 15px;
-    font-size: 14px;
-}
-
-.search-bar {
-    height: 50px;
-    padding: 8px 15px;
-}
-
-/* Modified bottom bar */
-.bottom-bar {
-    height: 40px;
-    background: rgba(75, 0, 130, 0.85);
-    border-top: 2px solid rgba(138, 43, 226, 0.4);
-    padding: 0 20px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-}
-
-/* Navigation buttons */
-.nav-buttons {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 10px;
-}
-
-.nav-button {
-    background: rgba(75, 0, 130, 0.4);
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.nav-button:hover {
-    background: rgba(75, 0, 130, 0.6);
-}
-
-/* App Launcher Styles */
-.app-launcher-button {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(138, 43, 226, 0.3);
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s ease;
-    margin-right: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.app-launcher-button:hover {
-    background: rgba(138, 43, 226, 0.5);
-    transform: scale(1.1);
-}
-
-.launcher-icon {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 2px;
-}
-
-.launcher-icon::before {
-    content: '';
-    width: 4px;
-    height: 4px;
-    background: white;
-    border-radius: 50%;
-    position: absolute;
-    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
-    animation: dotPulse 2s infinite;
-}
-
-.launcher-icon::after {
-    content: '';
-    width: 4px;
-    height: 4px;
-    background: white;
-    border-radius: 50%;
-    position: absolute;
-    left: 8px;
-    box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
-    animation: dotPulse 2s infinite 0.5s;
-}
-
-.app-drawer {
-    position: fixed;
-    bottom: 60px;
-    left: 20px;
-    background: rgba(20, 20, 20, 0.95);
-    border-radius: 20px;
-    padding: 20px;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transform: scale(0.95);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-}
-
-.app-drawer.active {
-    transform: scale(1);
-    opacity: 1;
-    visibility: visible;
-}
-
-.app-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    width: 400px;
-}
-
-.app-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.app-item:hover {
-    transform: translateY(-5px);
-}
-
-.app-icon {
-    width: 50px;
-    height: 50px;
-    background: rgba(138, 43, 226, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(138, 43, 226, 0.3);
-}
-
-.app-item:hover .app-icon {
-    background: rgba(138, 43, 226, 0.4);
-    transform: scale(1.1);
-}
-
-.app-item span {
-    font-size: 12px;
-    color: white;
-    text-align: center;
-}
-
-@keyframes dotPulse {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 0.7;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Updated Tab Styles */
-.close-tab {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: all 0.3s ease;
-    opacity: 0.7;
-}
-
-.close-tab:hover {
-    background: rgba(255, 0, 0, 0.2);
-    transform: rotate(90deg);
-    opacity: 1;
-}
-
-/* Updated App Launcher Styles */
-.app-launcher-button {
-    width: 24px;
-    height: 24px;
-    position: relative;
-    cursor: pointer;
-    margin: 0 20px;
-}
-
-.launcher-circle {
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.launcher-circle::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, rgba(138, 43, 226, 0.8), rgba(75, 0, 130, 0.8));
-    opacity: 0;
-    transition: all 0.5s ease;
-}
-
-.app-launcher-button:hover .launcher-circle {
-    transform: scale(1.1);
-}
-
-.app-launcher-button.active .launcher-circle {
-    transform: scale(0.9);
-}
-
-.app-launcher-button.active .launcher-circle::before {
-    opacity: 1;
-}
-
-/* Updated App Drawer Styles */
-.app-drawer {
-    position: fixed;
-    bottom: 60px;
-    left: 50%;
-    transform: translateX(-50%) scale(0.95);
-    background: rgba(20, 20, 20, 0.95);
-    border-radius: 20px;
-    padding: 25px;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-}
-
-.app-drawer.active {
-    transform: translateX(-50%) scale(1);
-    opacity: 1;
-    visibility: visible;
-}
-
-.app-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 25px;
-    width: 500px;
-}
-
-.app-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.app-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(138, 43, 226, 0.2);
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(138, 43, 226, 0.3);
-}
-
-.app-icon i {
-    font-size: 24px;
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.app-item:hover {
-    transform: translateY(-5px);
-}
-
-.app-item:hover .app-icon {
-    background: rgba(138, 43, 226, 0.4);
-    transform: scale(1.1);
-}
-
-.app-item:hover i {
-    transform: scale(1.1);
-}
-
-.app-item span {
-    font-size: 12px;
-    color: white;
-    text-align: center;
-}
-
-/* Animation for app items */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.app-item {
-    animation: fadeInUp 0.3s ease backwards;
-}
-
-.app-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 25px;
-}
-
-.app-item:nth-child(1) { animation-delay: 0.1s; }
-.app-item:nth-child(2) { animation-delay: 0.15s; }
-.app-item:nth-child(3) { animation-delay: 0.2s; }
-.app-item:nth-child(4) { animation-delay: 0.25s; }
-.app-item:nth-child(5) { animation-delay: 0.3s; }
-.app-item:nth-child(6) { animation-delay: 0.35s; }
-.app-item:nth-child(7) { animation-delay: 0.4s; }
-.app-item:nth-child(8) { animation-delay: 0.45s; }
-.app-item:nth-child(9) { animation-delay: 0.5s; }
-.app-item:nth-child(10) { animation-delay: 0.55s; }
-.app-item:nth-child(11) { animation-delay: 0.6s; }
-.app-item:nth-child(12) { animation-delay: 0.65s; }
-
-.new-tab-btn {
-    font-size: 24px;  /* Make the + icon bigger */
-    padding: 5px 15px;  /* Reduce padding to keep button size reasonable */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-}
-
-.search-bar {
-    background: rgba(20, 20, 20, 0.85);
-    padding: 15px;
-    padding-bottom: 25px; /* Extended bottom padding */
-    display: flex;
-    align-items: center;
-    backdrop-filter: blur(15px);
-    border-bottom: 2px solid rgba(138, 43, 226, 0.3);
-    box-shadow: 0 4px 15px -5px rgba(138, 43, 226, 0.4); /* Added glow */
-}
-
-.content {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.content iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
+.browser-content iframe {
     width: 100%;
     height: 100%;
     border: none;
+    pointer-events: auto;
 }
 
-/* Navigation buttons */
-.nav-buttons {
-    display: flex;
-    gap: 10px;
-    margin-right: 15px;
-}
-
-.nav-button {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(138, 43, 226, 0.2);
-    border: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.nav-button:hover {
-    background: rgba(138, 43, 226, 0.4);
-    transform: scale(1.1);
-}
-
-.nav-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Search bar modifications */
-.search-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-}
-
-.search-input {
-    flex: 0.7; /* Adjust this value to control width */
-}
-
-/* Action buttons */
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-left: 10px;
-}
-
-.action-button {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(138, 43, 226, 0.2);
-    border: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+.browser-header {
     position: relative;
+    z-index: 2;
 }
 
-.action-button:hover {
-    background: rgba(138, 43, 226, 0.4);
-}
-
-/* Options menu */
-.options-menu {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    background: rgba(30, 30, 30, 0.95);
-    border-radius: 12px;
-    padding: 10px 0;
-    min-width: 200px;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-}
-
-.options-menu.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.menu-item {
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.menu-item:hover {
-    background: rgba(138, 43, 226, 0.2);
-}
-
-.menu-item i {
-    width: 20px;
-    text-align: center;
-}
-
-/* Modified tab styles */
-.tab {
-    padding: 8px 20px;
-    height: 36px;
-}
-
-/* Adjust search bar layout */
-.search-bar {
-    height: 70px;
-    padding: 0 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.nav-buttons {
-    display: flex;
-    gap: 6px;
-}
-
-.nav-button {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-}
-
-.search-input {
-    flex: 1;
-    max-width: calc(100% - 300px); /* Adjust based on your needs */
-}
-
-.action-buttons {
-    display: flex;
-    gap: 6px;
-}
-
-.action-button {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-}
-
-/* Fullscreen button */
-.fullscreen-button {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: rgba(138, 43, 226, 0.2);
-    border: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.fullscreen-button:hover {
-    background: rgba(138, 43, 226, 0.4);
-    transform: scale(1.1);
-}
-
-/* Adjust tab size */
-.tab {
-    height: 32px;
-    padding: 0 15px;
-    font-size: 13px;
-}
-
-.close-tab {
-    width: 16px;
-    height: 16px;
-    font-size: 14px;
-}
-
-/* Search bar adjustments */
-.search-bar {
-    padding: 0 20px;
+/* Make desktop icons stay behind browser window */
+.desktop-icons {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
     gap: 15px;
-}
-
-.nav-buttons {
-    margin-right: 10px;
-    min-width: 110px; /* Fixed width for navigation buttons */
-}
-
-.search-input {
-    flex: 1;
-    max-width: calc(100% - 380px); /* Adjust for better spacing */
-    margin: 0 15px;
-}
-
-.action-buttons {
-    min-width: 110px; /* Fixed width for action buttons */
-    justify-content: flex-end;
-}
-
-/* Enhanced tab animations */
-.tab {
-    height: 36px;
-    padding: 0 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 15px;
     position: relative;
-    overflow: hidden;
+    z-index: 1;
 }
 
-.tab::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    width: 0;
-    height: 2px;
-    background: rgba(138, 43, 226, 0.6);
-    transition: all 0.3s ease;
-    transform: translateX(-50%);
-}
-
-.tab:hover::after {
-    width: 100%;
-}
-
-.tab.active::after {
-    width: 100%;
-    background: rgba(138, 43, 226, 1);
-}
-
-.close-tab {
-    width: 20px;
-    height: 20px;
-    font-size: 16px;
-    opacity: 0.7;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-.close-tab:hover {
-    background: rgba(255, 0, 0, 0.3);
-    opacity: 1;
-}
-
-/* Enhanced menu items */
-.menu-item {
-    padding: 12px 20px;
-    position: relative;
-    overflow: hidden;
-}
-
-.menu-item::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: 1px;
-    background: rgba(138, 43, 226, 0.2);
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.menu-item:hover::after {
-    transform: scaleX(1);
-}
-
-.menu-item:hover {
-    background: rgba(138, 43, 226, 0.2);
-    transform: translateX(5px);
-}
-
-/* History popup */
-.history-popup, .bookmarks-popup {
+/* Make browser window appear above desktop icons but below taskbar */
+.browser-window {
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
+    transform: translate(-50%, -50%);
+    width: 90vw;
+    height: 85vh;
     background: rgba(30, 30, 30, 0.95);
-    border-radius: 15px;
-    padding: 20px;
-    min-width: 400px;
-    max-width: 600px;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    overflow: hidden;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    z-index: 1000; /* Add this line */
+}
+
+/* Make taskbar stay on top */
+.taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(15px);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 2000; /* Add this line */
+}
+
+.browser-window.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* App Window Styles */
+.app-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 90vw;
+    height: 85vh;
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.3);
     z-index: 1000;
 }
 
-.history-popup.active, .bookmarks-popup.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
-}
-
-.popup-header {
+.window-header {
+    height: 40px;
+    background: rgba(40, 40, 40, 0.95);
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
+    padding: 0 15px;
     border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+    cursor: move;
 }
 
-.popup-title {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.clear-button {
-    padding: 8px 15px;
-    background: rgba(138, 43, 226, 0.3);
-    border: none;
-    border-radius: 8px;
+.window-title {
     color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.clear-button:hover {
-    background: rgba(138, 43, 226, 0.5);
+.window-content {
+    height: calc(100% - 40px);
+    position: relative;
 }
 
-.history-list, .bookmarks-list {
-    max-height: 400px;
+.window-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* App Store Styles */
+.store-content {
+    padding: 20px;
     overflow-y: auto;
 }
 
-.history-item, .bookmark-item {
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.store-app {
+    background: rgba(40, 40, 40, 0.95);
+    border-radius: 12px;
+    padding: 20px;
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-radius: 8px;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.store-app:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(138, 43, 226, 0.2);
+}
+
+.store-app img {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+}
+
+.app-info {
+    flex: 1;
+}
+
+.app-info h3 {
+    color: white;
     margin-bottom: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
-.history-item:hover, .bookmark-item:hover {
-    background: rgba(138, 43, 226, 0.2);
-}
-
-.item-icon {
-    margin-right: 10px;
-    font-size: 16px;
-}
-
-.item-details {
-    flex: 1;
-}
-
-.item-title {
+.app-info p {
+    color: rgba(255, 255, 255, 0.7);
     font-size: 14px;
-    margin-bottom: 4px;
+    margin-bottom: 10px;
 }
 
-.item-url {
-    font-size: 12px;
-    opacity: 0.7;
-}
-
-.remove-button {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.history-item:hover .remove-button,
-.bookmark-item:hover .remove-button {
-    opacity: 1;
-}
-
-/* Bookmark button */
-.bookmark-button {
-    padding: 8px;
-    background: transparent;
+.install-btn {
+    background: rgba(138, 43, 226, 0.3);
     border: none;
     color: white;
+    padding: 8px 20px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.bookmark-button.active {
-    color: #ffd700;
+.install-btn:hover {
+    background: rgba(138, 43, 226, 0.5);
 }
 
-/* Add to your CSS */
-.tab-group {
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    background: rgba(138, 43, 226, 0.2);
-    border-radius: 8px;
-    margin-right: 10px;
-}
-
-.group-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 8px;
-}
-
-/* Tab group indicator styles */
-.group-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 8px;
-}
-.tab-preview {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 200px;
-    height: 150px;
-    background: rgba(20, 20, 20, 0.95);
-    border-radius: 8px;
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
-}
-
-.tab:hover .tab-preview {
-    opacity: 1;
-    visibility: visible;
-}
-
-.search-bar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    padding: 0 20px;
-}
-
-.nav-buttons {
-    position: absolute;
-    left: 20px;
-}
-
-.action-buttons {
-    position: absolute;
-    right: 20px;
-}
-
-.search-input {
-    width: 40%;
-    max-width: 600px;
-}
-
-/* Enhanced options menu styles */
-.options-menu {
-    padding: 8px 0;
-}
-
-.menu-item {
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.menu-item:hover {
-    background: rgba(138, 43, 226, 0.2);
-    transform: translateX(5px);
-}
-
-.menu-item i {
-    width: 20px;
-    text-align: center;
-}
-
-#context-menu {
-    background-color: rgba(30, 30, 30, 0.95);
-    box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
-    color: white;
-    width: 200px;
-    padding: 0.8em 0.6em;
-    font-size: 14px;
-    position: fixed;
-    visibility: hidden;
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    border-radius: 8px;
-    z-index: 1000;
-}
-
-.item {
-    padding: 8px 16px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.item:hover {
-    background-color: rgba(138, 43, 226, 0.2);
-    cursor: pointer;
-}
-
-/* Modify search bar width */
-.search-input {
-    flex: 1;
-    max-width: 70%; /* Increased from previous value */
-    margin: 0 auto;
-}
-
-.search-input {
-    flex: 1;
-    max-width: 975px; /* Increased from previous value */
-    margin: 0 auto;
-    padding: 14px 24px;
-    border-radius: 15px;
-    border: 1px solid rgba(138, 43, 226, 0.3);
-    background: rgba(40, 40, 40, 0.9);
-    color: white;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.installed {
+    background: rgba(76, 175, 80, 0.3) !important;
 }
 
 /* Add to your existing CSS */
-.options-menu {
-    z-index: 10000; /* Increased z-index */
+.browser-window, .app-window {
+    resize: both;
+    min-width: 400px;
+    min-height: 300px;
 }
 
-.eruda-container {
-    z-index: 100000 !important; /* Ensure inspector is always on top */
-}
-
-.nav-buttons button,
-.action-buttons button {
-    z-index: 1000;
-}
-
-.iframe-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* Enhanced options menu */
-.options-menu {
-    width: 250px;
-    padding: 10px 0;
-}
-
-.menu-item {
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.menu-separator {
-    height: 1px;
-    background: rgba(138, 43, 226, 0.2);
-    margin: 8px 0;
-}
-
-.menu-item .shortcut {
-    margin-left: auto;
-    opacity: 0.5;
-    font-size: 12px;
-}
-
-/* Add these CSS rules */
-.options-menu {
-    z-index: 100000;
-}
-
-.eruda-container {
-    z-index: 100001 !important;
-}
-
-.content iframe {
-    z-index: 1;
-}
-
-.search-bar {
-    z-index: 10;
-}
-
-.tab-bar {
-    z-index: 10;
-}
-
-.history-popup,
-.bookmarks-popup {
-    z-index: 100000;
-}
-
-/* Add these new animation styles to your existing CSS */
-@keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-    from {
-        transform: scale(0.9);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Enhanced popup styles */
-.popup {
-    animation: scaleIn 0.3s ease-out;
-}
-
-.popup-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(138, 43, 226, 0.2);
-    border: none;
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-}
-
-.popup-close:hover {
-    background: rgba(255, 0, 0, 0.4);
-    transform: rotate(90deg);
-}
-
-/* Bookmark styles */
-.bookmark-button {
-    background: rgba(138, 43, 226, 0.2);
-    border: none;
-    color: white;
-    padding: 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-left: 10px;
-}
-
-.bookmark-button:hover {
-    background: rgba(138, 43, 226, 0.4);
-    transform: scale(1.1);
-}
-
-.bookmark-button.active {
-    color: #ffd700;
-}
-
-/* Enhanced history/bookmark item styles */
-.history-item, .bookmark-item {
-    animation: slideIn 0.3s ease-out;
-    position: relative;
-    padding: 15px;
-    margin: 8px 0;
-    background: rgba(138, 43, 226, 0.1);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.history-item:hover, .bookmark-item:hover {
-    background: rgba(138, 43, 226, 0.2);
-    transform: translateX(5px);
-}
-
-.remove-button {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    color: white;
-    opacity: 0;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.history-item:hover .remove-button,
-.bookmark-item:hover .remove-button {
-    opacity: 1;
-}
-
-/* Popup animations */
-.history-popup, .bookmarks-popup {
-    animation: scaleIn 0.3s ease-out;
-}
-
-/* Tab animations */
-.tab {
-    animation: slideIn 0.3s ease-out;
-}
-
-/* Enhanced popup styles */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-.popup-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-
-/* Add to your existing CSS */
-.eruda-container {
-    z-index: 100000 !important; /* Ensure inspector is always on top */
-    position: relative;
-}
-
-.fullscreen-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #000;
-    z-index: 99999;
-    display: none;
-}
-
-.fullscreen-container.active {
-    display: block;
-}
-
-.content iframe {
-    border: none;
-    width: 100%;
-    height: 100%;
-}
-
-/* Ensure inspector is above iframe content */
-#eruda {
-    position: relative;
-    z-index: 100000 !important;
-}
-
-.eruda-dev-tools {
-    z-index: 100000 !important;
-}
-
-.iframe-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: none;
-}
-
-.content {
-    position: relative;
-}
-
-.bookmark-button {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: rgba(138, 43, 226, 0.2);
-    border: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin: -2px 4px 0 4px; /* <-- move up with negative top margin */
-}
-
-
-.bookmark-button:hover {
-    background: rgba(138, 43, 226, 0.4);
-    transform: scale(1.1);
-}
-
-.bookmark-button.active {
-    color: #ffd700;
-    background: rgba(138, 43, 226, 0.4);
-}
-
-.bookmark-button i {
-    font-size: 14px;
-}
-
-/* Add to your existing CSS */
-.eruda-container {
-    z-index: 100000 !important;
-}
-
-.content iframe {
-    z-index: 1;
-}
-
-.search-bar {
-    z-index: 10;
-}
-
-.tab-bar {
-    z-index: 10;
-}
-
-.options-menu {
-    z-index: 100000;
-}
-
-/* Window controls */
-.window-controls {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 1001;
-}
-
-.window-control {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    transition: all 0.3s ease;
-}
-
-.window-control.minimize {
-    background: rgba(255, 193, 7, 0.8);
-    color: rgba(0, 0, 0, 0.8);
-}
-
-.window-control.maximize {
-    background: rgba(40, 167, 69, 0.8);
-    color: rgba(0, 0, 0, 0.8);
-}
-
-.window-control.close {
-    background: rgba(220, 53, 69, 0.8);
-    color: rgba(0, 0, 0, 0.8);
-}
-
-.window-control:hover {
-    transform: scale(1.2);
-    filter: brightness(1.2);
-}
-
-/* Resize handles */
 .resize-handle {
     position: absolute;
-    background: transparent;
-    z-index: 1002;
-}
-
-.resize-handle.corner {
     width: 10px;
     height: 10px;
     background: rgba(138, 43, 226, 0.3);
     border-radius: 50%;
-}
-
-.resize-handle.bottom-right {
-    bottom: 0;
-    right: 0;
     cursor: se-resize;
-}
-
-.resize-handle.bottom-left {
     bottom: 0;
-    left: 0;
-    cursor: sw-resize;
-}
-
-.resize-handle.top-right {
-    top: 0;
     right: 0;
-    cursor: ne-resize;
+    z-index: 1001;
 }
 
-.resize-handle.top-left {
-    top: 0;
-    left: 0;
-    cursor: nw-resize;
+.window-header {
+    user-select: none;
 }
 
-/* Edge resize handles */
-.resize-handle.edge {
-    background: transparent;
+.app-window.active {
+  display: flex;
+  flex-direction: column;
 }
 
-.resize-handle.top {
-    top: 0;
-    left: 10px;
-    right: 10px;
-    height: 5px;
-    cursor: n-resize;
-}
-
-.resize-handle.bottom {
-    bottom: 0;
-    left: 10px;
-    right: 10px;
-    height: 5px;
-    cursor: s-resize;
-}
-
-.resize-handle.left {
-    left: 0;
-    top: 10px;
-    bottom: 10px;
-    width: 5px;
-    cursor: w-resize;
-}
-
-.resize-handle.right {
-    right: 0;
-    top: 10px;
-    bottom: 10px;
-    width: 5px;
-    cursor: e-resize;
-}
-
-/* Window states */
-.browser-container.maximized {
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-    transform: none !important;
-}
-
-.browser-container.minimized {
-    transform: scale(0.1);
-    opacity: 0;
-    pointer-events: none;
+.install-btn {
+    background: rgba(138, 43, 226, 0.3);
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Double-click to maximize */
-.tab-bar.drag-handle {
-    cursor: move;
+.install-btn.remove-btn {
+    background: rgba(255, 0, 0, 0.3);
 }
 
-.tab-bar.drag-handle:active {
-    cursor: grabbing;
+.install-btn:hover {
+    background: rgba(138, 43, 226, 0.5);
+}
+
+.install-btn.remove-btn:hover {
+    background: rgba(255, 0, 0, 0.5);
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 14px;
+}
+
+.control-button:hover {
+  color: #8a2be2;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: 0;
+  right: 0;
+  background: rgba(138, 43, 226, 0.5);
+  cursor: nwse-resize;
+  border-radius: 2px;
+}
+
+.browser-window,
+.app-window {
+  transition: all 0.3s ease-in-out !important;
+  transform-origin: center;
+}
+
+.browser-window.fullscreen {
+  border-radius: 0;
+  transition: all 0.4s ease;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.control-button:hover {
+  color: #8a2be2;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: 0;
+  right: 0;
+  background: rgba(138, 43, 226, 0.5);
+  cursor: nwse-resize;
+  border-radius: 3px;
+}
+
+
+/* Update the desktop-icons class in the CSS */
+.desktop-icons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 icons per row */
+    gap: 15px;
+    padding: 15px;
+    position: relative;
+    z-index: 1;
+    max-height: calc(100vh - 70px); /* Prevent icons from going below taskbar */
+    overflow-y: auto; /* Allow scrolling if many icons */
+    grid-auto-flow: row; /* Create new rows as needed */
+    width: 100%;
+    align-content: start; /* Start from the top */
+}
+
+/* Add styles for better icon organization */
+.app-icon {
+    width: calc((100vw - 120px) / 6); /* Distribute space evenly */
+    max-width: 100px; /* Maximum width for icons */
+    min-width: 70px; /* Minimum width for icons */
+    justify-self: center; /* Center icons in their grid cells */
+}
+
+/* Update the desktop-icons class */
+.desktop-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    position: fixed; /* Change to fixed */
+    left: 0;
+    top: 0;
+    z-index: 1;
+    height: calc(100vh - 50px); /* Account for taskbar */
+    overflow: hidden; /* Prevent scrolling */
+    width: 100px; /* Fixed width for the column */
+}
+
+/* Update the app-icon class */
+.app-icon {
+    width: 70px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 8px;
+    animation: fadeInUp 0.5s ease backwards;
+    flex-shrink: 0; /* Prevent icons from shrinking */
+}
+
+/* Update icon image container */
+.icon-img {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(45deg, #4B0082, #800080);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Update icon text */
+.icon-text {
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Ensure browser windows don't interfere with icons */
+.browser-window {
+    margin-left: 100px; /* Add margin to avoid overlapping with icons */
+    width: calc(90vw - 100px); /* Adjust width to account for icon space */
+}
+
+/* Update maximized window state to account for icon space */
+.browser-window.maximized {
+    margin-left: 100px;
+    width: calc(100vw - 100px) !important;
 }
 
     </style>
 </head>
 <body>
-<div class="browser-container" id="browserContainer">
-    <div class="tab-bar" id="tabBar">
-        <div class="window-controls">
-            <button class="window-control minimize" title="Minimize">−</button>
-            <button class="window-control maximize" title="Maximize">□</button>
-            <button class="window-control close" title="Close">×</button>
+    <div class="desktop-icons">
+        <div class="app-icon" data-app="browser">
+            <div class="icon-img"><i class="fas fa-globe"></i></div>
+            <span class="icon-text">Browser</span>
         </div>
-        <div class="tab active">
-            <span>New Tab</span>
-            <div class="close-tab">×</div>
+        <div class="app-icon"><div class="icon-img"><i class="fas fa-folder"></i></div><span class="icon-text">Files</span></div>
+        <div class="app-icon"><div class="icon-img"><i class="fas fa-cog"></i></div><span class="icon-text">Settings</span></div>
+
+<div class="app-icon" data-app="spotify">
+    <div class="icon-img"><i class="fab fa-spotify"></i></div>
+    <span class="icon-text">Spotify</span>
+</div>
+<div class="app-icon" data-app="store">
+    <div class="icon-img"><i class="fas fa-store"></i></div>
+    <span class="icon-text">Store</span>
+</div>
+
+
+    <div class="browser-window" id="browserWindow">
+        <div class="browser-header">
+            <div class="window-controls">
+                <button class="control-button minimize" title="Minimize"><i class="fas fa-minus"></i></button>
+                <button class="control-button maximize" title="Maximize"><i class="fas fa-square"></i></button>
+                <button class="control-button close" title="Close"><i class="fas fa-times"></i></button>
+            </div>
         </div>
-        <button class="new-tab-btn">+</button>
+        <div class="browser-content">
+            <iframe src="https://thisunblockzone.github.io/zora/"></iframe>
+        </div>
+    </div>
+
+    <div class="taskbar">
+        <div class="app-launcher-button"><div class="launcher-circle"></div></div>
+<div class="taskbar-icons">
+  <div class="taskbar-icon" data-app="browser"><i class="fas fa-globe"></i></div>
+  <div class="taskbar-icon" data-app="files"><i class="fas fa-folder"></i></div>
+  <div class="taskbar-icon" data-app="settings"><i class="fas fa-cog"></i></div>
+  <div class="taskbar-icon" data-app="spotify"><i class="fab fa-spotify"></i></div>
+  <div class="taskbar-icon" data-app="store"><i class="fas fa-store"></i></div>
+</div>
+</i></div>
+
+        </div>
     </div>
     
-    <!-- Resize handles -->
-    <div class="resize-handle corner bottom-right"></div>
-    <div class="resize-handle corner bottom-left"></div>
-    <div class="resize-handle corner top-right"></div>
-    <div class="resize-handle corner top-left"></div>
-    <div class="resize-handle edge top"></div>
-    <div class="resize-handle edge bottom"></div>
-    <div class="resize-handle edge left"></div>
-    <div class="resize-handle edge right"></div>
-
-    <div class="search-bar">
-        <div class="nav-buttons">
-            <button class="nav-button" id="backBtn" title="Back">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <button class="nav-button" id="forwardBtn" title="Forward">
-                <i class="fas fa-arrow-right"></i>
-            </button>
-            <button class="nav-button" id="refreshBtn" title="Refresh">
-                <i class="fas fa-redo"></i>
-            </button>
+    <!-- Spotify Window -->
+<div class="browser-window" id="spotifyWindow">
+        <div class="browser-header">
+            <div class="window-controls">
+                <button class="control-button minimize" title="Minimize"><i class="fas fa-minus"></i></button>
+                <button class="control-button maximize" title="Maximize"><i class="fas fa-square"></i></button>
+                <button class="control-button close" title="Close"><i class="fas fa-times"></i></button>
+            </div>
         </div>
+        <div class="browser-content">
+            <iframe src="https://spotfy.one/"></iframe>
+        </div>
+    </div>
 
-        <input type="text" class="search-input" placeholder="Search or enter URL">
 
-        <div class="action-buttons">
-            <button class="action-button" id="inspectBtn" title="Inspect">
-                <i class="fas fa-code"></i>
-            </button>
-            <button class="action-button fullscreen-button" id="fullscreenBtn" title="Fullscreen">
-                <i class="fas fa-expand"></i>
-            </button>
-            <button class="action-button" id="optionsBtn" title="More">
-                <i class="fas fa-ellipsis-v"></i>
-            </button>
-
-            <!-- REPLACED OPTIONS MENU -->
-            <div class="options-menu" id="optionsMenu">
-                <div class="menu-item" id="newTabOption">
-                    <i class="fas fa-plus"></i>
-                    <span>New tab</span>
-                    <span class="shortcut">Ctrl+T</span>
-                </div>
-                <div class="menu-item" id="newWindowOption">
-                    <i class="fas fa-window-maximize"></i>
-                    <span>New window</span>
-                    <span class="shortcut">Ctrl+N</span>
-                </div>
-                <div class="menu-separator"></div>
-                <div class="menu-item" id="historyOption">
-                    <i class="fas fa-history"></i>
-                    <span>History</span>
-                    <span class="shortcut">Ctrl+H</span>
-                </div>
-                <div class="menu-item" id="downloadsOption">
-                    <i class="fas fa-download"></i>
-                    <span>Downloads</span>
-                    <span class="shortcut">Ctrl+J</span>
-                </div>
-                <div class="menu-item" id="bookmarksOption">
-                    <i class="fas fa-bookmark"></i>
-                    <span>Bookmarks</span>
-                    <span class="shortcut">Ctrl+B</span>
-                </div>
-                <div class="menu-separator"></div>
-                <div class="menu-item" id="zoomInOption">
-                    <i class="fas fa-search-plus"></i>
-                    <span>Zoom In</span>
-                    <span class="shortcut">Ctrl+</span>
-                </div>
-                <div class="menu-item" id="zoomOutOption">
-                    <i class="fas fa-search-minus"></i>
-                    <span>Zoom Out</span>
-                    <span class="shortcut">Ctrl-</span>
-                </div>
-                <div class="menu-separator"></div>
-                <div class="menu-item" id="printOption">
-                    <i class="fas fa-print"></i>
-                    <span>Print...</span>
-                    <span class="shortcut">Ctrl+P</span>
-                </div>
-                <div class="menu-item" id="settingsOption">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
+<!-- App Store Window -->
+<div class="browser-window" id="storeWindow">
+    <div class="window-header">
+        <div class="window-title">App Store</div>
+        <div class="window-controls">
+            <button class="control-button minimize" title="Minimize"><i class="fas fa-minus"></i></button>
+            <button class="control-button maximize" title="Maximize"><i class="fas fa-square"></i></button>
+            <button class="control-button close" title="Close"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+    <div class="window-content store-content">
+        <div class="app-grid">
+            <div class="store-app" data-app="geforcenow">
+                <img src="https://play-lh.googleusercontent.com/Kf8WTct65hFJxBUDm51uPIIc7LKQNQpGmLHTJFqKWPuqNxkZ8A9L1xRT0uW2bE_f_w=w240-h480-rw" alt="GeForce Now">
+                <div class="app-info">
+                    <h3>GeForce Now</h3>
+                    <p>Cloud Gaming Platform</p>
+                    <button class="install-btn">Install</button>
                 </div>
             </div>
-            <!-- END OF REPLACEMENT -->
+            <div class="store-app" data-app="tiktok">
+                <img src="https://play-lh.googleusercontent.com/OS-MhSWOPtlUZLt0_UP5TI4juSf0XhyHxGfJa6JrR-64UcOqV5UxCF0C5_OVlYmyEJg=w240-h480-rw" alt="TikTok">
+                <div class="app-info">
+                    <h3>TikTok</h3>
+                    <p>Short-form Videos</p>
+                    <button class="install-btn">Install</button>
+                </div>
+            </div>
+            <div class="store-app" data-app="poki">
+                <img src="https://play-lh.googleusercontent.com/DTzWtkxfnKwFO3ruybY1SKjJQnLYeuK3KmQmwV5OQ3dULr5iXxeEtzBLceultrKTIUTr=w240-h480-rw" alt="Poki">
+                <div class="app-info">
+                    <h3>Poki</h3>
+                    <p>Online Games</p>
+                    <button class="install-btn">Install</button>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <!-- Popups -->
-    <div class="history-popup" id="historyPopup">
-        <div class="popup-header">
-            <div class="popup-title">History</div>
-            <button class="clear-button" id="clearHistory">Clear History</button>
-        </div>
-        <div class="history-list" id="historyList"></div>
-    </div>
-
-    <div class="bookmarks-popup" id="bookmarksPopup">
-        <div class="popup-header">
-            <div class="popup-title">Bookmarks</div>
-            <button class="bookmark-button" id="addBookmark">
-                <i class="fas fa-star"></i>
-            </button>
-        </div>
-        <div class="bookmarks-list" id="bookmarksList"></div>
-    </div>
-
-    <div class="content">
-        <div class="logo">ZØRA</div>
     </div>
 </div>
 
 
-
-
     <script>
-// Helper function to create tab groups
-function createTabGroup(color) {
-    const group = document.createElement('div');
-    group.className = 'tab-group';
-    
-    const indicator = document.createElement('div');
-    indicator.className = 'group-indicator';
-    indicator.style.background = color;
-    
-    group.appendChild(indicator);
-    return group;
-}
 
-// Draggable window functionality
-class DraggableWindow {
-    constructor(container) {
-        this.container = container;
-        this.dragHandle = container.querySelector('#tabBar');
-        this.isDragging = false;
-        this.isResizing = false;
-        this.isMaximized = false;
-        this.isMinimized = false;
-        
-        this.currentX = 0;
-        this.currentY = 0;
-        this.initialX = 0;
-        this.initialY = 0;
-        this.xOffset = 0;
-        this.yOffset = 0;
-        
-        this.originalState = {
-            width: '100vw',
-            height: '100vh',
-            top: '0',
-            left: '0'
+document.addEventListener("DOMContentLoaded", () => {
+    // Constants
+    const CORE_APPS = ['browser', 'files', 'settings', 'spotify', 'store'];
+    
+    // Window elements
+    const windows = {
+        browser: document.getElementById("browserWindow"),
+        spotify: document.getElementById("spotifyWindow"),
+        store: document.getElementById("storeWindow")
+    };
+
+    // Track window states
+    const windowStates = {};
+    let zIndexCounter = 1000;
+    let activeWindow = null;
+
+    // Initialize window states
+    Object.keys(windows).forEach(appName => {
+        windowStates[appName] = {
+            isActive: false,
+            isMaximized: false,
+            isDragging: false,
+            zIndex: zIndexCounter++
         };
-        
-        this.init();
-    }
-    
-    init() {
-        this.setupEventListeners();
-        this.setupWindowControls();
-        this.setupResizeHandles();
-        this.enableFloatingMode();
-    }
-    
-    enableFloatingMode() {
-        this.container.classList.add('draggable');
-        this.container.style.width = '90vw';
-        this.container.style.height = '85vh';
-        this.container.style.top = '50%';
-        this.container.style.left = '50%';
-        this.container.style.transform = 'translate(-50%, -50%)';
-        this.dragHandle.classList.add('drag-handle');
-    }
-    
-    setupEventListeners() {
-        // Drag events
-        this.dragHandle.addEventListener('mousedown', this.dragStart.bind(this));
-        document.addEventListener('mousemove', this.dragMove.bind(this));
-        document.addEventListener('mouseup', this.dragEnd.bind(this));
-        
-        // Double-click to maximize
-        this.dragHandle.addEventListener('dblclick', this.toggleMaximize.bind(this));
-        
-        // Prevent drag on interactive elements
-        this.container.addEventListener('mousedown', (e) => {
-            if (e.target.closest('.tab, .new-tab-btn, .window-controls, .search-input, .nav-button, .action-button')) {
-                e.stopPropagation();
+    });
+
+    function bringToFront(windowElement) {
+        const newZ = ++zIndexCounter;
+        windowElement.style.zIndex = newZ;
+        Array.from(document.querySelectorAll('.browser-window')).forEach(win => {
+            if (win !== windowElement) {
+                win.style.zIndex = Math.min(parseInt(win.style.zIndex || 1000), newZ - 1);
             }
         });
     }
-    
-    setupWindowControls() {
-        const minimizeBtn = this.container.querySelector('.window-control.minimize');
-        const maximizeBtn = this.container.querySelector('.window-control.maximize');
-        const closeBtn = this.container.querySelector('.window-control.close');
-        
-        if (minimizeBtn) {
-            minimizeBtn.addEventListener('click', this.minimize.bind(this));
-        }
-        
-        if (maximizeBtn) {
-            maximizeBtn.addEventListener('click', this.toggleMaximize.bind(this));
-        }
-        
-        if (closeBtn) {
-            closeBtn.addEventListener('click', this.close.bind(this));
-        }
+
+    // Dragging functionality
+    function makeDraggable(windowEl) {
+        const header = windowEl.querySelector('.browser-header, .window-header');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        header.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.window-controls')) return;
+            if (windowEl.classList.contains('maximized')) return;
+
+            isDragging = true;
+            windowEl.style.transition = 'none';
+            
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+
+            if (windowEl.classList.contains('active')) {
+                bringToFront(windowEl);
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            e.preventDefault();
+            
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            // Constrain to viewport
+            const maxX = window.innerWidth - windowEl.offsetWidth;
+            const maxY = window.innerHeight - windowEl.offsetHeight - 50;
+            currentX = Math.min(Math.max(0, currentX), maxX);
+            currentY = Math.min(Math.max(0, currentY), maxY);
+
+            windowEl.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            windowEl.style.transition = '';
+            
+            // Update final position
+            const finalX = parseInt(windowEl.style.transform.split('(')[1]);
+            const finalY = parseInt(windowEl.style.transform.split(',')[1]);
+            windowEl.style.left = `${finalX}px`;
+            windowEl.style.top = `${finalY}px`;
+            windowEl.style.transform = 'none';
+        });
     }
-    
-    setupResizeHandles() {
-        const resizeHandles = this.container.querySelectorAll('.resize-handle');
-        resizeHandles.forEach(handle => {
-            handle.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                this.startResize(e, handle);
+
+    // Window Control Functions
+    function initializeWindowControls(window, appName) {
+        const controls = window.querySelector('.window-controls');
+        if (!controls) return;
+
+        controls.querySelector('.close').addEventListener('click', () => {
+            window.classList.remove('active');
+            window.style.display = 'none';
+            windowStates[appName].isOpen = false;
+        });
+
+        controls.querySelector('.minimize').addEventListener('click', () => {
+            window.classList.add('minimized');
+            window.classList.remove('active');
+            windowStates[appName].isMinimized = true;
+        });
+
+        controls.querySelector('.maximize').addEventListener('click', () => {
+            window.classList.toggle('maximized');
+            if (window.classList.contains('maximized')) {
+                window.style.transform = 'none';
+                window.style.top = '0';
+                window.style.left = '0';
+                window.style.width = '100vw';
+                window.style.height = 'calc(100vh - 50px)';
+                window.style.borderRadius = '0';
+            } else {
+                window.style.width = '90vw';
+                window.style.height = '85vh';
+                window.style.borderRadius = '12px';
+                window.style.top = '50%';
+                window.style.left = '50%';
+                window.style.transform = 'translate(-50%, -50%)';
+            }
+        });
+    }
+
+    // Initialize existing windows
+    Object.keys(windows).forEach(appName => {
+        const window = windows[appName];
+        if (window) {
+            initializeWindowControls(window, appName);
+            makeDraggable(window);
+        }
+    });
+
+    // App Store Installation
+    document.querySelectorAll('.install-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const appContainer = btn.closest('.store-app');
+            const appId = appContainer.dataset.app;
+            const title = appContainer.querySelector('h3').textContent;
+            const iconUrl = appContainer.querySelector('img').src;
+
+            if (btn.classList.contains('remove-btn')) {
+                // Remove app
+                const icon = document.querySelector(`.app-icon[data-app="${appId}"]`);
+                const win = windows[appId];
+                if (icon) icon.remove();
+                if (win) win.remove();
+                delete windows[appId];
+                
+                btn.innerHTML = `<i class="fas fa-download"></i> Install`;
+                btn.classList.remove('remove-btn');
+                
+                // Update localStorage
+                const installedApps = JSON.parse(localStorage.getItem('installedApps') || '[]');
+                const updatedApps = installedApps.filter(app => app !== appId);
+                localStorage.setItem('installedApps', JSON.stringify(updatedApps));
+            } else {
+                // Install app
+                createNewWindow(appId, title, getAppUrl(appId));
+                
+                btn.innerHTML = `<i class="fas fa-trash"></i> Remove`;
+                btn.classList.add('remove-btn');
+                
+                // Save to localStorage
+                const installedApps = JSON.parse(localStorage.getItem('installedApps') || '[]');
+                if (!installedApps.includes(appId)) {
+                    installedApps.push(appId);
+                    localStorage.setItem('installedApps', JSON.stringify(installedApps));
+                }
+            }
+        });
+    });
+
+    // Window Creation and Management
+    function createNewWindow(appId, title, url) {
+        const windowId = `${appId}Window`;
+        let windowEl = document.getElementById(windowId);
+        
+        if (!windowEl) {
+            windowEl = document.createElement('div');
+            windowEl.id = windowId;
+            windowEl.className = 'browser-window';
+            windowEl.innerHTML = `
+                <div class="browser-header">
+                    <div class="window-title">${title}</div>
+                    <div class="window-controls">
+                        <button class="control-button minimize"><i class="fas fa-minus"></i></button>
+                        <button class="control-button maximize"><i class="fas fa-square"></i></button>
+                        <button class="control-button close"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="browser-content">
+                    <iframe src="${url}"></iframe>
+                </div>
+                <div class="resize-handle"></div>
+            `;
+            
+            document.body.appendChild(windowEl);
+            windows[appId] = windowEl;
+            windowStates[appId] = {
+                isActive: true,
+                isMaximized: false,
+                isDragging: false,
+                zIndex: ++zIndexCounter
+            };
+
+            // Create desktop icon
+            createDesktopIcon(appId, title, url);
+            
+            // Initialize window controls
+            initializeWindowControls(windowEl, appId);
+            makeDraggable(windowEl);
+            initializeResize(windowEl);
+        }
+
+        openWindow(windowEl);
+        return windowEl;
+    }
+
+    function createDesktopIcon(appId, title, iconUrl) {
+        const desktopIcons = document.querySelector(".desktop-icons");
+        const existingIcon = document.querySelector(`.app-icon[data-app="${appId}"]`);
+        
+        if (!existingIcon) {
+            const newIcon = document.createElement("div");
+            newIcon.className = "app-icon";
+            newIcon.dataset.app = appId;
+            newIcon.innerHTML = `
+                <div class="icon-img">
+                    <img src="${iconUrl}" style="width: 100%; height: 100%; border-radius: 10px;">
+                </div>
+                <span class="icon-text">${title}</span>
+            `;
+            
+            desktopIcons.appendChild(newIcon);
+            
+            // Add click handler
+            newIcon.addEventListener("click", () => {
+                const win = windows[appId];
+                if (win) {
+                    openWindow(win);
+                } else {
+                    createNewWindow(appId, title, getAppUrl(appId));
+                }
             });
-        });
-    }
-    
-    dragStart(e) {
-        if (e.target.closest('.window-controls, .tab, .new-tab-btn')) return;
-        if (this.isMaximized) return;
-        
-        this.isDragging = true;
-        this.container.classList.add('dragging');
-        this.dragHandle.classList.add('dragging');
-        
-        const rect = this.container.getBoundingClientRect();
-        this.initialX = e.clientX - rect.left;
-        this.initialY = e.clientY - rect.top;
-        
-        this.container.style.transition = 'none';
-        
-        // Disable text selection
-        document.body.style.userSelect = 'none';
-    }
-    
-    dragMove(e) {
-        if (!this.isDragging) return;
-        
-        e.preventDefault();
-        
-        this.currentX = e.clientX - this.initialX;
-        this.currentY = e.clientY - this.initialY;
-        
-        // Constrain to viewport
-        const maxX = window.innerWidth - this.container.offsetWidth;
-        const maxY = window.innerHeight - this.container.offsetHeight;
-        
-        this.currentX = Math.max(0, Math.min(this.currentX, maxX));
-        this.currentY = Math.max(0, Math.min(this.currentY, maxY));
-        
-        // Use transform3d for hardware acceleration
-        this.container.style.transform = `translate3d(${this.currentX}px, ${this.currentY}px, 0)`;
-    }
-    
-    dragEnd() {
-        if (!this.isDragging) return;
-        
-        this.isDragging = false;
-        this.container.classList.remove('dragging');
-        this.dragHandle.classList.remove('dragging');
-        
-        // Re-enable text selection
-        document.body.style.userSelect = '';
-        
-        // Update position
-        this.container.style.left = this.currentX + 'px';
-        this.container.style.top = this.currentY + 'px';
-        this.container.style.transform = 'none';
-        this.container.style.transition = 'box-shadow 0.3s ease';
-    }
-    
-    toggleMaximize() {
-        if (this.isMaximized) {
-            this.restore();
-        } else {
-            this.maximize();
         }
     }
-    
-    maximize() {
-        if (this.isMaximized) return;
-        
-        // Save current state
-        const rect = this.container.getBoundingClientRect();
-        this.originalState = {
-            width: this.container.style.width || rect.width + 'px',
-            height: this.container.style.height || rect.height + 'px',
-            top: this.container.style.top || rect.top + 'px',
-            left: this.container.style.left || rect.left + 'px',
-            transform: this.container.style.transform
-        };
-        
-        this.container.classList.add('maximized');
-        this.isMaximized = true;
-        
-        // Update maximize button
-        const maximizeBtn = this.container.querySelector('.window-control.maximize');
-        if (maximizeBtn) maximizeBtn.textContent = '◱';
-    }
-    
-    restore() {
-        if (!this.isMaximized) return;
-        
-        this.container.classList.remove('maximized');
-        this.isMaximized = false;
-        
-        // Restore original state
-        this.container.style.width = this.originalState.width;
-        this.container.style.height = this.originalState.height;
-        this.container.style.top = this.originalState.top;
-        this.container.style.left = this.originalState.left;
-        this.container.style.transform = this.originalState.transform;
-        
-        // Update maximize button
-        const maximizeBtn = this.container.querySelector('.window-control.maximize');
-        if (maximizeBtn) maximizeBtn.textContent = '□';
-    }
-    
-    minimize() {
-        this.container.classList.add('minimized');
-        this.isMinimized = true;
-        
-        // Add to taskbar if needed
-        setTimeout(() => {
-            this.container.style.display = 'none';
-        }, 300);
-    }
-    
-    close() {
-        this.container.style.transform = 'scale(0.8)';
-        this.container.style.opacity = '0';
-        
-        setTimeout(() => {
-            // You can add close logic here
-            // For now, just restore the window
-            this.container.style.transform = '';
-            this.container.style.opacity = '';
-        }, 300);
-    }
-    
-    startResize(e, handle) {
-        if (this.isMaximized) return;
-        
-        this.isResizing = true;
-        this.container.style.transition = 'none';
-        
-        const rect = this.container.getBoundingClientRect();
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const startWidth = rect.width;
-        const startHeight = rect.height;
-        const startLeft = rect.left;
-        const startTop = rect.top;
-        
-        const handleClasses = handle.className;
-        
-        const resizeMove = (e) => {
-            if (!this.isResizing) return;
-            
-            const deltaX = e.clientX - startX;
-            const deltaY = e.clientY - startY;
-            
-            let newWidth = startWidth;
-            let newHeight = startHeight;
-            let newLeft = startLeft;
-            let newTop = startTop;
-            
-            // Calculate new dimensions based on handle type
-            if (handleClasses.includes('right') || handleClasses.includes('bottom-right') || handleClasses.includes('top-right')) {
-                newWidth = Math.max(400, startWidth + deltaX);
-            }
-            if (handleClasses.includes('left') || handleClasses.includes('bottom-left') || handleClasses.includes('top-left')) {
-                newWidth = Math.max(400, startWidth - deltaX);
-                newLeft = startLeft + deltaX;
-            }
-            if (handleClasses.includes('bottom') || handleClasses.includes('bottom-right') || handleClasses.includes('bottom-left')) {
-                newHeight = Math.max(300, startHeight + deltaY);
-            }
-            if (handleClasses.includes('top') || handleClasses.includes('top-right') || handleClasses.includes('top-left')) {
-                newHeight = Math.max(300, startHeight - deltaY);
-                newTop = startTop + deltaY;
-            }
-            
-            // Apply new dimensions
-            this.container.style.width = newWidth + 'px';
-            this.container.style.height = newHeight + 'px';
-            this.container.style.left = newLeft + 'px';
-            this.container.style.top = newTop + 'px';
-        };
-        
-        const resizeEnd = () => {
-            this.isResizing = false;
-            this.container.style.transition = 'box-shadow 0.3s ease';
+
+    function initializeResize(windowEl) {
+        const resizeHandle = windowEl.querySelector('.resize-handle');
+        if (!resizeHandle) return;
+
+        let isResizing = false;
+        let startX, startY, startWidth, startHeight;
+
+        resizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = windowEl.offsetWidth;
+            startHeight = windowEl.offsetHeight;
+            bringToFront(windowEl);
+
+            document.addEventListener('mousemove', resizeMove);
+            document.addEventListener('mouseup', resizeEnd);
+        });
+
+        function resizeMove(e) {
+            if (!isResizing) return;
+
+            const newWidth = startWidth + (e.clientX - startX);
+            const newHeight = startHeight + (e.clientY - startY);
+
+            if (newWidth >= 400) windowEl.style.width = newWidth + 'px';
+            if (newHeight >= 300) windowEl.style.height = newHeight + 'px';
+        }
+
+        function resizeEnd() {
+            isResizing = false;
             document.removeEventListener('mousemove', resizeMove);
             document.removeEventListener('mouseup', resizeEnd);
-        };
+        }
+    }
+
+    function openWindow(windowEl) {
+        if (!windowEl) return;
         
-        document.addEventListener('mousemove', resizeMove);
-        document.addEventListener('mouseup', resizeEnd);
-    }
-}
-    
-document.addEventListener('DOMContentLoaded', () => {
-    const tabBar = document.getElementById('tabBar');
-    const newTabBtn = document.querySelector('.new-tab-btn');
-    const searchInput = document.querySelector('.search-input');
-    const content = document.querySelector('.content');
-    const optionsMenu = document.getElementById('optionsMenu');
-    const historyPopup = document.getElementById('historyPopup');
-    const bookmarksPopup = document.getElementById('bookmarksPopup');
-    let tabCount = 2;
-    let currentIframe = null;
-    let isInspectorActive = false;
-
-    // Initialize draggable window
-    const browserContainer = document.getElementById('browserContainer');
-    const draggableWindow = new DraggableWindow(browserContainer);
-
-    // Create options overlay
-    const optionsOverlay = document.createElement('div');
-    optionsOverlay.className = 'options-overlay';
-    document.body.appendChild(optionsOverlay);
-
-    // Initialize storage
-    let browserHistory = JSON.parse(localStorage.getItem('browserHistory') || '[]');
-    let bookmarks = JSON.parse(localStorage.getItem('bookmarks') || '[]');
-    const tabData = new Map();
-
-    // Initialize first tab
-    tabData.set('tab-1', {
-        url: '',
-        title: 'New Tab',
-        searchValue: '',
-        hasIframe: false
-    });
-
-    // Add event listeners to the initial tab
-    const initialTab = document.querySelector('.tab');
-    initialTab.setAttribute('data-tab-id', 'tab-1');
-    initialTab.querySelector('.close-tab').addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (document.querySelectorAll('.tab').length > 1) {
-            tabData.delete('tab-1');
-            initialTab.remove();
-            // Switch to another tab if available
-            const firstTab = document.querySelector('.tab');
-            if (firstTab) {
-                switchTab(firstTab);
-            }
-        }
-    });
-
-    initialTab.addEventListener('click', () => {
-        switchTab(initialTab);
-    });
-
-    function createTab() {
-        const tab = document.createElement('div');
-        tab.className = 'tab';
-        const newTabId = `tab-${tabCount}`;
-        tab.setAttribute('data-tab-id', newTabId);
-        tab.innerHTML = `
-            <span>New Tab</span>
-            <div class="close-tab">×</div>
-        `;
-
-        // Initialize new tab with empty data
-        tabData.set(newTabId, {
-            url: '',
-            title: 'New Tab',
-            searchValue: '',
-            hasIframe: false
-        });
-
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        tabBar.insertBefore(tab, newTabBtn);
-        tabCount++;
-
-        // Reset content and search
-        content.innerHTML = `<div class="logo">ZØRA</div>`;
-        searchInput.value = '';
-        currentIframe = null;
-
-        tab.querySelector('.close-tab').addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (document.querySelectorAll('.tab').length > 1) {
-                tabData.delete(newTabId);
-                tab.remove();
-                // Switch to the next available tab
-                const firstTab = document.querySelector('.tab');
-                if (firstTab) {
-                    switchTab(firstTab);
-                }
-            }
-        });
-
-        tab.addEventListener('click', () => switchTab(tab));
-    }
-
-    function switchTab(tab) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        const tabId = tab.getAttribute('data-tab-id');
-        const data = tabData.get(tabId);
-
-        if (data) {
-            searchInput.value = ''; // Clear search input on tab switch
-            if (data.hasIframe) {
-                content.innerHTML = '';
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = data.url;
-                content.appendChild(iframe);
-                currentIframe = iframe;
-
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        initializeInspector(iframe);
-                    }, 1000);
-                }
-            } else {
-                content.innerHTML = `<div class="logo">ZØRA</div>`;
-                currentIframe = null;
-            }
-        }
-    }
-
-    // Bookmark functions
-    function addBookmark(url, title) {
-        if (!bookmarks.some(b => b.url === url)) {
-            bookmarks.unshift({ url, title, timestamp: Date.now() });
-            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-            updateBookmarksList();
-        }
-    }
-
-    function removeBookmark(timestamp) {
-        bookmarks = bookmarks.filter(b => b.timestamp !== timestamp);
-        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-        updateBookmarksList();
-    }
-
-    function updateBookmarksList() {
-        const bookmarksList = document.getElementById('bookmarksList');
-        if (bookmarksList) {
-            bookmarksList.innerHTML = bookmarks.map(bookmark => `
-                <div class="bookmark-item">
-                    <i class="fas fa-bookmark"></i>
-                    <div class="item-details">
-                        <div class="item-title">${bookmark.title}</div>
-                        <div class="item-url">${bookmark.url}</div>
-                    </div>
-                    <button class="remove-button" onclick="removeBookmark(${bookmark.timestamp})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-    }
-
-    // History functions
-    function addToHistory(url, title) {
-        browserHistory.unshift({
-            url,
-            title,
-            timestamp: Date.now()
-        });
-        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
-        updateHistoryList();
-    }
-
-    function clearHistory() {
-        browserHistory = [];
-        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
-        updateHistoryList();
-    }
-
-    function updateHistoryList() {
-        const historyList = document.getElementById('historyList');
-        if (historyList) {
-            historyList.innerHTML = browserHistory.map(item => `
-                <div class="history-item">
-                    <i class="fas fa-clock"></i>
-                    <div class="item-details">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-url">${item.url}</div>
-                    </div>
-                    <button class="remove-button" onclick="removeFromHistory(${item.timestamp})">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-    }
-
-    // Navigation functions
-    function goBack() {
-        if (currentIframe) {
-            try {
-                // Store current navigation state before navigating
-                const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
-                const data = tabData.get(tabId);
-                
-                // Use postMessage for cross-origin iframe navigation
-                currentIframe.contentWindow.postMessage({ action: 'goBack' }, '*');
-                
-                // Direct approach as fallback
-            try {
-                currentIframe.contentWindow.history.back();
-            } catch (e) {
-                    console.log('Using fallback navigation method');
-                    // If direct navigation fails, reload iframe with stored previous URL if available
-                    if (data && data.previousUrl) {
-                        currentIframe.src = data.previousUrl;
-                    }
-                }
-                
-                // Update button states after navigation
-                setTimeout(updateNavigationState, 100);
-            } catch (e) {
-                console.log('Cannot navigate back:', e);
-            }
-        }
-    }
-
-    function goForward() {
-        if (currentIframe) {
-            try {
-                // Store current navigation state before navigating
-                const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
-                
-                // Use postMessage for cross-origin iframe navigation
-                currentIframe.contentWindow.postMessage({ action: 'goForward' }, '*');
-                
-                // Direct approach as fallback
-            try {
-                currentIframe.contentWindow.history.forward();
-            } catch (e) {
-                    console.log('Using fallback navigation method');
-                }
-                
-                // Update button states after navigation
-                setTimeout(updateNavigationState, 100);
-            } catch (e) {
-                console.log('Cannot navigate forward:', e);
-            }
-        }
-    }
-
-    function refresh() {
-        if (currentIframe) {
-            try {
-                // Try to use the reload method first (more reliable)
-                try {
-                    currentIframe.contentWindow.location.reload();
-                } catch (e) {
-                    // Fallback to changing src attribute
-                    const currentSrc = currentIframe.src;
-                    currentIframe.src = 'about:blank';
-                    setTimeout(() => {
-                        currentIframe.src = currentSrc;
-                    }, 50);
-                }
-                
-                // Update navigation buttons
-                setTimeout(updateNavigationState, 500);
-            } catch (e) {
-                console.log('Cannot refresh:', e);
-            }
-        }
-    }
-
-    // Search functionality
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const input = searchInput.value.trim();
-            if (input) {
-                const activeTab = document.querySelector('.tab.active');
-                const tabId = activeTab.getAttribute('data-tab-id');
-
-                const isUrl = input.includes('.') && !input.includes(' ');
-                let url = isUrl ? 
-                    (input.startsWith('http') ? input : `https://${input}`) :
-                    `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-
-                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-                
-                activeTab.querySelector('span').textContent = isUrl ? new URL(url).hostname : `${input} - Search`;
-                
-                tabData.set(tabId, {
-                    url: proxyUrl,
-                    title: activeTab.querySelector('span').textContent,
-                    searchValue: input,
-                    hasIframe: true
-                });
-
-                content.innerHTML = '';
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = proxyUrl;
-                content.appendChild(iframe);
-                currentIframe = iframe;
-
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        initializeInspector(iframe);
-                    }, 1000);
-                }
-
-                addToHistory(url, activeTab.querySelector('span').textContent);
-            }
-        }
-    });
-
-    // Initialize Inspector
-    function initializeInspector(iframe) {
-        if (iframe && iframe.contentWindow) {
-            eruda.init({
-                container: iframe.contentWindow.document.body,
-                tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
-            });
-        }
-    }
-
-    // Add close buttons to popups
-    [historyPopup, bookmarksPopup].forEach(popup => {
-        const closeBtn = document.createElement('button');
-        closeBtn.className = 'popup-close';
-        closeBtn.innerHTML = '<i class="fas fa-times"></i>';
-        closeBtn.onclick = () => popup.classList.remove('active');
-        popup.appendChild(closeBtn);
-    });
-
-    // Options menu functionality
-    document.getElementById('optionsBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        optionsMenu.classList.toggle('active');
-        optionsOverlay.classList.toggle('active');
-    });
-
-    optionsOverlay.addEventListener('click', () => {
-        optionsMenu.classList.remove('active');
-        optionsOverlay.classList.remove('active');
-    });
-
-    // Initialize menu items
-    const menuItems = {
-        newTabOption: createTab,
-        newWindowOption: () => window.open(window.location.href),
-        historyOption: () => historyPopup.classList.add('active'),
-        downloadsOption: () => alert('Downloads feature coming soon'),
-        bookmarksOption: () => bookmarksPopup.classList.add('active'),
-        zoomInOption: () => {
-            if (currentIframe) {
-                try {
-                    const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
-                    currentIframe.contentWindow.document.body.style.zoom = currentZoom + 0.1;
-                } catch (e) {
-                    console.log('Cannot zoom in');
-                }
-            }
-        },
-        zoomOutOption: () => {
-            if (currentIframe) {
-                try {
-                    const currentZoom = parseFloat(currentIframe.contentWindow.document.body.style.zoom || '1');
-                    currentIframe.contentWindow.document.body.style.zoom = currentZoom - 0.1;
-                } catch (e) {
-                    console.log('Cannot zoom out');
-                }
-            }
-        },
-        printOption: () => {
-            if (currentIframe) {
-                try {
-                    currentIframe.contentWindow.print();
-                } catch (e) {
-                    console.log('Cannot print');
-                }
-            }
-        },
-        settingsOption: () => alert('Settings feature coming soon')
-    };
-
-    Object.entries(menuItems).forEach(([id, handler]) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.addEventListener('click', () => {
-                handler();
-                optionsMenu.classList.remove('active');
-                optionsOverlay.classList.remove('active');
-            });
-        }
-    });
-
-    // Event listeners
-    newTabBtn.addEventListener('click', createTab);
-    document.getElementById('clearHistory').addEventListener('click', clearHistory);
-    document.getElementById('backBtn').addEventListener('click', goBack);
-    document.getElementById('forwardBtn').addEventListener('click', goForward);
-    document.getElementById('refreshBtn').addEventListener('click', refresh);
-    document.getElementById('inspectBtn').addEventListener('click', () => {
-        isInspectorActive = !isInspectorActive;
-        if (currentIframe) {
-            if (isInspectorActive) {
-                initializeInspector(currentIframe);
-            } else {
-                eruda.destroy();
-            }
-        }
-    });
-
-    // Initialize bookmark button
-    const bookmarkBtn = document.createElement('button');
-    bookmarkBtn.className = 'bookmark-button';
-    bookmarkBtn.innerHTML = '<i class="fas fa-star"></i>';
-    bookmarkBtn.onclick = () => {
-        if (currentIframe) {
-            const activeTab = document.querySelector('.tab.active');
-            const url = currentIframe.src;
-            const title = activeTab.querySelector('span').textContent;
-            addBookmark(url, title);
-            bookmarkBtn.classList.add('active');
-        }
-    };
-    document.querySelector('.action-buttons').insertBefore(bookmarkBtn, document.getElementById('optionsBtn'));
-
-    // Initial setup
-    updateHistoryList();
-    updateBookmarksList();
-});
-
-
-// Add these functions inside your DOMContentLoaded event listener
-
-// Initialize Inspector specifically for iframe content
-function initializeInspector(iframe) {
-    if (iframe && iframe.contentWindow) {
-        try {
-            // Remove any existing Eruda instance
-            if (iframe.contentWindow.eruda) {
-                iframe.contentWindow.eruda.destroy();
-            }
-
-            // Initialize new Eruda instance in iframe
-            const script = iframe.contentWindow.document.createElement('script');
-            script.src = '//cdn.jsdelivr.net/npm/eruda';
-            script.onload = () => {
-                iframe.contentWindow.eruda.init({
-                    container: iframe.contentWindow.document.body,
-                    tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
-                });
-                
-                // Style adjustments for Eruda within iframe
-                const erudaContainer = iframe.contentWindow.document.querySelector('.eruda-container');
-                if (erudaContainer) {
-                    erudaContainer.style.zIndex = '100000';
-                    erudaContainer.style.position = 'fixed';
-                }
-            };
-            iframe.contentWindow.document.head.appendChild(script);
-        } catch (e) {
-            console.log('Error initializing inspector:', e);
-        }
-    }
-}
-
-// Fullscreen handling
-function toggleFullscreen(iframe) {
-    if (!document.fullscreenElement) {
-        if (iframe) {
-            iframe.requestFullscreen().catch(err => {
-                console.log(`Error attempting to enable fullscreen: ${err.message}`);
-            });
-        } else {
-            document.documentElement.requestFullscreen();
-        }
-        document.getElementById('fullscreenBtn').innerHTML = '<i class="fas fa-compress"></i>';
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-            document.getElementById('fullscreenBtn').innerHTML = '<i class="fas fa-expand"></i>';
-        }
-    }
-}
-
-// Update the event listeners section:
-document.getElementById('inspectBtn').addEventListener('click', () => {
-    isInspectorActive = !isInspectorActive;
-    const inspectBtn = document.getElementById('inspectBtn');
-    
-    if (currentIframe) {
-        if (isInspectorActive) {
-            initializeInspector(currentIframe);
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
-        } else {
-            try {
-                if (currentIframe.contentWindow.eruda) {
-                    currentIframe.contentWindow.eruda.destroy();
-                }
-            } catch (e) {
-                console.log('Error destroying inspector:', e);
-            }
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
-        }
-    }
-});
-
-document.getElementById('fullscreenBtn').addEventListener('click', () => {
-    toggleFullscreen(currentIframe);
-});
-
-// Modify the search input handler to include inspector reinitialization
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const input = searchInput.value.trim();
-        if (input) {
-            // ... (keep existing search input handling code) ...
-
-            content.innerHTML = '';
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            iframe.src = proxyUrl;
-            content.appendChild(iframe);
-            currentIframe = iframe;
-
-            // Reinitialize inspector if active
-            if (isInspectorActive) {
-                iframe.onload = () => {
-                    initializeInspector(iframe);
-                };
-            }
-
-            addToHistory(url, activeTab.querySelector('span').textContent);
-        }
-    }
-});
-
-// Add this to handle fullscreen changes
-document.addEventListener('fullscreenchange', () => {
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    if (document.fullscreenElement) {
-        fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-    } else {
-        fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-    }
-});
-
-// Modify the switchTab function to handle inspector
-function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-
-    const tabId = tab.getAttribute('data-tab-id');
-    const data = tabData.get(tabId);
-
-    if (data) {
-        searchInput.value = ''; // Clear search input on tab switch
-        if (data.hasIframe) {
-            content.innerHTML = '';
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            iframe.src = data.url;
-            content.appendChild(iframe);
-            currentIframe = iframe;
-
-            // Reinitialize inspector if active
-            if (isInspectorActive) {
-                iframe.onload = () => {
-                    initializeInspector(iframe);
-                };
-            }
-        } else {
-            content.innerHTML = `<div class="logo">ZØRA</div>`;
-            currentIframe = null;
-        }
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const tabBar = document.getElementById('tabBar');
-    const newTabBtn = document.querySelector('.new-tab-btn');
-    const searchInput = document.querySelector('.search-input');
-    const content = document.querySelector('.content');
-    const logo = document.querySelector('.logo');
-    let tabCount = 2; // Start at 2 since we already have tab-1
-    let currentIframe = null;
-    let isInspectorActive = false;
-    
-    // Store tab data
-    const tabData = new Map();
-
-    // Initialize the first tab's data
-    tabData.set('tab-1', {
-        url: '',
-        title: 'New Tab',
-        searchValue: '',
-        hasIframe: false
-    });
-
-    // Add event listeners to the initial tab
-    const initialTab = document.querySelector('.tab');
-    initialTab.querySelector('.close-tab').addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (document.querySelectorAll('.tab').length === 1) {
-            // Don't allow closing the last tab
-            return;
-        }
-        tabData.delete(initialTab.getAttribute('data-tab-id'));
-        initialTab.remove();
-        if (document.querySelectorAll('.tab').length === 0) {
-            createTab();
-        }
-    });
-
-    initialTab.addEventListener('click', () => {
-        switchTab(initialTab);
-    });
-
-    function createTab() {
-        const tab = document.createElement('div');
-        tab.className = 'tab';
-        tab.setAttribute('data-tab-id', `tab-${tabCount}`);
-        tab.innerHTML = `
-            <span>New Tab</span>
-            <div class="close-tab">×</div>
-        `;
+        windowEl.style.display = 'block';
+        windowEl.classList.remove('minimized');
+        windowEl.classList.add('active');
         
-        // Create tab data object
-        tabData.set(`tab-${tabCount}`, {
-            url: '',
-            title: 'New Tab',
-            searchValue: '',
-            hasIframe: false
-        });
-        
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        tabBar.insertBefore(tab, newTabBtn);
-        tabCount++;
-
-        // Reset content for new tab
-        content.innerHTML = `<div class="logo">ZØRA</div>`;
-        searchInput.value = '';
-        currentIframe = null;
-
-        const closeBtn = tab.querySelector('.close-tab');
-        closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (document.querySelectorAll('.tab').length === 1) {
-                // Don't allow closing the last tab
-                return;
-            }
-            tabData.delete(tab.getAttribute('data-tab-id'));
-            tab.remove();
-            if (document.querySelectorAll('.tab').length === 0) {
-                createTab();
-            }
-        });
-
-        tab.addEventListener('click', () => {
-            switchTab(tab);
-        });
-    }
-
-    function switchTab(tab) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        const tabId = tab.getAttribute('data-tab-id');
-        const data = tabData.get(tabId);
-        
-        if (data) {
-            searchInput.value = data.searchValue;
-            if (data.hasIframe) {
-                content.innerHTML = '';
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = data.url;
-                content.appendChild(iframe);
-                currentIframe = iframe;
-                
-                // Reinitialize inspector if active
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        initializeInspector(iframe);
-                    }, 1000);
-                }
-            } else {
-                content.innerHTML = `<div class="logo">ZØRA</div>`;
-                currentIframe = null;
-            }
+        const appId = windowEl.id.replace('Window', '');
+        if (windowStates[appId]) {
+            windowStates[appId].isMinimized = false;
+            windowStates[appId].isOpen = true;
         }
+        
+        bringToFront(windowEl);
     }
 
-    newTabBtn.addEventListener('click', createTab);
+    // Desktop and Taskbar Icon Management
+    function initializeIconHandlers() {
+        // Desktop Icons
+        document.querySelectorAll('.app-icon').forEach(icon => {
+            const appId = icon.dataset.app;
+            if (!appId) return;
 
-    // Search functionality
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const input = searchInput.value.trim();
-            if (input) {
-                const activeTab = document.querySelector('.tab.active');
-                const tabId = activeTab.getAttribute('data-tab-id');
-                
-                const isUrl = input.includes('.') && !input.includes(' ');
-                let url;
-                let tabTitle;
-                
-                if (isUrl) {
-                    url = input.startsWith('http') ? input : `https://${input}`;
-                    tabTitle = new URL(url).hostname;
+            icon.addEventListener('click', () => {
+                const win = windows[appId];
+                if (win) {
+                    openWindow(win);
                 } else {
-                    url = `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-                    tabTitle = `${input} - DuckDuckGo`;
+                    const title = icon.querySelector('.icon-text').textContent;
+                    createNewWindow(appId, title, getAppUrl(appId));
                 }
-                
-                const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-                
-                // Update tab title and data
-                activeTab.querySelector('span').textContent = tabTitle;
-                tabData.set(tabId, {
-                    url: proxyUrl,
-                    title: tabTitle,
-                    searchValue: input,
-                    hasIframe: true
-                });
-                
-                // Create and show iframe
-                content.innerHTML = '';
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = proxyUrl;
-                content.appendChild(iframe);
-                currentIframe = iframe;
-                
-                // If inspector is active, initialize it for the new iframe
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        initializeInspector(iframe);
-                    }, 1000);
-                }
-
-                addToHistory(url, tabTitle);
-            }
-        }
-    });
-
-    function initializeInspector(iframe) {
-        if (iframe && iframe.contentWindow) {
-            // Target the iframe's window for inspection
-            const iframeWindow = iframe.contentWindow;
-            eruda.init({
-                container: iframeWindow.document.body,
-                tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
             });
-        }
-    }
-
-    // Inspector functionality
-    function toggleInspector() {
-        if (!isInspectorActive) {
-            if (currentIframe) {
-                initializeInspector(currentIframe);
-                isInspectorActive = true;
-                inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
-            }
-        } else {
-            eruda.destroy();
-            isInspectorActive = false;
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
-        }
-    }
-
-    // Navigation buttons functionality
-    const backBtn = document.getElementById('backBtn');
-    const forwardBtn = document.getElementById('forwardBtn');
-    const refreshBtn = document.getElementById('refreshBtn');
-    const inspectBtn = document.getElementById('inspectBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
-    const optionsBtn = document.getElementById('optionsBtn');
-    const optionsMenu = document.getElementById('optionsMenu');
-
-    backBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            currentIframe.contentWindow.history.back();
-        }
-    });
-
-    forwardBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            currentIframe.contentWindow.history.forward();
-        }
-    });
-
-    refreshBtn.addEventListener('click', () => {
-        if (currentIframe) {
-            currentIframe.contentWindow.location.reload();
-        }
-    });
-
-    inspectBtn.addEventListener('click', toggleInspector);
-
-    // Fullscreen functionality
-    fullscreenBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
-            }
-        }
-    });
-
-    // Options menu functionality
-    optionsBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        optionsMenu.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!optionsMenu.contains(e.target) && !optionsBtn.contains(e.target)) {
-            optionsMenu.classList.remove('active');
-        }
-    });
-
-    // History management
-    let browserHistory = [];
-    const historyPopup = document.getElementById('historyPopup');
-    const historyList = document.getElementById('historyList');
-    const clearHistoryBtn = document.getElementById('clearHistory');
-
-    function addToHistory(url, title) {
-        browserHistory.unshift({
-            url,
-            title: title || url,
-            timestamp: new Date().getTime()
         });
-        updateHistoryList();
-        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
+
+        // Taskbar Icons
+        document.querySelectorAll('.taskbar-icon').forEach(icon => {
+            const appId = icon.dataset.app;
+            if (!appId) return;
+
+            icon.addEventListener('click', () => {
+                const win = windows[appId];
+                if (!win) return;
+
+                if (win.classList.contains('minimized')) {
+                    openWindow(win);
+                } else if (win.classList.contains('active')) {
+                    win.classList.add('minimized');
+                    win.classList.remove('active');
+                } else {
+                    openWindow(win);
+                }
+            });
+        });
     }
 
-    function updateHistoryList() {
-        historyList.innerHTML = browserHistory.map(item => `
-            <div class="history-item">
-                <i class="fas fa-clock item-icon"></i>
-                <div class="item-details">
-                    <div class="item-title">${item.title}</div>
-                    <div class="item-url">${item.url}</div>
-                </div>
-                <button class="remove-button" onclick="removeFromHistory('${item.timestamp}')">
-                    <i class="fas fa-times"></i>
-                </button>
+    // Load installed apps on startup
+    function loadInstalledApps() {
+        const installedApps = JSON.parse(localStorage.getItem('installedApps') || '[]');
+        installedApps.forEach(appId => {
+            const storeApp = document.querySelector(`.store-app[data-app="${appId}"]`);
+            if (storeApp) {
+                const title = storeApp.querySelector('h3').textContent;
+                const iconUrl = storeApp.querySelector('img').src;
+                createDesktopIcon(appId, title, iconUrl);
+                
+                const btn = storeApp.querySelector('.install-btn');
+                if (btn) {
+                    btn.innerHTML = `<i class="fas fa-trash"></i> Remove`;
+                    btn.classList.add('remove-btn');
+                }
+            }
+        });
+    }
+
+    // Initialize everything
+    initializeIconHandlers();
+    loadInstalledApps();
+
+    // Make functions globally available
+    window.createNewWindow = createNewWindow;
+    window.openWindow = openWindow;
+    window.bringToFront = bringToFront;
+
+    // Helper function to get app URLs
+    function getAppUrl(appId) {
+        const urls = {
+            geforcenow: 'https://thisunblockzone.github.io/active/iframe.html#https://play.geforcenow.com',
+            tiktok: 'https://thisunblockzone.github.io/active/iframe.html#https://tiktok.com',
+            poki: 'https://thisunblockzone.github.io/active/iframe.html#https://poki.com',
+            spotify: 'https://spotfy.one/',
+            browser: 'https://thisunblockzone.github.io/zora/',
+            store: '#'
+        };
+        return urls[appId] || '#';
+    }
+});
+
+function createDesktopIcon(appId, title, iconUrl) {
+    const desktopIcons = document.querySelector(".desktop-icons");
+    const existingIcon = document.querySelector(`.app-icon[data-app="${appId}"]`);
+    
+    // Check if we've reached the maximum number of visible icons
+    const maxIcons = Math.floor((window.innerHeight - 65) / 105); // 105 = icon height + gap
+    if (desktopIcons.children.length >= maxIcons && !existingIcon) {
+        alert('Maximum number of icons reached. Please remove some apps first.');
+        return false;
+    }
+    
+    if (!existingIcon) {
+        const newIcon = document.createElement("div");
+        newIcon.className = "app-icon";
+        newIcon.dataset.app = appId;
+        newIcon.innerHTML = `
+            <div class="icon-img">
+                <img src="${iconUrl}" style="width: 100%; height: 100%; border-radius: 10px;">
             </div>
-        `).join('');
-    }
-
-    function removeFromHistory(timestamp) {
-        browserHistory = browserHistory.filter(item => item.timestamp != timestamp);
-        localStorage.setItem('browserHistory', JSON.stringify(browserHistory));
-        updateHistoryList();
-    }
-
-    // App Launcher functionality
-    const appLauncher = document.querySelector('.app-launcher-button');
-    const appDrawer = document.getElementById('appDrawer');
-
-    appLauncher.addEventListener('click', () => {
-        appDrawer.classList.toggle('active');
-        appLauncher.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!appDrawer.contains(e.target) && !appLauncher.contains(e.target)) {
-            appDrawer.classList.remove('active');
-            appLauncher.classList.remove('active');
-        }
-    });
-
-    // Battery indicator
-    if ('getBattery' in navigator) {
-        navigator.getBattery().then(battery => {
-            function updateBattery() {
-                const level = battery.level * 100;
-                const batteryLevel = document.getElementById('batteryLevel');
-                const batteryText = document.getElementById('batteryText');
-                
-                batteryLevel.style.width = `${level}%`;
-                batteryText.textContent = `${Math.round(level)}%`;
-
-                if (level <= 20) {
-                    batteryLevel.style.background = '#ff4444';
-                } else if (level <= 50) {
-                    batteryLevel.style.background = '#ffaa00';
-                } else {
-                    batteryLevel.style.background = '#4CAF50';
-                }
-            }
-
-            battery.addEventListener('levelchange', updateBattery);
-            updateBattery();
-        });
-    }
-
-    // Load saved history
-    const savedHistory = localStorage.getItem('browserHistory');
-    if (savedHistory) {
-        browserHistory = JSON.parse(savedHistory);
-        updateHistoryList();
-    }
-});
-
-function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    
-    const tabId = tab.getAttribute('data-tab-id');
-    const data = tabData.get(tabId);
-    
-    if (data) {
-        searchInput.value = data.searchValue;
-        if (data.hasIframe) {
-            // Check if iframe already exists for this tab
-            const existingIframe = document.querySelector(`iframe[data-tab-id="${tabId}"]`);
-            
-            if (existingIframe) {
-                // If iframe exists, just show it and hide others
-                document.querySelectorAll('iframe').forEach(iframe => {
-                    iframe.style.display = 'none';
-                });
-                existingIframe.style.display = 'block';
-                currentIframe = existingIframe;
-            } else {
-                // If no iframe exists for this tab, create a new one
-                document.querySelectorAll('iframe').forEach(iframe => {
-                    iframe.style.display = 'none';
-                });
-                
-                const iframe = document.createElement('iframe');
-                iframe.setAttribute('data-tab-id', tabId);
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = data.url;
-                content.appendChild(iframe);
-                currentIframe = iframe;
-                
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        initializeInspector(iframe);
-                    }, 1000);
-                }
-            }
-            
-            // Hide the logo if it exists
-            const logo = content.querySelector('.logo');
-            if (logo) logo.style.display = 'none';
-            
-        } else {
-            // For new tabs, show logo and hide all iframes
-            document.querySelectorAll('iframe').forEach(iframe => {
-                iframe.style.display = 'none';
-            });
-            
-            // Show or create logo
-            let logo = content.querySelector('.logo');
-            if (!logo) {
-                content.innerHTML = '<div class="logo">ZØRA</div>';
-            } else {
-                logo.style.display = 'block';
-            }
-            currentIframe = null;
-        }
-    }
-}
-
-function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    
-    const tabId = tab.getAttribute('data-tab-id');
-    const data = tabData.get(tabId);
-    
-    if (data) {
-        searchInput.value = data.searchValue;
-        if (data.hasIframe) {
-            // Instead of modifying content, just hide/show the appropriate containers
-            const containers = document.querySelectorAll('.iframe-container');
-            containers.forEach(container => {
-                if (container.getAttribute('data-tab-id') === tabId) {
-                    container.style.display = 'block';
-                    currentIframe = container.querySelector('iframe');
-                } else {
-                    container.style.display = 'none';
-                }
-            });
-
-            // If no container exists for this tab, create one
-            if (!currentIframe) {
-                const container = document.createElement('div');
-                container.className = 'iframe-container';
-                container.setAttribute('data-tab-id', tabId);
-                
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = data.url;
-                
-                container.appendChild(iframe);
-                content.appendChild(container);
-                currentIframe = iframe;
-
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        initializeInspector(iframe);
-                    }, 1000);
-                }
-            }
-
-            // Hide the logo
-            const logo = document.querySelector('.logo');
-            if (logo) logo.style.display = 'none';
-        } else {
-            // For new tabs, hide all iframe containers
-            document.querySelectorAll('.iframe-container').forEach(container => {
-                container.style.display = 'none';
-            });
-
-            // Show logo
-            let logo = document.querySelector('.logo');
-            if (!logo) {
-                content.innerHTML = '<div class="logo">ZØRA</div>';
-            } else {
-                logo.style.display = 'block';
-            }
-            currentIframe = null;
-        }
-    }
-}
-
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const input = searchInput.value.trim();
-        if (input) {
-            const activeTab = document.querySelector('.tab.active');
-            const tabId = activeTab.getAttribute('data-tab-id');
-
-            const isUrl = input.includes('.') && !input.includes(' ');
-            let url = isUrl ? 
-                (input.startsWith('http') ? input : `https://${input}`) :
-                `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-
-            const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-            
-            activeTab.querySelector('span').textContent = isUrl ? new URL(url).hostname : `${input} - Search`;
-            
-            // Hide all existing containers
-            document.querySelectorAll('.iframe-container').forEach(container => {
-                container.style.display = 'none';
-            });
-
-            // Create new container for this tab
-            const container = document.createElement('div');
-            container.className = 'iframe-container';
-            container.setAttribute('data-tab-id', tabId);
-            
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            iframe.src = proxyUrl;
-            
-            container.appendChild(iframe);
-            content.appendChild(container);
-            currentIframe = iframe;
-
-            // Update tab data
-            tabData.set(tabId, {
-                url: proxyUrl,
-                title: activeTab.querySelector('span').textContent,
-                searchValue: input,
-                hasIframe: true
-            });
-
-            // Hide logo
-            const logo = document.querySelector('.logo');
-            if (logo) logo.style.display = 'none';
-
-            if (isInspectorActive) {
-                setTimeout(() => {
-                    initializeInspector(iframe);
-                }, 1000);
-            }
-
-            addToHistory(url, activeTab.querySelector('span').textContent);
-        }
-    }
-});
-
-// Enhanced tab data structure
-const tabData = new Map();
-
-// Load saved tab states from localStorage
-function loadSavedTabs() {
-    const savedTabs = localStorage.getItem('zoraTabStates');
-    if (savedTabs) {
-        const parsedTabs = JSON.parse(savedTabs);
-        Object.entries(parsedTabs).forEach(([tabId, data]) => {
-            tabData.set(tabId, {
-                ...data,
-                scrollPosition: data.scrollPosition || 0
-            });
-        });
-    }
-}
-
-// Save tab states to localStorage
-function saveTabStates() {
-    const tabStates = {};
-    tabData.forEach((data, tabId) => {
-        tabStates[tabId] = {
-            ...data,
-            scrollPosition: currentIframe?.contentWindow?.pageYOffset || 0
-        };
-    });
-    localStorage.setItem('zoraTabStates', JSON.stringify(tabStates));
-}
-
-// Enhanced switchTab function
-function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    
-    const tabId = tab.getAttribute('data-tab-id');
-    const data = tabData.get(tabId);
-    
-    if (data) {
-        searchInput.value = data.searchValue;
-        if (data.hasIframe) {
-            // Save current tab's scroll position before switching
-            const currentTab = document.querySelector('.tab.active');
-            if (currentTab && currentIframe) {
-                const currentTabId = currentTab.getAttribute('data-tab-id');
-                const currentData = tabData.get(currentTabId);
-                if (currentData) {
-                    currentData.scrollPosition = currentIframe.contentWindow.pageYOffset;
-                }
-            }
-
-            // Create or show iframe
-            let iframe = document.querySelector(`iframe[data-tab-id="${tabId}"]`);
-            if (!iframe) {
-                iframe = document.createElement('iframe');
-                iframe.setAttribute('data-tab-id', tabId);
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = data.url;
-                
-                iframe.onload = () => {
-                    // Restore scroll position
-                    if (data.scrollPosition) {
-                        iframe.contentWindow.scrollTo(0, data.scrollPosition);
-                    }
-                    
-                    // Initialize Eruda if inspector is active
-                    if (isInspectorActive) {
-                        initializeInspector(iframe);
-                    }
-                };
-                
-                content.appendChild(iframe);
-            }
-            
-            currentIframe = iframe;
-            
-            // Hide other iframes
-            document.querySelectorAll('iframe').forEach(otherIframe => {
-                if (otherIframe !== iframe) {
-                    otherIframe.style.display = 'none';
-                }
-            });
-            
-            iframe.style.display = 'block';
-            
-            // Hide logo
-            const logo = content.querySelector('.logo');
-            if (logo) logo.style.display = 'none';
-        } else {
-            // Show logo for new tabs
-            content.innerHTML = '<div class="logo">ZØRA</div>';
-            currentIframe = null;
-        }
+            <span class="icon-text">${title}</span>
+        `;
         
-        saveTabStates();
-    }
-}
-
-// Enhanced Eruda integration
-let isInspectorActive = false;
-
-function initializeInspector(iframe) {
-    if (iframe && iframe.contentWindow) {
-        try {
-            // Remove any existing Eruda instance
-            if (iframe.contentWindow.eruda) {
-                iframe.contentWindow.eruda.destroy();
-            }
-
-            // Create new Eruda instance
-            const script = iframe.contentWindow.document.createElement('script');
-            script.src = '//cdn.jsdelivr.net/npm/eruda';
-            script.onload = () => {
-                iframe.contentWindow.eruda.init({
-                    container: iframe.contentWindow.document.body,
-                    tool: ['console', 'elements', 'network', 'resources', 'sources', 'info']
-                });
-                
-                // Style adjustments for Eruda
-                const erudaContainer = iframe.contentWindow.document.querySelector('.eruda-container');
-                if (erudaContainer) {
-                    erudaContainer.style.zIndex = '100000';
-                    erudaContainer.style.position = 'fixed';
-                }
-            };
-            iframe.contentWindow.document.head.appendChild(script);
-        } catch (e) {
-            console.log('Error initializing inspector:', e);
-        }
-    }
-}
-
-// Update inspect button handler
-document.getElementById('inspectBtn').addEventListener('click', () => {
-    isInspectorActive = !isInspectorActive;
-    const inspectBtn = document.getElementById('inspectBtn');
-    
-    if (currentIframe) {
-        if (isInspectorActive) {
-            initializeInspector(currentIframe);
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.6)';
-        } else {
-            try {
-                if (currentIframe.contentWindow.eruda) {
-                    currentIframe.contentWindow.eruda.destroy();
-                }
-            } catch (e) {
-                console.log('Error destroying inspector:', e);
-            }
-            inspectBtn.style.background = 'rgba(138, 43, 226, 0.2)';
-        }
-    }
-});
-
-// Load saved tabs on startup
-document.addEventListener('DOMContentLoaded', () => {
-    loadSavedTabs();
-    // ... rest of your initialization code ...
-});
-
-// Update navigation button states based on iframe history
-function updateNavigationState() {
-    const backBtn = document.getElementById('backBtn');
-    const forwardBtn = document.getElementById('forwardBtn');
-    
-    if (currentIframe) {
-        try {
-            // Get current tab ID
-            const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
-            const data = tabData.get(tabId);
-            
-            // Try to access history length (might fail due to cross-origin)
-            try {
-                const history = currentIframe.contentWindow.history;
-                
-                // Store navigation state in tab data
-                if (data) {
-                    data.canGoBack = history.length > 1;
-                    data.canGoForward = false; // Hard to detect, assume false by default
-                    
-                    // Update tab data
-                    tabData.set(tabId, data);
-                }
-                
-                // Update button states
-                backBtn.disabled = !(history.length > 1);
-                backBtn.style.opacity = backBtn.disabled ? '0.5' : '1';
-                
-                // Forward state is hard to detect, use best effort
-                forwardBtn.disabled = true; // Default to disabled
-                forwardBtn.style.opacity = '0.5';
-            } catch (e) {
-                // Fallback to stored state if available
-                if (data) {
-                    backBtn.disabled = !data.canGoBack;
-                    backBtn.style.opacity = backBtn.disabled ? '0.5' : '1';
-                    
-                    forwardBtn.disabled = !data.canGoForward;
-                    forwardBtn.style.opacity = forwardBtn.disabled ? '0.5' : '1';
-                } else {
-                    // Default states
-                    backBtn.disabled = true;
-                    backBtn.style.opacity = '0.5';
-                    forwardBtn.disabled = true;
-                    forwardBtn.style.opacity = '0.5';
-                }
-            }
-        } catch (e) {
-            console.log('Error updating navigation state:', e);
-            // Default states if error
-            backBtn.disabled = true;
-            backBtn.style.opacity = '0.5';
-            forwardBtn.disabled = true;
-            forwardBtn.style.opacity = '0.5';
-        }
-    } else {
-        // No iframe, disable both buttons
-        backBtn.disabled = true;
-        backBtn.style.opacity = '0.5';
-        forwardBtn.disabled = true;
-        forwardBtn.style.opacity = '0.5';
-    }
-}
-
-// Store previous URL when navigating
-function storeNavigationHistory(iframe, tabId) {
-    if (!iframe || !tabId) return;
-    
-    const data = tabData.get(tabId);
-    if (!data) return;
-    
-    try {
-        // Listen for iframe load events to track navigation
-        iframe.addEventListener('load', () => {
-            // Update navigation state
-            data.previousUrl = data.currentUrl || iframe.src;
-            data.currentUrl = iframe.src;
-            data.canGoBack = true;
-            
-            // Update tab data
-            tabData.set(tabId, data);
-            
-            // Update button states
-            updateNavigationState();
-        });
-    } catch (e) {
-        console.log('Error setting up navigation tracking:', e);
-    }
-}
-
-// ... existing code ...
-
-// Update switchTab function to persist navigation state
-function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    
-    const tabId = tab.getAttribute('data-tab-id');
-    const data = tabData.get(tabId);
-    
-    if (data) {
-        searchInput.value = data.searchValue;
-        if (data.hasIframe) {
-            // Instead of modifying content, just hide/show the appropriate containers
-            const containers = document.querySelectorAll('.iframe-container');
-            containers.forEach(container => {
-                if (container.getAttribute('data-tab-id') === tabId) {
-                    container.style.display = 'block';
-                    currentIframe = container.querySelector('iframe');
-                } else {
-                    container.style.display = 'none';
-                }
-            });
-
-            // If no container exists for this tab, create one
-            if (!currentIframe) {
-                const container = document.createElement('div');
-                container.className = 'iframe-container';
-                container.setAttribute('data-tab-id', tabId);
-                
-                const iframe = document.createElement('iframe');
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
-                iframe.style.border = 'none';
-                iframe.src = data.url;
-                
-                container.appendChild(iframe);
-                content.appendChild(container);
-                currentIframe = iframe;
-                
-                // Set up navigation history tracking for this iframe
-                storeNavigationHistory(iframe, tabId);
-
-                if (isInspectorActive) {
-                    setTimeout(() => {
-                        initializeInspector(iframe);
-                    }, 1000);
-                }
-            }
-
-            // Hide the logo
-            const logo = document.querySelector('.logo');
-            if (logo) logo.style.display = 'none';
-            
-            // Update navigation state for the active tab
-            updateNavigationState();
-        } else {
-            // For new tabs, hide all iframe containers
-            document.querySelectorAll('.iframe-container').forEach(container => {
-                container.style.display = 'none';
-            });
-
-            // Show logo
-            let logo = document.querySelector('.logo');
-            if (!logo) {
-                content.innerHTML = '<div class="logo">ZØRA</div>';
-            } else {
-                logo.style.display = 'block';
-            }
-            currentIframe = null;
-            
-            // Disable navigation buttons for new tab
-            updateNavigationState();
-        }
-    }
-}
-
-// ... existing code ...
-
-// Enhanced searchInput event listener to track navigation
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const input = searchInput.value.trim();
-        if (input) {
-            const activeTab = document.querySelector('.tab.active');
-            const tabId = activeTab.getAttribute('data-tab-id');
-
-            const isUrl = input.includes('.') && !input.includes(' ');
-            let url = isUrl ? 
-                (input.startsWith('http') ? input : `https://${input}`) :
-                `https://duckduckgo.com/?q=${encodeURIComponent(input)}`;
-
-            const proxyUrl = `https://thisunblockzone.github.io/active/iframe.html#${url}`;
-            
-            activeTab.querySelector('span').textContent = isUrl ? new URL(url).hostname : `${input} - Search`;
-            
-            // Hide all existing containers
-            document.querySelectorAll('.iframe-container').forEach(container => {
-                container.style.display = 'none';
-            });
-
-            // Create new container for this tab
-            const container = document.createElement('div');
-            container.className = 'iframe-container';
-            container.setAttribute('data-tab-id', tabId);
-            
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            iframe.src = proxyUrl;
-            
-            container.appendChild(iframe);
-            content.appendChild(container);
-            currentIframe = iframe;
-            
-            // Set up navigation history tracking for this iframe
-            storeNavigationHistory(iframe, tabId);
-
-            // Update tab data with navigation info
-            tabData.set(tabId, {
-                url: proxyUrl,
-                title: activeTab.querySelector('span').textContent,
-                searchValue: input,
-                hasIframe: true,
-                currentUrl: proxyUrl,
-                previousUrl: null,
-                canGoBack: false,
-                canGoForward: false
-            });
-            
-            // Update navigation buttons state
-            updateNavigationState();
-
-            // Hide logo
-            const logo = document.querySelector('.logo');
-            if (logo) logo.style.display = 'none';
-
-            if (isInspectorActive) {
-                setTimeout(() => {
-                    initializeInspector(iframe);
-                }, 1000);
-            }
-
-            addToHistory(url, activeTab.querySelector('span').textContent);
-        }
-    }
-});
-
-// ... existing code ...
-
-// Initialize event listeners for navigation buttons
-document.getElementById('backBtn').addEventListener('click', goBack);
-document.getElementById('forwardBtn').addEventListener('click', goForward);
-document.getElementById('refreshBtn').addEventListener('click', refresh);
-
-// Listen for postMessage events from iframe (for navigation state updates)
-window.addEventListener('message', (event) => {
-    if (event.data && event.data.action === 'updateNavigation') {
-        // Update navigation state based on message from iframe
-        const tabId = document.querySelector('.tab.active').getAttribute('data-tab-id');
-        const data = tabData.get(tabId);
+        desktopIcons.appendChild(newIcon);
         
-        if (data) {
-            data.canGoBack = event.data.canGoBack;
-            data.canGoForward = event.data.canGoForward;
-            tabData.set(tabId, data);
-            
-            // Update navigation buttons
-            updateNavigationState();
-        }
+        newIcon.addEventListener("click", () => {
+            const win = windows[appId];
+            if (win) {
+                openWindow(win);
+            } else {
+                createNewWindow(appId, title, getAppUrl(appId));
+            }
+        });
+        
+        return true;
     }
-});
+    return false;
+}
 
-// ... existing code ...
-    </script>
+</script>
+
 </body>
 </html>
