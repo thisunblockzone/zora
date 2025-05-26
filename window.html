@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -676,6 +677,29 @@
     margin-left: 100px;
     width: calc(100vw - 100px) !important;
 }
+
+.desktop-icons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 icons per row */
+    gap: 8px; /* Reduced from 15px */
+    padding: 10px; /* Reduced padding */
+    position: relative;
+    z-index: 1;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+    grid-auto-flow: row;
+    width: 100%;
+    align-content: start;
+}
+
+.app-icon {
+    width: calc((100vw - 80px) / 6); /* Reduced from 120px for tighter spacing */
+    max-width: 90px; /* Slightly smaller max width */
+    min-width: 60px; /* Slightly smaller min width */
+    justify-self: center;
+}
+
+
 
     </style>
 </head>
