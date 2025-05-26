@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -520,6 +521,67 @@
 .install-btn.remove-btn:hover {
     background: rgba(255, 0, 0, 0.5);
 }
+
+.control-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 14px;
+}
+
+.control-button:hover {
+  color: #8a2be2;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: 0;
+  right: 0;
+  background: rgba(138, 43, 226, 0.5);
+  cursor: nwse-resize;
+  border-radius: 2px;
+}
+
+.browser-window,
+.app-window {
+  transition: all 0.3s ease-in-out !important;
+  transform-origin: center;
+}
+
+.browser-window.fullscreen {
+  border-radius: 0;
+  transition: all 0.4s ease;
+}
+
+.control-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 14px;
+  padding: 4px;
+}
+
+.control-button:hover {
+  color: #8a2be2;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: 0;
+  right: 0;
+  background: rgba(138, 43, 226, 0.5);
+  cursor: nwse-resize;
+  border-radius: 3px;
+}
+
 
 
     </style>
@@ -1183,6 +1245,152 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+
+<script>
+document.querySelectorAll('.browser-window').forEach(windowEl => {
+  const header = windowEl.querySelector('.browser-header, .window-header');
+  const minimizeBtn = windowEl.querySelector('.control-button.minimize');
+  const maximizeBtn = windowEl.querySelector('.control-button.maximize');
+  const closeBtn = windowEl.querySelector('.control-button.close');
+  const appId = windowEl.id;
+  const taskbarIcon = document.querySelector(`.taskbar-icon[data-app="${appId.replace('Window', '').toLowerCase()}"]`);
+
+  let isDragging = false, isMaximized = false, isMinimized = false, resizing = false;
+  let offsetX = 0, offsetY = 0;
+  let originalRect = {};
+
+  // ===== DRAGGING =====
+  header?.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.control-button')) return;
+    isDragging = true;
+    offsetX = e.clientX - windowEl.getBoundingClientRect().left;
+    offsetY = e.clientY - windowEl.getBoundingClientRect().top;
+    windowEl.style.transition = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging || isMaximized) return;
+    windowEl.style.left = e.clientX - offsetX + 'px';
+    windowEl.style.top = e.clientY - offsetY + 'px';
+    windowEl.style.transform = 'none';
+  });
+
+  document.addEventListener('mouseup', () => isDragging = false);
+
+  // ===== MINIMIZE =====
+  minimizeBtn?.addEventListener('click', () => {
+    isMinimized = true;
+    windowEl.style.transform = 'scale(0.9) translateY(100%)';
+    windowEl.style.opacity = '0';
+    setTimeout(() => windowEl.style.display = 'none', 300);
+  });
+
+  // ===== CLOSE =====
+  closeBtn?.addEventListener('click', () => {
+    windowEl.classList.remove('active');
+    windowEl.style.opacity = 0;
+    windowEl.style.visibility = 'hidden';
+  });
+
+  // ===== FULLSCREEN =====
+  maximizeBtn?.addEventListener('click', () => {
+    if (!isMaximized) {
+      originalRect = {
+        left: windowEl.style.left,
+        top: windowEl.style.top,
+        width: windowEl.style.width,
+        height: windowEl.style.height,
+        transform: windowEl.style.transform
+      };
+      windowEl.classList.add('fullscreen');
+      Object.assign(windowEl.style, {
+        left: '0',
+        top: '0',
+        width: '100vw',
+        height: '100vh',
+        transform: 'none'
+      });
+    } else {
+      windowEl.classList.remove('fullscreen');
+      Object.assign(windowEl.style, originalRect);
+    }
+    isMaximized = !isMaximized;
+  });
+
+  // ===== RESIZE HANDLE =====
+  const handle = document.createElement('div');
+  handle.className = 'resize-handle';
+  windowEl.appendChild(handle);
+
+  handle.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    resizing = true;
+    windowEl.style.transition = 'none';
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!resizing) return;
+    const rect = windowEl.getBoundingClientRect();
+    windowEl.style.width = e.clientX - rect.left + 'px';
+    windowEl.style.height = e.clientY - rect.top + 'px';
+  });
+
+  document.addEventListener('mouseup', () => resizing = false);
+
+  // ===== TASKBAR REOPEN =====
+  taskbarIcon?.addEventListener('click', () => {
+    if (isMinimized) {
+      isMinimized = false;
+      windowEl.style.display = 'block';
+      setTimeout(() => {
+        windowEl.style.opacity = '1';
+        windowEl.style.transform = 'translate(-50%, -50%) scale(1)';
+      }, 10);
+    } else {
+      // Toggle visibility
+      const visible = windowEl.style.display !== 'none' && windowEl.style.opacity !== '0';
+      if (!visible) {
+        windowEl.style.display = 'block';
+        windowEl.style.opacity = '1';
+        windowEl.style.transform = 'translate(-50%, -50%) scale(1)';
+      } else {
+        windowEl.style.opacity = '0';
+        windowEl.style.transform = 'scale(0.9) translateY(100%)';
+        setTimeout(() => windowEl.style.display = 'none', 300);
+      }
+    }
+  });
+});
+
+document.querySelectorAll('.control-button.close').forEach(button => {
+  button.addEventListener('click', () => {
+    const windowElement = button.closest('.browser-window');
+    closeWindow(windowElement);
+  });
+});
+
+document.querySelectorAll('.control-button.minimize').forEach(button => {
+  button.addEventListener('click', () => {
+    const windowElement = button.closest('.browser-window');
+    windowElement.classList.remove('active');
+  });
+});
+
+document.querySelectorAll('.control-button.maximize').forEach(button => {
+  button.addEventListener('click', () => {
+    const windowElement = button.closest('.browser-window');
+    windowElement.classList.toggle('fullscreen');
+  });
+});
+
+// Function to open the window
+function openWindow(windowElement) {
+  windowElement.classList.remove('closing');
+  windowElement.classList.add('active');
+}
+
+</script>
+
 
 
 </body>
