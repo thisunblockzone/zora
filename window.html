@@ -4,7 +4,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Windows Interface</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700&display=swap" rel="stylesheet">
@@ -699,6 +702,131 @@
     justify-self: center;
 }
 
+/* Base Mobile Styles (phones) */
+@media screen and (max-width: 768px) {
+    .desktop-icons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 10px;
+        height: auto;
+        width: 100%;
+    }
+
+    .app-icon {
+        width: 100%;
+        height: auto;
+        min-width: unset;
+    }
+
+    .taskbar {
+        height: 60px;
+    }
+
+    .taskbar-icons {
+        gap: 5px;
+    }
+
+    .taskbar-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .browser-window,
+    .app-window {
+        width: 100% !important;
+        height: calc(100% - 60px) !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+        border-radius: 0;
+        position: fixed;
+    }
+
+    .browser-header,
+    .window-header {
+        height: 50px;
+    }
+
+    .control-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .window-controls {
+        gap: 5px;
+    }
+
+    .store-content .app-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tablet Styles */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    .desktop-icons {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .browser-window,
+    .app-window {
+        width: 90vw;
+        height: 80vh;
+    }
+}
+
+/* Desktop Styles */
+@media screen and (min-width: 1025px) {
+    .desktop-icons {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) {
+    .app-icon,
+    .taskbar-icon,
+    .control-button {
+        cursor: default;
+    }
+
+    .app-icon:active,
+    .taskbar-icon:active {
+        transform: scale(0.95);
+    }
+
+    .control-button {
+        padding: 12px;
+    }
+
+    .resize-handle {
+        display: none;
+    }
+}
+
+/* Landscape Mode for Mobile */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    .desktop-icons {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .taskbar {
+        height: 50px;
+    }
+
+    .browser-window,
+    .app-window {
+        height: calc(100% - 50px) !important;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .browser-window,
+    .app-window {
+        background: rgba(20, 20, 20, 0.95);
+    }
+}
 
 
     </style>
@@ -1235,6 +1363,68 @@ function createDesktopIcon(appId, title, iconUrl) {
     }
     return false;
 }
+
+</script>
+
+<script>
+
+// Add to your existing JavaScript
+function initializeTouchSupport() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let initialTouchTime = 0;
+
+    document.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        initialTouchTime = Date.now();
+    }, false);
+
+    document.addEventListener('touchend', (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const touchDuration = Date.now() - initialTouchTime;
+        
+        // Detect swipe
+        const swipeThreshold = 50;
+        const timeTreshold = 300;
+        
+        if (touchDuration < timeTreshold) {
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            if (Math.abs(deltaX) > swipeThreshold) {
+                // Horizontal swipe
+                if (deltaX > 0) {
+                    // Swipe right - minimize active window
+                    const activeWindow = document.querySelector('.browser-window.active');
+                    if (activeWindow) {
+                        activeWindow.classList.add('minimized');
+                        activeWindow.classList.remove('active');
+                    }
+                }
+            }
+        }
+    }, false);
+
+    // Double tap detection
+    let lastTap = 0;
+    document.addEventListener('touchend', (e) => {
+        const currentTime = Date.now();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 500 && tapLength > 0) {
+            // Double tap detected
+            const activeWindow = document.querySelector('.browser-window.active');
+            if (activeWindow) {
+                activeWindow.classList.toggle('maximized');
+            }
+        }
+        lastTap = currentTime;
+    });
+}
+
+// Initialize touch support
+initializeTouchSupport();
 
 </script>
 
