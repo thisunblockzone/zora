@@ -828,6 +828,68 @@
     }
 }
 
+/* Add or update these CSS rules */
+.browser-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    width: 95vw; /* Changed from 90vw to 95vw */
+    height: 90vh; /* Changed from 85vh to 90vh */
+    background: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.3);
+    margin: 0; /* Added */
+    padding: 0; /* Added */
+}
+
+.browser-content {
+    height: calc(100% - 40px);
+    width: 100%;
+    position: relative;
+    overflow: hidden; /* Changed from auto to hidden */
+}
+
+.browser-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block; /* Added */
+    margin: 0; /* Added */
+    padding: 0; /* Added */
+}
+
+/* Update maximized state */
+.browser-window.maximized {
+    width: 100vw !important;
+    height: calc(100vh - 50px) !important; /* Accounts for taskbar */
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    border-radius: 0;
+}
+
+/* Mobile adjustments */
+@media screen and (max-width: 768px) {
+    .browser-window {
+        width: 100vw;
+        height: calc(100vh - 60px); /* Account for mobile taskbar */
+        top: 0;
+        left: 0;
+        transform: none;
+        border-radius: 0;
+    }
+    
+    .browser-content {
+        height: calc(100% - 50px); /* Account for larger mobile header */
+    }
+}
+
 
     </style>
 </head>
