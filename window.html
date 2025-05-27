@@ -954,6 +954,8 @@
     </div>
 
 
+
+
 <!-- App Store Window -->
 <div class="browser-window" id="storeWindow">
     <div class="window-header">
@@ -964,35 +966,65 @@
             <button class="control-button close" title="Close"><i class="fas fa-times"></i></button>
         </div>
     </div>
-    <div class="window-content store-content">
-        <div class="app-grid">
-            <div class="store-app" data-app="geforcenow">
-                <img src="https://play-lh.googleusercontent.com/Kf8WTct65hFJxBUDm51uPIIc7LKQNQpGmLHTJFqKWPuqNxkZ8A9L1xRT0uW2bE_f_w=w240-h480-rw" alt="GeForce Now">
-                <div class="app-info">
-                    <h3>GeForce Now</h3>
-                    <p>Cloud Gaming Platform</p>
-                    <button class="install-btn">Install</button>
-                </div>
+<div class="window-content store-content">
+    <div class="app-grid">
+        <div class="store-app" data-app="geforcenow">
+            <img src="https://play-lh.googleusercontent.com/Kf8WTct65hFJxBUDm51uPIIc7LKQNQpGmLHTJFqKWPuqNxkZ8A9L1xRT0uW2bE_f_w=w240-h480-rw" alt="GeForce Now">
+            <div class="app-info">
+                <h3>GeForce Now</h3>
+                <p>Cloud Gaming Platform</p>
+                <button class="install-btn">Install</button>
             </div>
-            <div class="store-app" data-app="tiktok">
-                <img src="https://play-lh.googleusercontent.com/OS-MhSWOPtlUZLt0_UP5TI4juSf0XhyHxGfJa6JrR-64UcOqV5UxCF0C5_OVlYmyEJg=w240-h480-rw" alt="TikTok">
-                <div class="app-info">
-                    <h3>TikTok</h3>
-                    <p>Short-form Videos</p>
-                    <button class="install-btn">Install</button>
-                </div>
+        </div>
+
+        <div class="store-app" data-app="tiktok">
+            <img src="https://play-lh.googleusercontent.com/OS-MhSWOPtlUZLt0_UP5TI4juSf0XhyHxGfJa6JrR-64UcOqV5UxCF0C5_OVlYmyEJg=w240-h480-rw" alt="TikTok">
+            <div class="app-info">
+                <h3>TikTok</h3>
+                <p>Short-form Videos</p>
+                <button class="install-btn">Install</button>
             </div>
-            <div class="store-app" data-app="poki">
-                <img src="https://play-lh.googleusercontent.com/DTzWtkxfnKwFO3ruybY1SKjJQnLYeuK3KmQmwV5OQ3dULr5iXxeEtzBLceultrKTIUTr=w240-h480-rw" alt="Poki">
-                <div class="app-info">
-                    <h3>Poki</h3>
-                    <p>Online Games</p>
-                    <button class="install-btn">Install</button>
-                </div>
+        </div>
+
+        <div class="store-app" data-app="poki">
+            <img src="https://play-lh.googleusercontent.com/DTzWtkxfnKwFO3ruybY1SKjJQnLYeuK3KmQmwV5OQ3dULr5iXxeEtzBLceultrKTIUTr=w240-h480-rw" alt="Poki">
+            <div class="app-info">
+                <h3>Poki</h3>
+                <p>Online Games</p>
+                <button class="install-btn">Install</button>
+            </div>
+        </div>
+
+        <div class="store-app" data-app="youtube">
+            <img src="https://play-lh.googleusercontent.com/lMoItBgdPPVDJsNOVtP26EKHePkwBg-PkuY9NOrc-fumRtTFP4XhpUNk_22syN4Datc" alt="YouTube">
+            <div class="app-info">
+                <h3>YouTube</h3>
+                <p>Video Platform</p>
+                <button class="install-btn">Install</button>
+            </div>
+        </div>
+
+        <div class="store-app" data-app="discord">
+            <img src="https://play-lh.googleusercontent.com/0oO5sAneb9lJP6l8c6DH4aj6f85qNpplQVHmPmbbBxAukDnlO7DarDW0b-kEIHa8SQ" alt="Discord">
+            <div class="app-info">
+                <h3>Discord</h3>
+                <p>Chat & Communication</p>
+                <button class="install-btn">Install</button>
+            </div>
+        </div>
+
+        <div class="store-app" data-app="netflix">
+            <img src="https://play-lh.googleusercontent.com/TBRwjS_qfJCSj1m7zZB93FnpJM5fSpMA_wUlFDLxWAb45T9RmwBvQd5cWR5viJJOhkI" alt="Netflix">
+            <div class="app-info">
+                <h3>Netflix</h3>
+                <p>Streaming Service</p>
+                <button class="install-btn">Install</button>
             </div>
         </div>
     </div>
 </div>
+
+
 
 
     <script>
@@ -1489,6 +1521,26 @@ function initializeTouchSupport() {
 initializeTouchSupport();
 
 </script>
+
+<script>
+
+// Update the getAppUrl function
+function getAppUrl(appId) {
+    const urls = {
+        geforcenow: 'https://thisunblockzone.github.io/active/iframe.html#https://play.geforcenow.com',
+        tiktok: 'https://thisunblockzone.github.io/active/iframe.html#https://tiktok.com',
+        poki: 'https://thisunblockzone.github.io/active/iframe.html#https://poki.com',
+        spotify: 'https://thisunblockzone.github.io/active/iframe.html#https://freefy.app/',
+        browser: 'https://thisunblockzone.github.io/zora/',
+        youtube: 'https://thisunblockzone.github.io/active/iframe.html#https://youtube.com',
+        discord: 'https://thisunblockzone.github.io/active/iframe.html#https://discord.com',
+        netflix: 'https://thisunblockzone.github.io/active/iframe.html#https://netflix.com',
+        store: '#'
+    };
+    return urls[appId] || '#';
+}
+
+</script> 
 
 </body>
 </html>
