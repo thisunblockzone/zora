@@ -940,6 +940,8 @@
         </div>
     </div>
     
+    
+    
     <!-- Spotify Window -->
 <div class="browser-window" id="spotifyWindow">
         <div class="browser-header">
@@ -953,9 +955,48 @@
             <iframe src="https://freefy.app/"></iframe>
         </div>
     </div>
-
-
-
+    
+        <!-- YouTube Window -->
+<div class="browser-window" id="youtubeWindow">
+        <div class="browser-header">
+            <div class="window-controls">
+                <button class="control-button minimize" title="Minimize"><i class="fas fa-minus"></i></button>
+                <button class="control-button maximize" title="Maximize"><i class="fas fa-square"></i></button>
+                <button class="control-button close" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="browser-content">
+            <iframe src="https://thisunblockzone.github.io/active/iframe.html#https://youtube.com"></iframe>
+        </div>
+    </div>
+    
+            <!-- Discord Window -->
+<div class="browser-window" id="discordWindow">
+        <div class="browser-header">
+            <div class="window-controls">
+                <button class="control-button minimize" title="Minimize"><i class="fas fa-minus"></i></button>
+                <button class="control-button maximize" title="Maximize"><i class="fas fa-square"></i></button>
+                <button class="control-button close" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="browser-content">
+            <iframe src="https://thisunblockzone.github.io/active/iframe.html#https://discord.com"></iframe>
+        </div>
+    </div>
+    
+            <!-- Netflix Window -->
+<div class="browser-window" id="netflixWindow">
+        <div class="browser-header">
+            <div class="window-controls">
+                <button class="control-button minimize" title="Minimize"><i class="fas fa-minus"></i></button>
+                <button class="control-button maximize" title="Maximize"><i class="fas fa-square"></i></button>
+                <button class="control-button close" title="Close"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="browser-content">
+            <iframe src="https://thisunblockzone.github.io/active/iframe.html#https://netflix.com"></iframe>
+        </div>
+    </div>
 
 <!-- App Store Window -->
 <div class="browser-window" id="storeWindow">
@@ -1026,19 +1067,19 @@
 </div>
 
 
-
-
-    <script>
-
+<script>
 document.addEventListener("DOMContentLoaded", () => {
     // Constants
-    const CORE_APPS = ['browser', 'files', 'settings', 'spotify', 'store'];
+    const CORE_APPS = ['browser', 'files', 'settings', 'spotify', 'store', 'youtube', 'discord', 'netflix'];
     
-    // Window elements
+    // Window elements - Updated to include all windows
     const windows = {
         browser: document.getElementById("browserWindow"),
         spotify: document.getElementById("spotifyWindow"),
-        store: document.getElementById("storeWindow")
+        store: document.getElementById("storeWindow"),
+        youtube: document.getElementById("youtubeWindow"),
+        discord: document.getElementById("discordWindow"),
+        netflix: document.getElementById("netflixWindow")
     };
 
     // Track window states
@@ -1046,14 +1087,23 @@ document.addEventListener("DOMContentLoaded", () => {
     let zIndexCounter = 1000;
     let activeWindow = null;
 
-    // Initialize window states
+    // Initialize window states - Fixed to include all windows
     Object.keys(windows).forEach(appName => {
-        windowStates[appName] = {
-            isActive: false,
-            isMaximized: false,
-            isDragging: false,
-            zIndex: zIndexCounter++
-        };
+        if (windows[appName]) {
+            windowStates[appName] = {
+                isActive: false,
+                isMaximized: false,
+                isDragging: false,
+                isOpen: false,
+                isMinimized: false,
+                zIndex: zIndexCounter++
+            };
+            
+            // Initialize controls and dragging for each window
+            initializeWindowControls(windows[appName], appName);
+            makeDraggable(windows[appName]);
+            initializeResize(windows[appName]);
+        }
     });
 
     function bringToFront(windowElement) {
@@ -1069,6 +1119,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Dragging functionality
     function makeDraggable(windowEl) {
         const header = windowEl.querySelector('.browser-header, .window-header');
+        if (!header) return; // Safety check
+        
         let isDragging = false;
         let currentX;
         let currentY;
@@ -1103,7 +1155,6 @@ document.addEventListener("DOMContentLoaded", () => {
             xOffset = currentX;
             yOffset = currentY;
 
-            // Constrain to viewport
             const maxX = window.innerWidth - windowEl.offsetWidth;
             const maxY = window.innerHeight - windowEl.offsetHeight - 50;
             currentX = Math.min(Math.max(0, currentX), maxX);
@@ -1118,7 +1169,6 @@ document.addEventListener("DOMContentLoaded", () => {
             isDragging = false;
             windowEl.style.transition = '';
             
-            // Update final position
             const finalX = parseInt(windowEl.style.transform.split('(')[1]);
             const finalY = parseInt(windowEl.style.transform.split(',')[1]);
             windowEl.style.left = `${finalX}px`;
@@ -1127,51 +1177,69 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Window Control Functions
+    // Window Control Functions - Fixed to work with all windows
     function initializeWindowControls(window, appName) {
         const controls = window.querySelector('.window-controls');
         if (!controls) return;
 
-        controls.querySelector('.close').addEventListener('click', () => {
-            window.classList.remove('active');
-            window.style.display = 'none';
-            windowStates[appName].isOpen = false;
-        });
+        const closeBtn = controls.querySelector('.close');
+        const minimizeBtn = controls.querySelector('.minimize');
+        const maximizeBtn = controls.querySelector('.maximize');
 
-        controls.querySelector('.minimize').addEventListener('click', () => {
-            window.classList.add('minimized');
-            window.classList.remove('active');
-            windowStates[appName].isMinimized = true;
-        });
-
-        controls.querySelector('.maximize').addEventListener('click', () => {
-            window.classList.toggle('maximized');
-            if (window.classList.contains('maximized')) {
-                window.style.transform = 'none';
-                window.style.top = '0';
-                window.style.left = '0';
-                window.style.width = '100vw';
-                window.style.height = 'calc(100vh - 50px)';
-                window.style.borderRadius = '0';
-            } else {
-                window.style.width = '90vw';
-                window.style.height = '85vh';
-                window.style.borderRadius = '12px';
-                window.style.top = '50%';
-                window.style.left = '50%';
-                window.style.transform = 'translate(-50%, -50%)';
-            }
-        });
-    }
-
-    // Initialize existing windows
-    Object.keys(windows).forEach(appName => {
-        const window = windows[appName];
-        if (window) {
-            initializeWindowControls(window, appName);
-            makeDraggable(window);
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                window.classList.remove('active');
+                window.classList.remove('maximized');
+                window.classList.add('minimized');
+                windowStates[appName].isOpen = false;
+                windowStates[appName].isActive = false;
+                
+                // Update taskbar icon state
+                const taskbarIcon = document.querySelector(`.taskbar-icon[data-app="${appName}"]`);
+                if (taskbarIcon) {
+                    taskbarIcon.classList.remove('active');
+                }
+            });
         }
-    });
+
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', () => {
+                window.classList.add('minimized');
+                window.classList.remove('active');
+                windowStates[appName].isMinimized = true;
+                windowStates[appName].isActive = false;
+                
+                // Update taskbar icon state
+                const taskbarIcon = document.querySelector(`.taskbar-icon[data-app="${appName}"]`);
+                if (taskbarIcon) {
+                    taskbarIcon.classList.remove('active');
+                }
+            });
+        }
+
+        if (maximizeBtn) {
+            maximizeBtn.addEventListener('click', () => {
+                window.classList.toggle('maximized');
+                windowStates[appName].isMaximized = window.classList.contains('maximized');
+                
+                if (window.classList.contains('maximized')) {
+                    window.style.transform = 'none';
+                    window.style.top = '0';
+                    window.style.left = '0';
+                    window.style.width = '100vw';
+                    window.style.height = 'calc(100vh - 50px)';
+                    window.style.borderRadius = '0';
+                } else {
+                    window.style.width = '95vw';
+                    window.style.height = '90vh';
+                    window.style.borderRadius = '12px';
+                    window.style.top = '50%';
+                    window.style.left = '50%';
+                    window.style.transform = 'translate(-50%, -50%)';
+                }
+            });
+        }
+    }
 
     // App Store Installation
     document.querySelectorAll('.install-btn').forEach(btn => {
@@ -1185,25 +1253,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Remove app
                 const icon = document.querySelector(`.app-icon[data-app="${appId}"]`);
                 const win = windows[appId];
-                if (icon) icon.remove();
-                if (win) win.remove();
-                delete windows[appId];
+                if (icon && !CORE_APPS.includes(appId)) icon.remove();
                 
                 btn.innerHTML = `<i class="fas fa-download"></i> Install`;
                 btn.classList.remove('remove-btn');
                 
-                // Update localStorage
                 const installedApps = JSON.parse(localStorage.getItem('installedApps') || '[]');
                 const updatedApps = installedApps.filter(app => app !== appId);
                 localStorage.setItem('installedApps', JSON.stringify(updatedApps));
             } else {
-                // Install app
-                createNewWindow(appId, title, getAppUrl(appId));
+                // Install app - Create desktop icon if it doesn't exist
+                if (!document.querySelector(`.app-icon[data-app="${appId}"]`)) {
+                    createDesktopIcon(appId, title, iconUrl);
+                }
                 
                 btn.innerHTML = `<i class="fas fa-trash"></i> Remove`;
                 btn.classList.add('remove-btn');
                 
-                // Save to localStorage
                 const installedApps = JSON.parse(localStorage.getItem('installedApps') || '[]');
                 if (!installedApps.includes(appId)) {
                     installedApps.push(appId);
@@ -1213,11 +1279,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Window Creation and Management
     function createNewWindow(appId, title, url) {
         const windowId = `${appId}Window`;
         let windowEl = document.getElementById(windowId);
         
+        // If window doesn't exist, create it
         if (!windowEl) {
             windowEl = document.createElement('div');
             windowEl.id = windowId;
@@ -1243,19 +1309,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 isActive: true,
                 isMaximized: false,
                 isDragging: false,
+                isOpen: true,
+                isMinimized: false,
                 zIndex: ++zIndexCounter
             };
 
-            // Create desktop icon
-            createDesktopIcon(appId, title, url);
-            
-            // Initialize window controls
             initializeWindowControls(windowEl, appId);
             makeDraggable(windowEl);
             initializeResize(windowEl);
         }
 
-        openWindow(windowEl);
+        openWindow(windowEl, appId);
         return windowEl;
     }
 
@@ -1267,30 +1331,51 @@ document.addEventListener("DOMContentLoaded", () => {
             const newIcon = document.createElement("div");
             newIcon.className = "app-icon";
             newIcon.dataset.app = appId;
+            
+            // Determine icon content
+            let iconContent;
+            if (appId === 'youtube') {
+                iconContent = '<i class="fab fa-youtube"></i>';
+            } else if (appId === 'discord') {
+                iconContent = '<i class="fab fa-discord"></i>';
+            } else if (appId === 'netflix') {
+                iconContent = '<i class="fas fa-film"></i>';
+            } else {
+                iconContent = `<img src="${iconUrl}" style="width: 100%; height: 100%; border-radius: 10px;">`;
+            }
+            
             newIcon.innerHTML = `
                 <div class="icon-img">
-                    <img src="${iconUrl}" style="width: 100%; height: 100%; border-radius: 10px;">
+                    ${iconContent}
                 </div>
                 <span class="icon-text">${title}</span>
             `;
             
             desktopIcons.appendChild(newIcon);
             
-            // Add click handler
             newIcon.addEventListener("click", () => {
                 const win = windows[appId];
                 if (win) {
-                    openWindow(win);
+                    openWindow(win, appId);
                 } else {
                     createNewWindow(appId, title, getAppUrl(appId));
                 }
             });
+            
+            return true;
         }
+        return false;
     }
 
     function initializeResize(windowEl) {
-        const resizeHandle = windowEl.querySelector('.resize-handle');
-        if (!resizeHandle) return;
+        let resizeHandle = windowEl.querySelector('.resize-handle');
+        
+        // Create resize handle if it doesn't exist
+        if (!resizeHandle) {
+            resizeHandle = document.createElement('div');
+            resizeHandle.className = 'resize-handle';
+            windowEl.appendChild(resizeHandle);
+        }
 
         let isResizing = false;
         let startX, startY, startWidth, startHeight;
@@ -1324,25 +1409,41 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function openWindow(windowEl) {
+    function openWindow(windowEl, appId) {
         if (!windowEl) return;
         
-        windowEl.style.display = 'block';
+        // Close other windows
+        Object.values(windows).forEach(win => {
+            if (win && win !== windowEl) {
+                win.classList.remove('active');
+            }
+        });
+        
+        // Remove taskbar active states
+        document.querySelectorAll('.taskbar-icon').forEach(icon => {
+            icon.classList.remove('active');
+        });
+        
         windowEl.classList.remove('minimized');
         windowEl.classList.add('active');
         
-        const appId = windowEl.id.replace('Window', '');
         if (windowStates[appId]) {
             windowStates[appId].isMinimized = false;
             windowStates[appId].isOpen = true;
+            windowStates[appId].isActive = true;
+        }
+        
+        // Update taskbar icon
+        const taskbarIcon = document.querySelector(`.taskbar-icon[data-app="${appId}"]`);
+        if (taskbarIcon) {
+            taskbarIcon.classList.add('active');
         }
         
         bringToFront(windowEl);
     }
 
-    // Desktop and Taskbar Icon Management
+    // Initialize icon handlers
     function initializeIconHandlers() {
-        // Desktop Icons
         document.querySelectorAll('.app-icon').forEach(icon => {
             const appId = icon.dataset.app;
             if (!appId) return;
@@ -1350,7 +1451,7 @@ document.addEventListener("DOMContentLoaded", () => {
             icon.addEventListener('click', () => {
                 const win = windows[appId];
                 if (win) {
-                    openWindow(win);
+                    openWindow(win, appId);
                 } else {
                     const title = icon.querySelector('.icon-text').textContent;
                     createNewWindow(appId, title, getAppUrl(appId));
@@ -1358,7 +1459,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Taskbar Icons
         document.querySelectorAll('.taskbar-icon').forEach(icon => {
             const appId = icon.dataset.app;
             if (!appId) return;
@@ -1367,19 +1467,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 const win = windows[appId];
                 if (!win) return;
 
-                if (win.classList.contains('minimized')) {
-                    openWindow(win);
+                if (win.classList.contains('minimized') || !win.classList.contains('active')) {
+                    openWindow(win, appId);
                 } else if (win.classList.contains('active')) {
                     win.classList.add('minimized');
                     win.classList.remove('active');
-                } else {
-                    openWindow(win);
+                    icon.classList.remove('active');
+                    if (windowStates[appId]) {
+                        windowStates[appId].isActive = false;
+                        windowStates[appId].isMinimized = true;
+                    }
                 }
             });
         });
     }
 
-    // Load installed apps on startup
+    // Load installed apps
     function loadInstalledApps() {
         const installedApps = JSON.parse(localStorage.getItem('installedApps') || '[]');
         installedApps.forEach(appId => {
@@ -1415,55 +1518,16 @@ document.addEventListener("DOMContentLoaded", () => {
             poki: 'https://thisunblockzone.github.io/active/iframe.html#https://poki.com',
             spotify: 'https://freefy.app/',
             browser: 'https://thisunblockzone.github.io/zora/',
+            youtube: 'https://thisunblockzone.github.io/active/iframe.html#https://youtube.com',
+            discord: 'https://thisunblockzone.github.io/active/iframe.html#https://discord.com',
+            netflix: 'https://thisunblockzone.github.io/active/iframe.html#https://netflix.com',
             store: '#'
         };
         return urls[appId] || '#';
     }
 });
 
-function createDesktopIcon(appId, title, iconUrl) {
-    const desktopIcons = document.querySelector(".desktop-icons");
-    const existingIcon = document.querySelector(`.app-icon[data-app="${appId}"]`);
-    
-    // Check if we've reached the maximum number of visible icons
-    const maxIcons = Math.floor((window.innerHeight - 65) / 105); // 105 = icon height + gap
-    if (desktopIcons.children.length >= maxIcons && !existingIcon) {
-        alert('Maximum number of icons reached. Please remove some apps first.');
-        return false;
-    }
-    
-    if (!existingIcon) {
-        const newIcon = document.createElement("div");
-        newIcon.className = "app-icon";
-        newIcon.dataset.app = appId;
-        newIcon.innerHTML = `
-            <div class="icon-img">
-                <img src="${iconUrl}" style="width: 100%; height: 100%; border-radius: 10px;">
-            </div>
-            <span class="icon-text">${title}</span>
-        `;
-        
-        desktopIcons.appendChild(newIcon);
-        
-        newIcon.addEventListener("click", () => {
-            const win = windows[appId];
-            if (win) {
-                openWindow(win);
-            } else {
-                createNewWindow(appId, title, getAppUrl(appId));
-            }
-        });
-        
-        return true;
-    }
-    return false;
-}
-
-</script>
-
-<script>
-
-// Add to your existing JavaScript
+// Initialize touch support
 function initializeTouchSupport() {
     let touchStartX = 0;
     let touchStartY = 0;
@@ -1480,7 +1544,6 @@ function initializeTouchSupport() {
         const touchEndY = e.changedTouches[0].clientY;
         const touchDuration = Date.now() - initialTouchTime;
         
-        // Detect swipe
         const swipeThreshold = 50;
         const timeTreshold = 300;
         
@@ -1489,9 +1552,7 @@ function initializeTouchSupport() {
             const deltaY = touchEndY - touchStartY;
             
             if (Math.abs(deltaX) > swipeThreshold) {
-                // Horizontal swipe
                 if (deltaX > 0) {
-                    // Swipe right - minimize active window
                     const activeWindow = document.querySelector('.browser-window.active');
                     if (activeWindow) {
                         activeWindow.classList.add('minimized');
@@ -1502,13 +1563,11 @@ function initializeTouchSupport() {
         }
     }, false);
 
-    // Double tap detection
     let lastTap = 0;
     document.addEventListener('touchend', (e) => {
         const currentTime = Date.now();
         const tapLength = currentTime - lastTap;
         if (tapLength < 500 && tapLength > 0) {
-            // Double tap detected
             const activeWindow = document.querySelector('.browser-window.active');
             if (activeWindow) {
                 activeWindow.classList.toggle('maximized');
@@ -1518,30 +1577,9 @@ function initializeTouchSupport() {
     });
 }
 
-// Initialize touch support
 initializeTouchSupport();
-
 </script>
 
-<script>
-
-// Update the getAppUrl function
-function getAppUrl(appId) {
-    const urls = {
-        geforcenow: 'https://thisunblockzone.github.io/active/iframe.html#https://play.geforcenow.com',
-        tiktok: 'https://thisunblockzone.github.io/active/iframe.html#https://tiktok.com',
-        poki: 'https://thisunblockzone.github.io/active/iframe.html#https://poki.com',
-        spotify: 'https://thisunblockzone.github.io/active/iframe.html#https://freefy.app/',
-        browser: 'https://thisunblockzone.github.io/zora/',
-        youtube: 'https://thisunblockzone.github.io/active/iframe.html#https://youtube.com',
-        discord: 'https://thisunblockzone.github.io/active/iframe.html#https://discord.com',
-        netflix: 'https://thisunblockzone.github.io/active/iframe.html#https://netflix.com',
-        store: '#'
-    };
-    return urls[appId] || '#';
-}
-
-</script> 
 
 </body>
 </html>
